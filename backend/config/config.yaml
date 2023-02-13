@@ -1,0 +1,3 @@
+bing_search:
+  end_point: https://api.bing.microsoft.com
+  subscription_key:
