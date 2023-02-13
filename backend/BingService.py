@@ -1,8 +1,8 @@
-from pprint import pprint
-
 import pandas as pd
 import requests
 import yaml
+from bs4 import BeautifulSoup
+from pprint import pprint
 
 '''
 This sample makes a call to the Bing Web Search API with a query and returns relevant web search.
@@ -34,10 +34,37 @@ class BingService:
             # print("JSON Response:")
             # pprint(response.json())
             columns = ['name', 'url', 'snippet']
-            df = pd.DataFrame(response.json()['webPages']['value'])[columns]
+            website_df = pd.DataFrame(response.json()['webPages']['value'])[columns]
+            website_df = website_df[:self.config.get('bing_search').get('result_count')]
         except Exception as ex:
             raise ex
+        return website_df
+
+    def call_urls_and_extract_sentences(self, website_df):
+        name_list, url_list, snippet_list, sentences_list = [], [], [], []
+        for index, row in website_df.iterrows():
+            sentences = self.extract_sentences_from_url(row['url'])
+            for sentence in sentences:
+                name_list.append(row['name'])
+                url_list.append(row['url'])
+                snippet_list.append(row['snippet'])
+                sentences_list.append(sentence)
+        df = pd.DataFrame(data=zip(name_list, url_list, snippet_list, sentences_list), columns=['name', 'url', 'snippet', 'sentence'])
         return df
+
+    def extract_sentences_from_url(self, url):
+        # Fetch the HTML content of the page
+        response = requests.get(url)
+        html_content = response.text
+
+        # Use BeautifulSoup to parse the HTML and extract the text
+        soup = BeautifulSoup(html_content, "html.parser")
+        h1 = [el.get_text() for el in soup.select('h1')]
+        h2 = [el.get_text() for el in soup.select('h2')]
+        h3 = [el.get_text() for el in soup.select('h3')]
+        p = [el.get_text() for el in soup.select('p')]
+
+        return p
 
 
 if __name__ == '__main__':
@@ -45,5 +72,6 @@ if __name__ == '__main__':
     with open('config/config.yaml') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
         service = BingService(config)
-        df = service.call_bing_search_api('What is ChatGPT')
+        website_df = service.call_bing_search_api('What is ChatGPT')
+        df = service.call_urls_and_extract_sentences(website_df)
         print(df)
