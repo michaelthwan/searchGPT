@@ -59,9 +59,9 @@ class BingService:
 
         # Use BeautifulSoup to parse the HTML and extract the text
         soup = BeautifulSoup(html_content, "html.parser")
-        h1 = [el.get_text() for el in soup.select('h1')]
-        h2 = [el.get_text() for el in soup.select('h2')]
-        h3 = [el.get_text() for el in soup.select('h3')]
+        # h1 = [el.get_text() for el in soup.select('h1')]
+        # h2 = [el.get_text() for el in soup.select('h2')]
+        # h3 = [el.get_text() for el in soup.select('h3')]
         p = [el.get_text() for el in soup.select('p')]
 
         return p
