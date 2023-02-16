@@ -7,6 +7,6 @@ openai_api:
   model: text-babbage-001
 #  model: text-curie-001
 #  model: text-davinci-001
-  max_tokens: 100
+  max_tokens: 150
   temperature: 1
   top_p: 1
