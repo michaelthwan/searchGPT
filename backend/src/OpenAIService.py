@@ -10,11 +10,11 @@ logger = setup_logger('OpenAIService')
 class OpenAIService:
     def __init__(self, config):
         self.config = config
-        openai.api_key = config['openai_api']['api_key']
+        openai.api_key = config.get('openai_api').get('api_key')
 
     def call_openai_api(self, prompt: str):
         logger.info(f"OpenAIService.call_openai_api. len(prompt): {len(prompt)}")
-        openai_api_config = self.config['openai_api']
+        openai_api_config = self.config.get('openai_api')
         try:
             response = openai.Completion.create(
                 model=openai_api_config['model'],
@@ -29,7 +29,7 @@ class OpenAIService:
 
     def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
-        prompt_length_limit = 2000
+        prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
         prompt_engineering = f"\n\nSummarize the question '{search_text}' using above information with 40-80 words:"
         prompt = ""
         for index, row in gpt_input_text_df.iterrows():

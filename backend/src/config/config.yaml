@@ -10,3 +10,5 @@ openai_api:
   max_tokens: 150
   temperature: 1
   top_p: 1
+  prompt:
+    prompt_length_limit: 2000
