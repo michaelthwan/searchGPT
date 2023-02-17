@@ -1,7 +1,13 @@
-import pyterrier as pt
-from datetime import datetime
-import pandas as pd
+import logging
 import os
+from datetime import datetime
+
+import pandas as pd
+import pyterrier as pt
+
+from Util import setup_logger
+
+logger = setup_logger('PyTerrierService')
 
 
 class PyTerrierService:
@@ -28,6 +34,7 @@ class PyTerrierService:
         return text_df
 
     def retrieve_search_query_in_dfindexer(self, search_text, text_df):
+        logger.info(f"PyTerrierService.retrieve_search_query_in_dfindexer. search_text: {search_text}, text_df.shape: {text_df.shape}")
         text_df = self.create_index_column_in_df(text_df)
         if not pt.started():
             pt.init()
@@ -37,11 +44,11 @@ class PyTerrierService:
             os.makedirs(df_indexer_path)
         pd_indexer = pt.DFIndexer(df_indexer_path, wmodel="Tf")
         indexref = pd_indexer.index(text_df["text"], text_df["docno"])
-        result_df = pt.BatchRetrieve(indexref).search(search_text)
+        result_df: pd.DataFrame = pt.BatchRetrieve(indexref).search(search_text)
         return result_df.merge(text_df, on="docno", how="left")
 
 
 if __name__ == '__main__':
     pyterrier_service = PyTerrierService()
     search_text = ""
-    print(pyterrier_service.text_retrieve_in_files(search_text))
+    # print(pyterrier_service.text_retrieve_in_files(search_text))

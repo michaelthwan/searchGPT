@@ -2,12 +2,10 @@ import pandas as pd
 import requests
 import yaml
 from bs4 import BeautifulSoup
-from pprint import pprint
 
-'''
-This sample makes a call to the Bing Web Search API with a query and returns relevant web search.
-Documentation: https://docs.microsoft.com/en-us/bing/search-apis/bing-web-search/overview
-'''
+from Util import setup_logger
+
+logger = setup_logger('BingService')
 
 
 class BingService:
@@ -15,6 +13,7 @@ class BingService:
         self.config = config
 
     def call_bing_search_api(self, query: str):
+        logger.info("BingService.call_bing_search_api. query: " + query)
         # Add your Bing Search V7 subscription key and endpoint to your environment variables.
         subscription_key = self.config.get('bing_search').get('subscription_key')
         endpoint = self.config.get('bing_search').get('end_point') + "/v7.0/search"
@@ -41,10 +40,14 @@ class BingService:
         return website_df
 
     def call_urls_and_extract_sentences(self, website_df):
+        logger.info(f"BingService.call_urls_and_extract_sentences. website_df.shape: {website_df.shape}")
         name_list, url_list, snippet_list, text_list = [], [], [], []
         for index, row in website_df.iterrows():
+            logger.info(f"Processing url: {row['url']}")
             sentences = self.extract_sentences_from_url(row['url'])
             for text in sentences:
+                if len(text) < 10:
+                    continue
                 name_list.append(row['name'])
                 url_list.append(row['url'])
                 snippet_list.append(row['snippet'])
@@ -54,7 +57,11 @@ class BingService:
 
     def extract_sentences_from_url(self, url):
         # Fetch the HTML content of the page
-        response = requests.get(url)
+        try:
+            response = requests.get(url, timeout=3)
+        except:
+            logger.error(f"Failed to fetch url: {url}")
+            return []
         html_content = response.text
 
         # Use BeautifulSoup to parse the HTML and extract the text
@@ -69,5 +76,8 @@ if __name__ == '__main__':
         config = yaml.load(f, Loader=yaml.FullLoader)
         service = BingService(config)
         website_df = service.call_bing_search_api('What is ChatGPT')
+        print("===========Website df:============")
+        print(website_df)
         text_df = service.call_urls_and_extract_sentences(website_df)
+        print("===========text df:============")
         print(text_df)
