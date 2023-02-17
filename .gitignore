@@ -3,3 +3,15 @@
 *.pptx
 *.ppt
 *.pdf
+*.bf
+*.fsarrayfile
+*.fsomapfile
+*.fsomaphash
+*.fsomapid
+*.fsomapfile
+*.fsomapfile.0
+*.idx
+*.zdata
+*.pyc
+data*.properties
+/.idea/*

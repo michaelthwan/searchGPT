@@ -4,8 +4,8 @@ bing_search:
   result_count: 5
 openai_api:
   api_key:
-  model: text-babbage-001
-#  model: text-curie-001
+#  model: text-babbage-001
+  model: text-curie-001
 #  model: text-davinci-001
   max_tokens: 150
   temperature: 1

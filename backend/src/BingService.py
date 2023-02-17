@@ -41,16 +41,16 @@ class BingService:
         return website_df
 
     def call_urls_and_extract_sentences(self, website_df):
-        name_list, url_list, snippet_list, sentences_list = [], [], [], []
+        name_list, url_list, snippet_list, text_list = [], [], [], []
         for index, row in website_df.iterrows():
             sentences = self.extract_sentences_from_url(row['url'])
-            for sentence in sentences:
+            for text in sentences:
                 name_list.append(row['name'])
                 url_list.append(row['url'])
                 snippet_list.append(row['snippet'])
-                sentences_list.append(sentence)
-        df = pd.DataFrame(data=zip(name_list, url_list, snippet_list, sentences_list), columns=['name', 'url', 'snippet', 'sentence'])
-        return df
+                text_list.append(text)
+        text_df = pd.DataFrame(data=zip(name_list, url_list, snippet_list, text_list), columns=['name', 'url', 'snippet', 'text'])
+        return text_df
 
     def extract_sentences_from_url(self, url):
         # Fetch the HTML content of the page
@@ -59,11 +59,7 @@ class BingService:
 
         # Use BeautifulSoup to parse the HTML and extract the text
         soup = BeautifulSoup(html_content, "html.parser")
-        # h1 = [el.get_text() for el in soup.select('h1')]
-        # h2 = [el.get_text() for el in soup.select('h2')]
-        # h3 = [el.get_text() for el in soup.select('h3')]
-        p = [el.get_text() for el in soup.select('p')]
-
+        p = [el.get_text() for el in soup.select('p')]  # How about h1/h2/h3 etc?
         return p
 
 
@@ -73,5 +69,5 @@ if __name__ == '__main__':
         config = yaml.load(f, Loader=yaml.FullLoader)
         service = BingService(config)
         website_df = service.call_bing_search_api('What is ChatGPT')
-        df = service.call_urls_and_extract_sentences(website_df)
-        print(df)
+        text_df = service.call_urls_and_extract_sentences(website_df)
+        print(text_df)
