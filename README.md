@@ -22,28 +22,35 @@ Getting Started
 
 To run `searchGPT`, you'll need:
 
-*   [Python 3.x](https://www.python.org/downloads/)
-*   [OpenAI API Key](https://beta.openai.com/signup)
+* [Python 3.10.8](https://www.python.org/downloads/)
+* [OpenAI API Key](https://beta.openai.com/signup)
+* [Java >= 11](https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows)
 
-### Installation
+### Installation (users)
 
 
-### Installation (developer)
+### Installation (developer, backend)
 
-1.  Clone the repository:
+1. Create your conda env and install python packages
 ```
-git clone https://github.com/<Your_GitHub_Username>/searchGPT.git
+conda create --name searchgpt python=3.10.8
+conda activate searchgpt
 pip install -r requirements.txt
 ```
+2. Install JAVA >= 11
 
-2. Replace `YOUR_API_KEY` in `searchGPT/xx.yaml` with your OpenAI API key.
+Related linkes
+- https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows
+- https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.exe
 
-### Running the Application
+Then set your JAVA_HOME environment variable
 
-To start the application, run the following command:
-```
-$ python run.py
-```
+`JAVA_HOME="C:\Program Files\Java\jdk-19"`
+
+3. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
+4. Run `main.py`
+
+### Installation (developer, frontend)
 
 Contributing
 ------------
