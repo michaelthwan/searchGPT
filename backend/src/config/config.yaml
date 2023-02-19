@@ -8,8 +8,8 @@ openai_api:
 #  model: text-babbage-001
   model: text-curie-001
 #  model: text-davinci-001
-  max_tokens: 150
+  max_tokens: 300
   temperature: 1
   top_p: 1
   prompt:
-    prompt_length_limit: 2000
+    prompt_length_limit: 3000
