@@ -16,15 +16,14 @@ def setup_logger(tag):
     return logger
 
 
-def pretty_print_source(gpt_input_text_df, prompt_length_limit):
-    display_df = gpt_input_text_df.copy()
-
+def post_process_gpt_input_text_df(gpt_input_text_df, prompt_length_limit):
     # clean out of prompt texts
-    display_df['len_text'] = display_df['text'].apply(lambda x: len(x))
-    display_df['cumsum_len_text'] = display_df['len_text'].cumsum()
-    max_rank = display_df[display_df['cumsum_len_text'] <= prompt_length_limit]['rank'].max() + 1
-    display_df = display_df[display_df['rank'] <= max_rank]  # In order to get also the row slightly larger than prompt_length_limit
+    gpt_input_text_df['len_text'] = gpt_input_text_df['text'].apply(lambda x: len(x))
+    gpt_input_text_df['cumsum_len_text'] = gpt_input_text_df['len_text'].cumsum()
+    max_rank = gpt_input_text_df[gpt_input_text_df['cumsum_len_text'] <= prompt_length_limit]['rank'].max() + 1
+    gpt_input_text_df['is_used'] = gpt_input_text_df['rank'] <= max_rank  # In order to get also the row slightly larger than prompt_length_limit
 
+    display_df = gpt_input_text_df[gpt_input_text_df['is_used']]
     # after cleaning, display text
     display_df.sort_values(by=['docno'], inplace=True)
     distinct_urls = list(display_df['url'].unique())
@@ -34,3 +33,4 @@ def pretty_print_source(gpt_input_text_df, prompt_length_limit):
         print(f'[{index+1}] {url}')
         for index, row in display_df[display_df['url'] == url].iterrows():
             print(f'  {row["text"]}')
+    return gpt_input_text_df
