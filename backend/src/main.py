@@ -30,9 +30,7 @@ if __name__ == '__main__':
         response_text = openai_service.call_openai_api(prompt)
         print('===========Response text (raw):============')
         print(response_text)
-        print('===========Response text (ref):============')
+
         footnote_service = FootnoteService(config, response_text, gpt_input_text_df, pyterrier_service)
-        footnote_result_list = footnote_service.get_footnote_from_sentences()
-        footnote_service.pretty_print_footnote_result_list(footnote_result_list)
-        print('===========footnote_result_list:============')
-        print(footnote_result_list)
+        footnote_result_list, in_scope_source_df = footnote_service.get_footnote_from_sentences()
+        footnote_service.pretty_print_footnote_result_list(footnote_result_list, gpt_input_text_df)
