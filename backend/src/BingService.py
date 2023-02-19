@@ -1,9 +1,10 @@
 import pandas as pd
 import requests
 import yaml
-from bs4 import BeautifulSoup
 
 from Util import setup_logger
+from backend.src.text_extract.beautiful_soup import BeautifulSoupSvc
+from backend.src.text_extract.trafilatura import TrafilaturaSvc
 
 logger = setup_logger('BingService')
 
@@ -11,6 +12,11 @@ logger = setup_logger('BingService')
 class BingService:
     def __init__(self, config):
         self.config = config
+        extract_svc = self.config.get('bing_search').get('text_extract')
+        if extract_svc == 'trafilatura':
+            self.txt_extract_svc = TrafilaturaSvc()
+        elif extract_svc == 'beautifulsoup':
+            self.txt_extract_svc = BeautifulSoupSvc()
 
     def call_bing_search_api(self, query: str):
         logger.info("BingService.call_bing_search_api. query: " + query)
@@ -65,9 +71,8 @@ class BingService:
         html_content = response.text
 
         # Use BeautifulSoup to parse the HTML and extract the text
-        soup = BeautifulSoup(html_content, "html.parser")
-        p = [el.get_text() for el in soup.select('p')]  # How about h1/h2/h3 etc?
-        return p
+        extract_text = self.txt_extract_svc.extract_from_html(html_content)
+        return extract_text
 
 
 if __name__ == '__main__':

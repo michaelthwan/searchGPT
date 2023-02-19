@@ -5,3 +5,4 @@ pandas==1.5.3
 python-terrier==0.9.2
 PyYAML==6.0
 requests==2.28.2
+trafilatura==1.4.1
