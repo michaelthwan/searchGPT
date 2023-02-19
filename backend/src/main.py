@@ -25,7 +25,6 @@ if __name__ == '__main__':
         print(prompt)
         print('===========Search:============')
         print(search_text)
-        print('===========Ground sources:============')
         gpt_input_text_df = post_process_gpt_input_text_df(gpt_input_text_df, config.get('openai_api').get('prompt').get('prompt_length_limit'))
         response_text = openai_service.call_openai_api(prompt)
         print('===========Response text (raw):============')
