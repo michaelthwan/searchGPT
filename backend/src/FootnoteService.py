@@ -54,11 +54,14 @@ class FootnoteService:
 
     def pretty_print_footnote_result_list(self, footnote_result_list, gpt_input_text_df):
         print('===========Response text (ref):============')
+        response_text_with_footnote = ''
         for footnote_result in footnote_result_list:
             footnote_print = ''
             for url_id in footnote_result['url_unique_ids']:
                 footnote_print += f'[{url_id}]'
-            print(f'{footnote_result["sentence"]}{footnote_print}')
+            sentence_with_footnote = f'{footnote_result["sentence"]} {footnote_print}'
+            print(sentence_with_footnote)
+            response_text_with_footnote += sentence_with_footnote + ' '
 
         print('===========Source text:============')
         in_scope_source_df = gpt_input_text_df[gpt_input_text_df['is_used']]
@@ -67,11 +70,17 @@ class FootnoteService:
 
         source_url_df = in_scope_source_df[['url_id', 'url']].drop_duplicates().sort_values('url_id').reset_index(drop=True)
         # for list with index
+
+        source_text = ""
         for index, row in source_url_df.iterrows():
             print('---------------------')
-            print(f"[{row['url_id']}] {row['url']}")
+            source_text += f"[{row['url_id']}] {row['url']}\n"
+            # print(f"[{row['url_id']}] {row['url']}")
             for index, row in in_scope_source_df[in_scope_source_df['url_id'] == row['url_id']].iterrows():
-                print(f'  {row["text"]}')
+                source_text += f"  {row['text']}\n"
+                # print(f'  {row["text"]}')
+        print(source_text)
         print()
         print('===========footnote_result_list:============')
         print(footnote_result_list)
+        return response_text_with_footnote, source_text
