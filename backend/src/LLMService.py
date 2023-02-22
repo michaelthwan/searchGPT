@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import openai
 import pandas as pd
 import yaml
@@ -5,14 +6,23 @@ import yaml
 from Util import setup_logger
 
 logger = setup_logger('OpenAIService')
+class LLMService(ABC):
+    def __init__(self, config):
+        pass
+    @abstractmethod
+    def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
+        pass
 
+    @abstractmethod
+    def call_api(self, prompt):
+        pass
 
-class OpenAIService:
+class OpenAIService(LLMService):
     def __init__(self, config):
         self.config = config
         openai.api_key = config.get('openai_api').get('api_key')
 
-    def call_openai_api(self, prompt: str):
+    def call_api(self, prompt: str):
         logger.info(f"OpenAIService.call_openai_api. len(prompt): {len(prompt)}")
         openai_api_config = self.config.get('openai_api')
         try:
@@ -38,12 +48,23 @@ class OpenAIService:
         prompt = prompt[:prompt_length_limit]
         return prompt + prompt_engineering
 
+class LLMServiceFactory:
+    def creaet_llm_service(self, config) -> "LLMService":
+        provider = config.get('llm_service').get('provider')
+        if provider == 'openai':
+            return OpenAIService(config)
+        else:
+            logger.error(f'LLM Service for {provider} not yet implemented.')
+            raise ValueError('LLM Service - {provider} - not suppported')
+                
+
 
 if __name__ == '__main__':
     # Load config
     with open('config/config.yaml') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-        service = OpenAIService(config)
+        service_factory = LLMServiceFactory()
+        service = service_factory.creaet_llm_service(config)
         prompt = """
 [1] What is 'Wordle'? Here's everything you need to know - mashable.com
 What is Wordle?
@@ -68,5 +89,5 @@ Wordle is just a word deduction game, but its simple nature belies the fact that
 Tl;dr with 40 words
         """
         # response_text = service.call_openai_api('What is ChatGPT')
-        response_text = service.call_openai_api(prompt)
+        response_text = service.call_api(prompt)
         print(response_text)

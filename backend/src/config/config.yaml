@@ -2,6 +2,8 @@ bing_search:
   end_point: https://api.bing.microsoft.com
   subscription_key:
   result_count: 5
+llm_service:
+  provider: openai
 openai_api:
   api_key:
 #  model: text-babbage-001
