@@ -3,8 +3,9 @@ import yaml
 from BingService import BingService
 from PyTerrierService import PyTerrierService
 from LLMService import LLMServiceFactory, LLMService
+from FootnoteService import FootnoteService
 
-from Util import pretty_print_source
+from Util import post_process_gpt_input_text_df
 
 if __name__ == '__main__':
     search_text = 'the source of dark energy'
@@ -24,8 +25,11 @@ if __name__ == '__main__':
         print(prompt)
         print('===========Search:============')
         print(search_text)
-        print('===========Ground sources:============')
-        pretty_print_source(gpt_input_text_df, config.get('openai_api').get('prompt').get('prompt_length_limit'))
+        gpt_input_text_df = post_process_gpt_input_text_df(gpt_input_text_df, config.get('openai_api').get('prompt').get('prompt_length_limit'))
         response_text = llm_service.call_api(prompt)
-        print('===========Response text:============')
+        print('===========Response text (raw):============')
         print(response_text)
+
+        footnote_service = FootnoteService(config, response_text, gpt_input_text_df, pyterrier_service)
+        footnote_result_list, in_scope_source_df = footnote_service.get_footnote_from_sentences()
+        footnote_service.pretty_print_footnote_result_list(footnote_result_list, gpt_input_text_df)
