@@ -60,7 +60,7 @@ class PyTerrierService:
         :return:
         """
         # TODO: good way to clean
-        return text.replace("'", "")
+        return text.replace("'", "").replace("?", "").replace("!", "").replace(":", "").replace(";", "")
 
     def retrieve_search_query_in_dfindexer(self, search_text, text_df):
         logger.info(f"PyTerrierService.retrieve_search_query_in_dfindexer. search_text: {search_text}, text_df.shape: {text_df.shape}")
