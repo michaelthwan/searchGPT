@@ -12,6 +12,9 @@ class OpenAIService:
         self.config = config
         openai.api_key = config.get('openai_api').get('api_key')
 
+    def clean_response_text(self, response_text: str):
+        return response_text.replace("\n", "")
+
     def call_openai_api(self, prompt: str):
         logger.info(f"OpenAIService.call_openai_api. len(prompt): {len(prompt)}")
         openai_api_config = self.config.get('openai_api')
@@ -25,12 +28,12 @@ class OpenAIService:
             )
         except Exception as ex:
             raise ex
-        return response.choices[0].text
+        return self.clean_response_text(response.choices[0].text)
 
     def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
         prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
-        prompt_engineering = f"\n\nSummarize the question '{search_text}' using above information with 40-80 words:"
+        prompt_engineering = f"\n\nSummarize the question '{search_text}' using above information with about 80 words:"
         prompt = ""
         for index, row in gpt_input_text_df.iterrows():
             prompt += f"""{row['text']}\n"""
