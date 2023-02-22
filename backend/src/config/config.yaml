@@ -3,6 +3,8 @@ bing_search:
   subscription_key:
   result_count: 5
   text_extract: trafilatura # beautifulsoup
+llm_service:
+  provider: openai
 openai_api:
   api_key:
 #  model: text-babbage-001
