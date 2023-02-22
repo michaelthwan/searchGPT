@@ -2,7 +2,7 @@ import yaml
 
 from BingService import BingService
 from PyTerrierService import PyTerrierService
-from OpenAIService import OpenAIService
+from LLMService import LLMServiceFactory
 from FootnoteService import FootnoteService
 
 from Util import post_process_gpt_input_text_df
@@ -20,14 +20,14 @@ class SearchGPTService:
 
         pyterrier_service = PyTerrierService()
         gpt_input_text_df = pyterrier_service.retrieve_search_query_in_dfindexer(search_text, text_df)
-        openai_service = OpenAIService(self.config)
-        prompt = openai_service.get_prompt(search_text, gpt_input_text_df)
+        llm_service = LLMServiceFactory.creaet_llm_service(self.config)
+        prompt = llm_service.get_prompt(search_text, gpt_input_text_df)
         print('===========Prompt:============')
         print(prompt)
         print('===========Search:============')
         print(search_text)
         gpt_input_text_df = post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('openai_api').get('prompt').get('prompt_length_limit'))
-        response_text = openai_service.call_openai_api(prompt)
+        response_text = llm_service.call_api(prompt)
         print('===========Response text (raw):============')
         print(response_text)
 

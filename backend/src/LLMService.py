@@ -6,9 +6,12 @@ import yaml
 from Util import setup_logger
 
 logger = setup_logger('OpenAIService')
+
+
 class LLMService(ABC):
     def __init__(self, config):
         pass
+
     @abstractmethod
     def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         pass
@@ -16,6 +19,7 @@ class LLMService(ABC):
     @abstractmethod
     def call_api(self, prompt):
         pass
+
 
 class OpenAIService(LLMService):
     def __init__(self, config):
@@ -51,15 +55,16 @@ class OpenAIService(LLMService):
         prompt = prompt[:prompt_length_limit]
         return prompt + prompt_engineering
 
+
 class LLMServiceFactory:
-    def creaet_llm_service(self, config) -> "LLMService":
+    @staticmethod
+    def creaet_llm_service(config) -> "LLMService":
         provider = config.get('llm_service').get('provider')
         if provider == 'openai':
             return OpenAIService(config)
         else:
             logger.error(f'LLM Service for {provider} not yet implemented.')
             raise ValueError('LLM Service - {provider} - not suppported')
-                
 
 
 if __name__ == '__main__':
