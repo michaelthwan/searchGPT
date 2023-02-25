@@ -1,6 +1,7 @@
 import nltk
 import pandas as pd
 import pyterrier as pt
+from urllib.parse import urlparse
 
 from PyTerrierService import PyTerrierService
 
@@ -84,3 +85,37 @@ class FootnoteService:
         print('===========footnote_result_list:============')
         print(footnote_result_list)
         return response_text_with_footnote, source_text
+
+    def extract_data_json(self, footnote_result_list, gpt_input_text_df):
+        def create_response_json_object(text, type):
+            return {"text": text, "type": type}
+
+        def create_source_json_object(url_title, url, title, text):
+            return {"url_title": url_title, "url": url, "title": title, "text": text}
+
+        response_json = []
+        for footnote_result in footnote_result_list:
+            response_json.append(
+                create_response_json_object(footnote_result["sentence"], "response")
+            )
+            for url_id in footnote_result['url_unique_ids']:
+                response_json.append(
+                    create_response_json_object(f'[{url_id}]', "footnote")
+                )
+
+        in_scope_source_df = gpt_input_text_df[gpt_input_text_df['is_used']]
+        in_scope_source_df['docno'] = in_scope_source_df['docno'].astype(int)
+        in_scope_source_df.sort_values('docno', inplace=True)
+
+        source_url_df = in_scope_source_df[['url_id', 'url', 'name', 'snippet']].drop_duplicates().sort_values('url_id').reset_index(drop=True)
+        # for list with index
+        source_json = []
+        for index, row in source_url_df.iterrows():
+            # source_text += f"[{row['url_id']}] {row['url']}\n"
+            # for index, row in in_scope_source_df[in_scope_source_df['url_id'] == row['url_id']].iterrows():
+            #     source_text += f"  {row['text']}\n"
+            domain_name = urlparse(row['url']).netloc.replace('www.', '')
+            source_json.append(
+                create_source_json_object(f"[{row['url_id']}] {domain_name}", row['url'], row['name'], row['snippet'])
+            )
+        return {'response_json': response_json, 'source_json': source_json}
