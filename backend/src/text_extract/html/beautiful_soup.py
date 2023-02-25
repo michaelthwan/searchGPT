@@ -1,9 +1,9 @@
 from bs4 import BeautifulSoup
 
-from backend.src.text_extract.abc_text_extract import AbstractTextExtractSvc
+from text_extract.html.abc_html_extract import AbstractHtmlExtractSvc
 
 
-class BeautifulSoupSvc(AbstractTextExtractSvc):
+class BeautifulSoupSvc(AbstractHtmlExtractSvc):
     def __init__(self):
         super().__init__()
 

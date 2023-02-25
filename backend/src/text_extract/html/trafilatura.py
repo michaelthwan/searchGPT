@@ -1,9 +1,9 @@
 from trafilatura import bare_extraction
 
-from backend.src.text_extract.abc_text_extract import AbstractTextExtractSvc
+from text_extract.html.abc_html_extract import AbstractHtmlExtractSvc
 
 
-class TrafilaturaSvc(AbstractTextExtractSvc):
+class TrafilaturaSvc(AbstractHtmlExtractSvc):
     def __init__(self):
         super().__init__()
 
