@@ -30,8 +30,11 @@
                 <ul class="list-group">
                     {% for item in source_json %}
                     <li class="list-group-item">
-                        <h5 class="mb-1"><a href="{{item['url']}}">{{item['url_title']}}</a></h5>
-                        <h4 class="mb-1">{{item['title']}}</h4>
+                        <h5 class="mb-1">
+                            <img src="https://www.google.com/s2/favicons?domain={{item['domain']}}" alt="Favicon">
+                            <a href="{{item['url']}}">{{item['footnote']}} {{item['domain']}}</a>
+                        </h5>
+                        <h4 class="mb-1" style="font-family: 'Playfair Display', Georgia">{{item['title']}}</h4>
                         <p class="mb-1">{{item['text']}}</p>
                     </li>
                     {% endfor %}
