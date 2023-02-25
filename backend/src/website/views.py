@@ -7,13 +7,17 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET'])
 @views.route('/index', methods=['GET'])
 def index_page():
-    query = request.values.get('q')
+    search_text = request.values.get('q')
     response_json = []
-    if query is not None:
+    if search_text is not None:
         search_gpt_service = SearchGPTService()
-        response_text, response_text_with_footnote, source_text, response_json = search_gpt_service.query_and_get_answer(query)
+        response_text, response_text_with_footnote, source_text, data_json = search_gpt_service.query_and_get_answer(search_text)
+    print('MWMW')
+    print(data_json['source_json'])
     return render_template("index.html",
-                           response_json=response_json,
+                           search_text=search_text,
+                           response_json=data_json['response_json'],
+                           source_json=data_json['source_json'],
                            )
 
 

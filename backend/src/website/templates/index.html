@@ -2,10 +2,10 @@
 {% block content %}
 <div class="container mt-4">
     <div>
-        <form action="#" method="get">
+        <form action="/index" method="get">
             <div class="input-group">
-                <input type="search" id="form1" class="form-control" placeholder="What is ChatGPT"/>
-                <button type="button" class="btn btn-primary">
+                <input type="search" id="form1" class="form-control" placeholder="Ask: e.g. What is ChatGPT" name="q"/>
+                <button type="submit" class="btn btn-primary">
                     <i class="fa fa-search"></i>
                 </button>
             </div>
@@ -15,10 +15,11 @@
     <div class="container mt-4">
         <div class="row">
             <div class="col-md-6">
+                <h2>{{search_text}}</h2>
                 <p>
                     {% for item in response_json %}
                     {% if item['type'] == 'footnote' %}
-                    <span style="font-size: 0.6rem; color: #225487;">{{ item['text'] }}</span>
+                    <span style="font-weight: bold; font-size: 0.8rem; background-color: #88effc;">{{ item['text'] }}</span>
                     {% else %}
                     {{ item['text'] }}
                     {% endif %}
@@ -27,26 +28,13 @@
             </div>
             <div class="col-md-6">
                 <ul class="list-group">
+                    {% for item in source_json %}
                     <li class="list-group-item">
-                        <h5 class="mb-1"><a href="https://www.zdnet.com/article/what-is-chatgpt-and-why-does-it-matter-heres-everything-you-need-to-know/">[1] zdnet.com</a></h5>
-                        <h4 class="mb-1">What is ChatGPT and why does it matter? Here's everything you need to know</h4>
-                        <p class="mb-1"> The launch of a paid version had been rumored for some time before the official release. In January, OpenAI announced on its Discord server that it was considering to start charging for ChatGPT with a version called ChatGPT Professional.</p>
+                        <h5 class="mb-1"><a href="{{item['url']}}">{{item['url_title']}}</a></h5>
+                        <h4 class="mb-1">{{item['title']}}</h4>
+                        <p class="mb-1">{{item['text']}}</p>
                     </li>
-                    <li class="list-group-item">
-                        <h5 class="mb-1"><a href="https://openai.com/blog/chatgpt/">[2] openai.com</a></h5>
-                        <h4 class="mb-1">ChatGPT: Optimizing Language Models for Dialogue</h4>
-                        <p class="mb-1">We are excited to introduce ChatGPT to get users' feedback and learn about its strengths and weaknesses. During the research preview, usage of ChatGPT is free. Try it now at chat.openai.com.</p>
-                    </li>
-                    <li class="list-group-item">
-                        <h5 class="mb-1">[3] xxx.com</h5>
-                        <h4 class="mb-1">xxx title xxx</h4>
-                        <p class="mb-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec varius elit lectus, vitae faucibus mi egestas in. Nulla</p>
-                    </li>
-                    <li class="list-group-item">
-                        <h5 class="mb-1">[4] xxx.com</h5>
-                        <h4 class="mb-1">xxx title xxx</h4>
-                        <p class="mb-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec varius elit lectus, vitae faucibus mi egestas in. Nulla</p>
-                    </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
