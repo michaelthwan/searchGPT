@@ -9,18 +9,10 @@ from FootnoteService import FootnoteService
 from LLMService import LLMServiceFactory
 from PyTerrierService import PyTerrierService
 from Util import post_process_gpt_input_text_df, setup_logger
+from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
-from text_extract.doc.docx_svc import docx_extract_svc
-from text_extract.doc.ppt_svc import ppt_extract_svc
 
 logger = setup_logger('SearchGPTService')
-
-support_doc_type = ['doc', 'docx']
-doc_extrac_svc_map = {
-    'doc': docx_extract_svc,
-    'docx': docx_extract_svc,
-    'ppt': ppt_extract_svc
-}
 
 
 class SearchGPTService:
@@ -47,34 +39,38 @@ class SearchGPTService:
         return response_text, response_text_with_footnote, source_text
 
     def query_and_get_answer(self, search_text):
-        bing_service = BingService(self.config)
-        website_df = bing_service.call_bing_search_api(search_text)
-        text_df = bing_service.call_urls_and_extract_sentences(website_df)
+        bing_text_df, doc_text_df = None, None
 
-        return self._prompt(search_text, text_df)
+        if self.config['search_option']['is_enable_bing_search']:
+            bing_service = BingService(self.config)
+            website_df = bing_service.call_bing_search_api(search_text)
+            bing_text_df = bing_service.call_urls_and_extract_sentences(website_df)
 
-    def search_docs_and_get_answer(self, search_text: str, folder_path: str):
-        files_grabbed = list()
-        for doc_type in support_doc_type:
-            tmp_file_list = glob.glob(folder_path + os.sep + "*." + doc_type)
-            files_grabbed.extend({"file_path": file_path, "doc_type": doc_type} for file_path in tmp_file_list)
+        if self.config['search_option']['is_enable_doc_search']:
+            files_grabbed = list()
+            for doc_type in support_doc_type:
+                tmp_file_list = glob.glob(self.config['search_option']['doc_search_path'] + os.sep + "*." + doc_type)
+                files_grabbed.extend({"file_path": file_path, "doc_type": doc_type} for file_path in tmp_file_list)
 
-        logger.info(f"File list: {files_grabbed}")
+            logger.info(f"File list: {files_grabbed}")
 
-        doc_sentence_list = list()
-        for doc_id, file in enumerate(files_grabbed, start=1):
-            extract_svc: AbstractDocExtractSvc = doc_extrac_svc_map[file['doc_type']]
-            sentence_list = extract_svc.extract_from_doc(file['file_path'])
+            doc_sentence_list = list()
+            start_doc_id = 1 if bing_text_df is None else bing_text_df['url_id'].max() + 1
+            for doc_id, file in enumerate(files_grabbed, start=start_doc_id):
+                extract_svc: AbstractDocExtractSvc = doc_extract_svc_map[file['doc_type']]
+                sentence_list = extract_svc.extract_from_doc(file['file_path'])
 
-            file_name = file['file_path'].split(os.sep)[-1]
-            for sentence in sentence_list:
-                doc_sentence_list.append({
-                    'name': file_name,
-                    'url': file['file_path'],
-                    'url_id': doc_id,
-                    'text': sentence
-                })
+                file_name = file['file_path'].split(os.sep)[-1]
+                for sentence in sentence_list:
+                    doc_sentence_list.append({
+                        'name': file_name,
+                        'url': file['file_path'],
+                        'url_id': doc_id,
+                        'text': sentence
+                    })
 
-        text_df = pd.DataFrame(doc_sentence_list)
+            doc_text_df = pd.DataFrame(doc_sentence_list)
+
+        text_df = pd.concat([bing_text_df, doc_text_df], ignore_index=True)
 
         return self._prompt(search_text, text_df)
