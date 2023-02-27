@@ -23,3 +23,4 @@ goose_ai_api:
   max_tokens: 100
 cache:  # cache result for efficiency and consistency
   path: cache
+  max_number_of_cache: 10

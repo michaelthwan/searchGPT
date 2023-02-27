@@ -6,7 +6,7 @@ from BingService import BingService
 from FootnoteService import FootnoteService
 from LLMService import LLMServiceFactory
 from PyTerrierService import PyTerrierService
-from Util import post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache
+from Util import post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache
 
 
 class SearchGPTService:
@@ -48,6 +48,9 @@ class SearchGPTService:
             llm_config = self.config.get(f'{llm_service_provider}_api')
             llm_config.pop('api_key')    # delete api_key to avoid saving it to cache
             save_result_cache(cache_path, search_text, llm_service_provider, prompt=prompt, response_text=response_text, config=llm_config)
+
+        # check whether the number of cache exceeds the limit
+        check_max_number_of_cache(cache_path, self.config.get('cache').get('max_number_of_cache'))
 
         print('===========Prompt:============')
         print(prompt)

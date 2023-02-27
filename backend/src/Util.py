@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import shutil
 from hashlib import md5
 from pathlib import Path
 
@@ -61,3 +62,10 @@ def check_result_cache_exists(path: Path, search_text: str, cache_type: str = 'b
         return True
     else:
         return False
+
+
+def check_max_number_of_cache(path: Path, max_number_of_cache: int = 10):
+    if len(os.listdir(path)) >= max_number_of_cache:
+        ctime_list = [(os.path.getctime(path / file), file) for file in os.listdir(path)]
+        oldest_file = sorted(ctime_list)[0][1]
+        shutil.rmtree(path / oldest_file)
