@@ -8,7 +8,7 @@ import yaml
 from BingService import BingService
 from FootnoteService import FootnoteService
 from LLMService import LLMServiceFactory
-from PyTerrierService import PyTerrierService
+from SemanticSearchService import SemanticSearchServiceFactory
 from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache
 from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
@@ -22,8 +22,9 @@ class SearchGPTService:
             self.config = yaml.load(f, Loader=yaml.FullLoader)
 
     def _prompt(self, search_text, text_df, cache_path=None):
-        pyterrier_service = PyTerrierService()
-        gpt_input_text_df = pyterrier_service.retrieve_search_query_in_dfindexer(search_text, text_df)
+        semantic_search_service_factory = SemanticSearchServiceFactory()
+        semantic_search_service = semantic_search_service_factory.create_semantic_search_service(self.config)
+        gpt_input_text_df = semantic_search_service.retrieve_result_by_search_text_from_text_df(search_text, text_df)
         gpt_input_text_df = post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('openai_api').get('prompt').get('prompt_length_limit'))
 
         llm_service_provider = self.config.get('llm_service').get('provider')
@@ -50,7 +51,7 @@ class SearchGPTService:
         print('===========Response text (raw):============')
         print(response_text)
 
-        footnote_service = FootnoteService(self.config, response_text, gpt_input_text_df, pyterrier_service)
+        footnote_service = FootnoteService(self.config, response_text, gpt_input_text_df, semantic_search_service)
         footnote_result_list, in_scope_source_df = footnote_service.get_footnote_from_sentences()
         response_text_with_footnote, source_text = footnote_service.pretty_print_footnote_result_list(footnote_result_list, gpt_input_text_df)
         data_json = footnote_service.extract_data_json(footnote_result_list, gpt_input_text_df)
