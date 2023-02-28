@@ -67,6 +67,7 @@ class SearchGPTService:
                         'name': file_name,
                         'url': file['file_path'],
                         'url_id': doc_id,
+                        'snippet': '',
                         'text': sentence
                     })
 

@@ -15,6 +15,9 @@ class DocxSvc(AbstractDocExtractSvc):
         for raw_text in raw_text_list:
             sentence_list.extend(nltk.sent_tokenize(raw_text))
 
+        # Remove duplicates
+        sentence_list = list(dict.fromkeys(sentence_list))
+
         return sentence_list
 
 

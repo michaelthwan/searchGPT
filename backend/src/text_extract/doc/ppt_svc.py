@@ -1,3 +1,6 @@
+import nltk
+import pptx
+
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
 
 
@@ -6,7 +9,17 @@ class PptSvc(AbstractDocExtractSvc):
         super().__init__()
 
     def extract_from_doc(self, path: str):
-        pass
+        prs = pptx.Presentation(path)
+        sentence_list = list()
+        for i, slide in enumerate(prs.slides, start=1):
+            for j, shape in enumerate(slide.shapes, start=1):
+                if hasattr(shape, "text"):
+                    sentence_list.extend(nltk.sent_tokenize(shape.text))
+
+        # Remove duplicates
+        sentence_list = list(dict.fromkeys(sentence_list))
+
+        return sentence_list
 
 
 ppt_extract_svc = PptSvc()
