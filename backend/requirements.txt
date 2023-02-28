@@ -7,3 +7,4 @@ PyYAML==6.0
 requests==2.28.2
 trafilatura==1.4.1
 Flask==2.2.3
+nltk==3.8.1

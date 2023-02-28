@@ -20,7 +20,7 @@ class SearchGPTService:
 
         pyterrier_service = PyTerrierService()
         gpt_input_text_df = pyterrier_service.retrieve_search_query_in_dfindexer(search_text, text_df)
-        llm_service = LLMServiceFactory.creaet_llm_service(self.config)
+        llm_service = LLMServiceFactory.create_llm_service(self.config)
         prompt = llm_service.get_prompt(search_text, gpt_input_text_df)
         print('===========Prompt:============')
         print(prompt)
