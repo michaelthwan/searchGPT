@@ -3,8 +3,8 @@ import requests
 import yaml
 
 from Util import setup_logger
-from backend.src.text_extract.beautiful_soup import BeautifulSoupSvc
-from backend.src.text_extract.trafilatura import TrafilaturaSvc
+from text_extract.html.beautiful_soup import BeautifulSoupSvc
+from text_extract.html.trafilatura import TrafilaturaSvc
 
 logger = setup_logger('BingService')
 

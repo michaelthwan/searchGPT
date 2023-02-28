@@ -1,3 +1,7 @@
+search_option:
+  is_enable_bing_search: true
+  is_enable_doc_search: false
+  doc_search_path:
 bing_search:
   end_point: https://api.bing.microsoft.com
   subscription_key:
