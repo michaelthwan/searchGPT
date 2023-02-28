@@ -14,11 +14,11 @@ class SearchGPTService:
         with open('config/config.yaml') as f:
             self.config = yaml.load(f, Loader=yaml.FullLoader)
 
-    def query_and_get_answer(self, search_text, load_from_cache=False):
+    def query_and_get_answer(self, search_text):
 
         cache_path = Path(self.config.get('cache').get('path'))
         # check if bing search result is cached and load if exists
-        if load_from_cache and check_result_cache_exists(cache_path, search_text, 'bing_search'):
+        if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, 'bing_search'):
             cache = load_result_from_cache(cache_path, search_text, 'bing_search')
             text_df = cache['text_df']
         else:
@@ -27,7 +27,7 @@ class SearchGPTService:
             text_df = bing_service.call_urls_and_extract_sentences(website_df)
 
             bing_search_config = self.config.get('bing_search')
-            bing_search_config.pop('subscription_key')    # delete api_key from config to avoid saving it to cache
+            bing_search_config.pop('subscription_key')  # delete api_key from config to avoid saving it to .cache
             save_result_cache(cache_path, search_text, 'bing_search', text_df=text_df, config=bing_search_config)
 
         # process bing search result for gpt input
@@ -37,16 +37,16 @@ class SearchGPTService:
 
         llm_service_provider = self.config.get('llm_service').get('provider')
         # check if llm result is cached and load if exists
-        if load_from_cache and check_result_cache_exists(cache_path, search_text, llm_service_provider):
+        if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, llm_service_provider):
             cache = load_result_from_cache(cache_path, search_text, llm_service_provider)
             prompt, response_text = cache['prompt'], cache['response_text']
         else:
-            llm_service = LLMServiceFactory.creaet_llm_service(self.config)
+            llm_service = LLMServiceFactory.create_llm_service(self.config)
             prompt = llm_service.get_prompt(search_text, gpt_input_text_df)
             response_text = llm_service.call_api(prompt)
 
             llm_config = self.config.get(f'{llm_service_provider}_api')
-            llm_config.pop('api_key')    # delete api_key to avoid saving it to cache
+            llm_config.pop('api_key')  # delete api_key to avoid saving it to .cache
             save_result_cache(cache_path, search_text, llm_service_provider, prompt=prompt, response_text=response_text, config=llm_config)
 
         # check whether the number of cache exceeds the limit
