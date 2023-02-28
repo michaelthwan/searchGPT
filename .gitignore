@@ -16,3 +16,4 @@
 data*.properties
 /.idea/*
 cache
+*.pickle
