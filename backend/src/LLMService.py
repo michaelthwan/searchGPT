@@ -81,7 +81,7 @@ class GooseAIService(LLMService):
 
 class LLMServiceFactory:
     @staticmethod
-    def creaet_llm_service(config) -> LLMService:
+    def create_llm_service(config) -> LLMService:
         provider = config.get('llm_service').get('provider')
         if provider == 'openai':
             return OpenAIService(config)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     with open('config/config.yaml') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
         service_factory = LLMServiceFactory()
-        service = service_factory.creaet_llm_service(config)
+        service = service_factory.create_llm_service(config)
         prompt = """
         """
         # response_text = service.call_openai_api('What is ChatGPT')

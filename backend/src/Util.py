@@ -1,4 +1,9 @@
 import logging
+import os
+import pickle
+import shutil
+from hashlib import md5
+from pathlib import Path
 
 logger = None
 
@@ -34,3 +39,33 @@ def post_process_gpt_input_text_df(gpt_input_text_df, prompt_length_limit):
     #     for index, row in display_df[display_df['url'] == url].iterrows():
     #         print(f'  {row["text"]}')
     return gpt_input_text_df
+
+
+def save_result_cache(path: Path, search_text: str, cache_type: str = 'bing_search', **kwargs):
+    cache_dir = path / md5(search_text.encode()).hexdigest()
+
+    os.makedirs(cache_dir, exist_ok=True)
+    path = Path(cache_dir, f'{cache_type}.pickle')
+    with open(path, 'wb') as f:
+        pickle.dump(kwargs, f)
+
+
+def load_result_from_cache(path: Path, search_text: str, cache_type: str = 'bing_search'):
+    path = path / f'{md5(search_text.encode()).hexdigest()}' / f'{cache_type}.pickle'
+    with open(path, 'rb') as f:
+        return pickle.load(f)
+
+
+def check_result_cache_exists(path: Path, search_text: str, cache_type: str = 'bing_search') -> bool:
+    path = path / f'{md5(search_text.encode()).hexdigest()}' / f'{cache_type}.pickle'
+    if os.path.exists(path):
+        return True
+    else:
+        return False
+
+
+def check_max_number_of_cache(path: Path, max_number_of_cache: int = 10):
+    if len(os.listdir(path)) >= max_number_of_cache:
+        ctime_list = [(os.path.getctime(path / file), file) for file in os.listdir(path)]
+        oldest_file = sorted(ctime_list)[0][1]
+        shutil.rmtree(path / oldest_file)

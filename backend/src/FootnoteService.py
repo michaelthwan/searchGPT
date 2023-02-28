@@ -90,8 +90,8 @@ class FootnoteService:
         def create_response_json_object(text, type):
             return {"text": text, "type": type}
 
-        def create_source_json_object(url_title, url, title, text):
-            return {"url_title": url_title, "url": url, "title": title, "text": text}
+        def create_source_json_object(footnote, domain, url, title, text):
+            return {"footnote": footnote, "domain": domain, "url": url, "title": title, "text": text}
 
         response_json = []
         for footnote_result in footnote_result_list:
@@ -116,6 +116,6 @@ class FootnoteService:
             #     source_text += f"  {row['text']}\n"
             domain_name = urlparse(row['url']).netloc.replace('www.', '')
             source_json.append(
-                create_source_json_object(f"[{row['url_id']}] {domain_name}", row['url'], row['name'], row['snippet'])
+                create_source_json_object(f"[{row['url_id']}]", domain_name, row['url'], row['name'], row['snippet'])
             )
         return {'response_json': response_json, 'source_json': source_json}

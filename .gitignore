@@ -15,3 +15,5 @@
 *.pyc
 data*.properties
 /.idea/*
+cache
+*.pickle
