@@ -1,12 +1,29 @@
-# python 3.10.8
-beautifulsoup4==4.11.2
+## python 3.10.8
+# basic
 openai==0.26.5
 pandas==1.5.3
-python-terrier==0.9.2
 PyYAML==6.0
-requests==2.28.2
-trafilatura==1.4.1
+
+# frontend
 Flask==2.2.3
+requests==2.28.2
+
+# nlp
 nltk==3.8.1
+
+# doc extraction
 python-docx==0.8.11
 python-pptx==0.6.21
+
+# html extraction
+beautifulsoup4==4.11.2
+trafilatura==1.4.1
+
+# doc indexer1
+python-terrier==0.9.2
+
+# doc indexer2
+sentence-transformers==2.2.2
+faiss-cpu==1.7.3
+langchain==0.0.95
+

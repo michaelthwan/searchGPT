@@ -88,8 +88,8 @@ class LLMServiceFactory:
         elif provider == 'goose_ai':
             return GooseAIService(config)
         else:
-            logger.error(f'LLM Service for {provider} not yet implemented.')
-            raise ValueError('LLM Service - {provider} - not suppported')
+            logger.error(f'LLM Service for {provider} is not yet implemented.')
+            raise NotImplementedError(f'LLM Service - {provider} - not is supported')
 
 
 if __name__ == '__main__':
