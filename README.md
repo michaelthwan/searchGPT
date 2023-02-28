@@ -47,8 +47,16 @@ Then set your JAVA_HOME environment variable
 
 `JAVA_HOME="C:\Program Files\Java\jdk-19"`
 
-3. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
-4. Run `main.py`
+3. Download Punkt Sentence Tokenizer data for nltk, a NLP toolkit used in the footnote service, via its data downloader.
+
+In Python, import nltk and run the following command:
+```
+import nltk
+nltk.download('punkt')
+```
+
+4. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
+5. Run `main.py`
 
 ### Installation (developer, frontend)
 
