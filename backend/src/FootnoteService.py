@@ -10,7 +10,7 @@ class FootnoteService:
     def __init__(self, config, response_text, gpt_input_text_df, pyterrier_service: PyTerrierService):
         self.config = config
         self.response_text = response_text
-        used_columns = ['docno', 'name', 'url', 'url_id', 'text', 'len_text', 'is_used']  # TODO: add url_id
+        used_columns = ['docno', 'name', 'url', 'url_id', 'text', 'len_text', 'in_scope']  # TODO: add url_id
         self.gpt_input_text_df = gpt_input_text_df[used_columns]
         self.pyterrier_service = pyterrier_service
 
@@ -25,7 +25,7 @@ class FootnoteService:
 
     def get_footnote_from_sentences(self):
         response_sentences_df = self.extract_sentences_from_paragraph()
-        in_scope_source_df = self.gpt_input_text_df[self.gpt_input_text_df['is_used']]
+        in_scope_source_df = self.gpt_input_text_df[self.gpt_input_text_df['in_scope']]
         source_indexref = self.pyterrier_service.index_text_df(in_scope_source_df, 'source_index')
 
         footnote_result_list = []
@@ -65,7 +65,7 @@ class FootnoteService:
             response_text_with_footnote += sentence_with_footnote + ' '
 
         print('===========Source text:============')
-        in_scope_source_df = gpt_input_text_df[gpt_input_text_df['is_used']]
+        in_scope_source_df = gpt_input_text_df[gpt_input_text_df['in_scope']]
         in_scope_source_df['docno'] = in_scope_source_df['docno'].astype(int)
         in_scope_source_df.sort_values('docno', inplace=True)
 
@@ -103,7 +103,7 @@ class FootnoteService:
                     create_response_json_object(f'[{url_id}]', "footnote")
                 )
 
-        in_scope_source_df = gpt_input_text_df[gpt_input_text_df['is_used']]
+        in_scope_source_df = gpt_input_text_df[gpt_input_text_df['in_scope']]
         in_scope_source_df['docno'] = in_scope_source_df['docno'].astype(int)
         in_scope_source_df.sort_values('docno', inplace=True)
 
