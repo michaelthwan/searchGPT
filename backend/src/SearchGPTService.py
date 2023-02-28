@@ -1,5 +1,6 @@
 import glob
 import os
+from pathlib import Path
 
 import pandas as pd
 import yaml
@@ -20,7 +21,7 @@ class SearchGPTService:
         with open('config/config.yaml') as f:
             self.config = yaml.load(f, Loader=yaml.FullLoader)
 
-    def _prompt(self, search_text, text_df):
+    def _prompt(self, search_text, text_df, cache_path=None):
         pyterrier_service = PyTerrierService()
         gpt_input_text_df = pyterrier_service.retrieve_search_query_in_dfindexer(search_text, text_df)
         gpt_input_text_df = post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('openai_api').get('prompt').get('prompt_length_limit'))
@@ -48,6 +49,7 @@ class SearchGPTService:
         print(search_text)
         print('===========Response text (raw):============')
         print(response_text)
+
         footnote_service = FootnoteService(self.config, response_text, gpt_input_text_df, pyterrier_service)
         footnote_result_list, in_scope_source_df = footnote_service.get_footnote_from_sentences()
         response_text_with_footnote, source_text = footnote_service.pretty_print_footnote_result_list(footnote_result_list, gpt_input_text_df)
@@ -56,30 +58,22 @@ class SearchGPTService:
         return response_text, response_text_with_footnote, source_text, data_json
 
     def query_and_get_answer(self, search_text):
-
+        bing_text_df, doc_text_df = None, None
 
         cache_path = Path(self.config.get('cache').get('path'))
         # check if bing search result is cached and load if exists
-        if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, 'bing_search'):
-            cache = load_result_from_cache(cache_path, search_text, 'bing_search')
-            text_df = cache['text_df']
-        else:
-            bing_service = BingService(self.config)
-            website_df = bing_service.call_bing_search_api(search_text)
-            text_df = bing_service.call_urls_and_extract_sentences(website_df)
-
-            bing_search_config = self.config.get('bing_search')
-            bing_search_config.pop('subscription_key')  # delete api_key from config to avoid saving it to .cache
-            save_result_cache(cache_path, search_text, 'bing_search', text_df=text_df, config=bing_search_config)
-
-
-
-        bing_text_df, doc_text_df = None, None
-
         if self.config['search_option']['is_enable_bing_search']:
-            bing_service = BingService(self.config)
-            website_df = bing_service.call_bing_search_api(search_text)
-            bing_text_df = bing_service.call_urls_and_extract_sentences(website_df)
+            if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, 'bing_search'):
+                cache = load_result_from_cache(cache_path, search_text, 'bing_search')
+                bing_text_df = cache['bing_text_df']
+            else:
+                bing_service = BingService(self.config)
+                website_df = bing_service.call_bing_search_api(search_text)
+                bing_text_df = bing_service.call_urls_and_extract_sentences(website_df)
+
+                bing_search_config = self.config.get('bing_search')
+                bing_search_config.pop('subscription_key')  # delete api_key from config to avoid saving it to .cache
+                save_result_cache(cache_path, search_text, 'bing_search', bing_text_df=bing_text_df, config=bing_search_config)
 
         if self.config['search_option']['is_enable_doc_search']:
             files_grabbed = list()
@@ -109,4 +103,4 @@ class SearchGPTService:
 
         text_df = pd.concat([bing_text_df, doc_text_df], ignore_index=True)
 
-        return self._prompt(search_text, text_df)
+        return self._prompt(search_text, text_df, cache_path)
