@@ -17,6 +17,7 @@ class SemanticSearchService(ABC):
     def __init__(self):
         self.cwd = os.getcwd()
         self.index = None
+        self.provider = ''
 
     @abstractmethod
     def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str):
@@ -43,6 +44,10 @@ class SemanticSearchService(ABC):
 
 
 class PyTerrierService(SemanticSearchService):
+    def __init__(self):
+        super().__init__()
+        self.provider = 'pyterrier'
+
     def create_index_column_in_df(self, text_df: pd.DataFrame) -> pd.DataFrame:
         """
         add a docno column (primary key / index column) to the dataframe
@@ -94,6 +99,10 @@ class PyTerrierService(SemanticSearchService):
 
 
 class LangChainFAISSService(SemanticSearchService):
+    def __init__(self):
+        super().__init__()
+        self.provider = 'faiss'
+
     def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str):
         text_df['docno'] = text_df.index.tolist()
         texts, docno_list = text_df['text'].tolist(), text_df['docno'].tolist()
@@ -115,9 +124,11 @@ class LangChainFAISSService(SemanticSearchService):
         docno_list = [doc.metadata['docno'] for doc in docs]
         result_df = pd.DataFrame({'docno': docno_list})
         result_df['rank'] = result_df.index
+        result_df['score'] = 99999  # Unfortunatelly, FAISS does not return score and thus use 99999 to bypass score threshold (if have)
         return result_df
 
     def retrieve_result_by_search_text_from_text_df(self, search_text, text_df):
+        logger.info(f"LangChainFAISSService.retrieve_search_query_in_dfindexer. search_text: {search_text}, text_df.shape: {text_df.shape}")
         faiss_index = self.index_text_df(text_df, '')
         result_df = self.use_index_to_search(faiss_index, search_text)
         return result_df.merge(text_df, on="docno", how="left")
