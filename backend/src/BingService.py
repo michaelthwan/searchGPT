@@ -74,7 +74,7 @@ class BingService:
         return text_df
 
     def call_one_url(self, website_tuple):
-        name, url, url_id, snippet = website_tuple
+        name, url, snippet, url_id = website_tuple
         logger.info(f"Processing url: {url}")
         sentences = self.extract_sentences_from_url(url)
         logger.info(f"  receive sentences: {len(sentences)}")
