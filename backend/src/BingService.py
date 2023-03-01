@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 import requests
 import yaml
@@ -59,7 +60,8 @@ class BingService:
             logger.info(f"Processing url: {row['url']}")
             sentences = self.extract_sentences_from_url(row['url'])
             for text in sentences:
-                if len(text) < 10:
+                word_count = len(re.findall(r'\w+', text)) # approximate number of words
+                if word_count < 8:
                     continue
                 name_list.append(row['name'])
                 url_list.append(row['url'])

@@ -47,9 +47,9 @@ class FootnoteService:
                 SCORE_THRESHOLD = 5
                 result_within_scope_df = result_df[result_df['score'] >= SCORE_THRESHOLD]
             elif self.semantic_search_service.provider == 'faiss':
-                with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-                    print(f'sentence {index}')
-                    print(result_df[['text', 'url_id', 'score']])
+                # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+                # print(f'sentence {index}')
+                # print(result_df[['text', 'url_id', 'score']])
                 SCORE_THRESHOLD = 0.6
                 top_k = 1
                 # # distance for faiss (lower is closer)
