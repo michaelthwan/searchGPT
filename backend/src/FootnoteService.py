@@ -56,14 +56,18 @@ class FootnoteService:
     def pretty_print_footnote_result_list(self, footnote_result_list, gpt_input_text_df):
         print('===========Response text (ref):============')
         response_text_with_footnote = ''
+
+        url_id_map = {}  # to reassign url_id as per appearance order
+
         for footnote_result in footnote_result_list:
-            footnote_print = ''
+            footnote_print = []
             for url_id in footnote_result['url_unique_ids']:
-                footnote_print += f'[{url_id}]'
-            sentence_with_footnote = f'{footnote_result["sentence"]} {footnote_print}'
+                if url_id not in url_id_map:
+                    url_id_map[url_id] = len(url_id_map) + 1
+                footnote_print += [f'[{url_id_map[url_id]}]']
+            sentence_with_footnote = f'{footnote_result["sentence"]} {"".join(sorted(footnote_print))}'
             print(sentence_with_footnote)
             response_text_with_footnote += sentence_with_footnote + ' '
-
         print('===========Source text:============')
         in_scope_source_df = gpt_input_text_df[gpt_input_text_df['in_scope']]
         in_scope_source_df['docno'] = in_scope_source_df['docno'].astype(int)
@@ -72,14 +76,15 @@ class FootnoteService:
         source_url_df = in_scope_source_df[['url_id', 'url']].drop_duplicates().sort_values('url_id').reset_index(drop=True)
         # for list with index
 
-        source_text = ""
+        source_text_list = []
         for index, row in source_url_df.iterrows():
-            print('---------------------')
-            source_text += f"[{row['url_id']}] {row['url']}\n"
-            # print(f"[{row['url_id']}] {row['url']}")
+            url_text = ''
+            url_text += f"[{url_id_map[row['url_id']]}] {row['url']}\n"
             for index, row in in_scope_source_df[in_scope_source_df['url_id'] == row['url_id']].iterrows():
-                source_text += f"  {row['text']}\n"
-                # print(f'  {row["text"]}')
+                url_text += f"  {row['text']}\n"
+            source_text_list.append(url_text)
+
+        source_text = ''.join(sorted(source_text_list))
         print(source_text)
         print()
         print('===========footnote_result_list:============')
