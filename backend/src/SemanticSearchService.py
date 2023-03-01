@@ -91,7 +91,7 @@ class PyTerrierService(SemanticSearchService):
         return result_df
 
     def retrieve_result_by_search_text_from_text_df(self, search_text, text_df):
-        logger.info(f"PyTerrierService.retrieve_search_query_in_dfindexer. search_text: {search_text}, text_df.shape: {text_df.shape}")
+        logger.info(f"PyTerrierService.retrieve_result_by_search_text_from_text_df. search_text: {search_text}, text_df.shape: {text_df.shape}")
         text_df = self.create_index_column_in_df(text_df)
         index = self.index_text_df(text_df, 'df_index')
         result_df: pd.DataFrame = self.use_index_to_search(index, search_text)
@@ -117,18 +117,25 @@ class LangChainFAISSService(SemanticSearchService):
         # k: Number of Documents to return. Defaults to 4.
         # fetch_k: Number of Documents to fetch to pass to MMR algorithm.
 
-        k, fetch_k = 10, 999
-        # Cons: you can only pick k, but you cannot filter by score
+        # k = 15
+        # # Cons: you can only pick k, but you cannot filter by score
+        # tuples = index.similarity_search_with_score(search_text, k=k)
+        # docno_list = [t[0].metadata['docno'] for t in tuples]
+        # score_list = [t[1] for t in tuples]
+        # result_df = pd.DataFrame({'docno': docno_list, 'score': score_list})
+        # result_df['rank'] = result_df.index
 
-        docs = index.max_marginal_relevance_search(search_text, k=k, fetch_k=fetch_k)
+        k = 10
+        docs = index.max_marginal_relevance_search(search_text, k=k, fetch_k=999)
         docno_list = [doc.metadata['docno'] for doc in docs]
         result_df = pd.DataFrame({'docno': docno_list})
         result_df['rank'] = result_df.index
-        result_df['score'] = 99999  # Unfortunatelly, FAISS does not return score and thus use 99999 to bypass score threshold (if have)
+        result_df['score'] = 999
+
         return result_df
 
     def retrieve_result_by_search_text_from_text_df(self, search_text, text_df):
-        logger.info(f"LangChainFAISSService.retrieve_search_query_in_dfindexer. search_text: {search_text}, text_df.shape: {text_df.shape}")
+        logger.info(f"LangChainFAISSService.retrieve_result_by_search_text_from_text_df. search_text: {search_text}, text_df.shape: {text_df.shape}")
         faiss_index = self.index_text_df(text_df, '')
         result_df = self.use_index_to_search(faiss_index, search_text)
         return result_df.merge(text_df, on="docno", how="left")

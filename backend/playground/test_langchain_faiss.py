@@ -17,16 +17,17 @@ if __name__ == '__main__':
 
     # k: Number of Documents to return. Defaults to 4.
     # fetch_k: Number of Documents to fetch to pass to MMR algorithm.
-
     k, fetch_k = 10, 999
-    # Cons: you can only pick k, but you cannot filter by score
-
-    docs = faiss_index.max_marginal_relevance_search(search_text, k=k, fetch_k=fetch_k)
-    text_list, docno_list = [], []
-    for doc in docs:
+    # docs = faiss_index.max_marginal_relevance_search(search_text, k=k, fetch_k=fetch_k)
+    docs = faiss_index.similarity_search_with_score(search_text, k=k)
+    text_list, docno_list, score_list = [], [], []
+    for t in docs:
+        doc, score = t
+        print(doc)
         text_list.append(doc.page_content)
         docno_list.append(doc.metadata['docno'])
-    gpt_df = pd.DataFrame({'text': text_list, 'docno': docno_list})
+        score_list.append(score)
+    gpt_df = pd.DataFrame({'text': text_list, 'docno': docno_list, 'score': score_list})
     print("=====gpt_df====")
     print(gpt_df.shape)
     print(gpt_df)

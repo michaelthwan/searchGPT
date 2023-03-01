@@ -5,7 +5,7 @@ import yaml
 
 from Util import setup_logger
 
-logger = setup_logger('OpenAIService')
+logger = setup_logger('LLMService')
 
 
 class LLMService(ABC):

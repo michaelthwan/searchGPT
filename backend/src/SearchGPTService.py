@@ -30,6 +30,7 @@ class SearchGPTService:
         llm_service_provider = self.config.get('llm_service').get('provider')
         # check if llm result is cached and load if exists
         if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, llm_service_provider):
+            logger.info(f"SemanticSearchService.load_result_from_cache. search_text: {search_text}, cache_path: {cache_path}")
             cache = load_result_from_cache(cache_path, search_text, llm_service_provider)
             prompt, response_text = cache['prompt'], cache['response_text']
         else:
@@ -64,6 +65,7 @@ class SearchGPTService:
         bing_text_df = None
         if self.config['search_option']['is_enable_bing_search']:
             if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, 'bing_search'):
+                logger.info(f"BingService.load_result_from_cache. search_text: {search_text}, cache_path: {cache_path}")
                 cache = load_result_from_cache(cache_path, search_text, 'bing_search')
                 bing_text_df = cache['bing_text_df']
             else:
