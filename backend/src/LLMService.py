@@ -5,7 +5,7 @@ import yaml
 
 from Util import setup_logger
 
-logger = setup_logger('OpenAIService')
+logger = setup_logger('LLMService')
 
 
 class LLMService(ABC):
@@ -18,13 +18,37 @@ class LLMService(ABC):
     def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
         prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
-        prompt_engineering = f"\n\nSummarize the question '{search_text}' using above information with about 80 words:"
+        prompt_engineering = f"\n\nSummarize the question '{search_text}' using above information with about 100 words:"
         prompt = ""
         for index, row in gpt_input_text_df.iterrows():
             prompt += f"""{row['text']}\n"""
         # limit the prompt length
         prompt = prompt[:prompt_length_limit]
         return prompt + prompt_engineering
+
+    def get_prompt_v2(self, search_text: str, gpt_input_text_df: pd.DataFrame):
+        logger.info(f"OpenAIService.get_prompt_v2. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
+        context_str = ""
+        gpt_input_text_df = gpt_input_text_df.sort_values('url_id')
+        url_id_list = gpt_input_text_df['url_id'].unique()
+        for url_id in url_id_list:
+            context_str += f"Source ({url_id})\n"
+            for index, row in gpt_input_text_df[gpt_input_text_df['url_id'] == url_id].iterrows():
+                context_str += f"{row['text']}\n"
+            context_str += "\n"
+        prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
+        context_str = context_str[:prompt_length_limit]
+        prompt = \
+f"""
+Answer with 100 words for the question below based on the provided sources using a scientific tone. 
+If the context is insufficient, reply "I cannot answer".
+Use Markdown for formatting code or text.
+Source:
+{context_str}
+Question: {search_text}
+Answer:
+"""
+        return prompt
 
     @abstractmethod
     def call_api(self, prompt):

@@ -30,6 +30,7 @@ class SearchGPTService:
         llm_service_provider = self.config.get('llm_service').get('provider')
         # check if llm result is cached and load if exists
         if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, llm_service_provider):
+            logger.info(f"SemanticSearchService.load_result_from_cache. search_text: {search_text}, cache_path: {cache_path}")
             cache = load_result_from_cache(cache_path, search_text, llm_service_provider)
             prompt, response_text = cache['prompt'], cache['response_text']
         else:
@@ -64,12 +65,13 @@ class SearchGPTService:
         bing_text_df = None
         if self.config['search_option']['is_enable_bing_search']:
             if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, 'bing_search'):
+                logger.info(f"BingService.load_result_from_cache. search_text: {search_text}, cache_path: {cache_path}")
                 cache = load_result_from_cache(cache_path, search_text, 'bing_search')
                 bing_text_df = cache['bing_text_df']
             else:
                 bing_service = BingService(self.config)
                 website_df = bing_service.call_bing_search_api(search_text)
-                bing_text_df = bing_service.call_urls_and_extract_sentences(website_df)
+                bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df)
 
                 bing_search_config = self.config.get('bing_search')
                 bing_search_config.pop('subscription_key')  # delete api_key from config to avoid saving it to .cache
