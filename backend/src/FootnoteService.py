@@ -96,6 +96,8 @@ class FootnoteService:
 
         source_text_list = []
         for index, row in source_url_df.iterrows():
+            if row['url_id'] not in url_id_map:
+                continue
             url_text = ''
             url_text += f"[{url_id_map[row['url_id']]}] {row['url']}\n"
             for index, row in in_scope_source_df[in_scope_source_df['url_id'] == row['url_id']].iterrows():
