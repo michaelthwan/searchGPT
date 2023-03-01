@@ -71,7 +71,7 @@ class SearchGPTService:
             else:
                 bing_service = BingService(self.config)
                 website_df = bing_service.call_bing_search_api(search_text)
-                bing_text_df = bing_service.call_urls_and_extract_sentences(website_df)
+                bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df)
 
                 bing_search_config = self.config.get('bing_search')
                 bing_search_config.pop('subscription_key')  # delete api_key from config to avoid saving it to .cache
