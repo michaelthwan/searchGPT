@@ -1,7 +1,7 @@
 import abc
 
 
-class AbstractTextExtractSvc(abc.ABC):
+class AbstractHtmlExtractSvc(abc.ABC):
     def __init__(self):
         pass
 

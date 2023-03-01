@@ -1,18 +1,22 @@
+from urllib.parse import urlparse
+
 import nltk
 import pandas as pd
 import pyterrier as pt
-from urllib.parse import urlparse
 
-from PyTerrierService import PyTerrierService
+from SemanticSearchService import SemanticSearchService
+from Util import setup_logger
+
+logger = setup_logger('FootnoteService')
 
 
 class FootnoteService:
-    def __init__(self, config, response_text, gpt_input_text_df, pyterrier_service: PyTerrierService):
+    def __init__(self, config, response_text, gpt_input_text_df, semantic_search_service: SemanticSearchService):
         self.config = config
         self.response_text = response_text
         used_columns = ['docno', 'name', 'url', 'url_id', 'text', 'len_text', 'in_scope']  # TODO: add url_id
         self.gpt_input_text_df = gpt_input_text_df[used_columns]
-        self.pyterrier_service = pyterrier_service
+        self.semantic_search_service = semantic_search_service
 
         if not pt.started():
             pt.init()
@@ -24,21 +28,35 @@ class FootnoteService:
         return response_df
 
     def get_footnote_from_sentences(self):
+        logger.info(f'FootnoteService.get_footnote_from_sentences()')
         response_sentences_df = self.extract_sentences_from_paragraph()
         in_scope_source_df = self.gpt_input_text_df[self.gpt_input_text_df['in_scope']]
-        source_indexref = self.pyterrier_service.index_text_df(in_scope_source_df, 'source_index')
+        source_index = self.semantic_search_service.index_text_df(in_scope_source_df, 'source_index')
 
         footnote_result_list = []
         for index, row in response_sentences_df.iterrows():
             response_text_sentence = row["response_text_sentence"]
+            logger.info(f'  [S{index + 1}] {response_text_sentence}')
             # print(f'[S{index + 1}] {response_text_sentence}')
 
-            cleaned_response_text_sentence = self.pyterrier_service.clean_sentence_to_avoid_lexical_error(response_text_sentence)
-            result_df = pt.BatchRetrieve(source_indexref).search(cleaned_response_text_sentence)
+            cleaned_response_text_sentence = self.semantic_search_service.clean_sentence_to_avoid_lexical_error(response_text_sentence)
+            result_df = self.semantic_search_service.use_index_to_search(source_index, cleaned_response_text_sentence)
             result_df = result_df.merge(in_scope_source_df, on="docno", how="left")[['docno', 'rank', 'score', 'url', 'url_id', 'text']]
 
-            SCORE_THRESHOLD = 5
-            result_within_scope_df = result_df[result_df['score'] >= SCORE_THRESHOLD]
+            if self.semantic_search_service.provider == 'pyterrier':
+                SCORE_THRESHOLD = 5
+                result_within_scope_df = result_df[result_df['score'] >= SCORE_THRESHOLD]
+            elif self.semantic_search_service.provider == 'faiss':
+                # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+                # print(f'sentence {index}')
+                # print(result_df[['text', 'url_id', 'score']])
+                SCORE_THRESHOLD = 0.6
+                top_k = 1
+                # # distance for faiss (lower is closer)
+                # result_within_scope_df = result_df[result_df['score'] <= SCORE_THRESHOLD].head(top_k)
+                result_within_scope_df = result_df.head(top_k)
+            else:
+                NotImplementedError(f'Unsupported semantic search provider: {self.semantic_search_service.provider}')
 
             footnote_result_sentence_dict = {
                 'sentence': response_text_sentence,
