@@ -1,19 +1,30 @@
-searchGPT - An Open-Source LLM-based Search Engine
+searchGPT - An Open-Source LLM-based Grounded Search Engine
 ==================================================
 
-**searchGPT** is an open-source project to build a search engine based on Large Language Model (LLM) technology. 
+**searchGPT** is an open-source project to build a search engine based on Large Language Model (LLM) technology to give natural language answers.
 
-It leverages the power of OpenAI's ChatGPT and its API to provide fast and accurate search results for web searches, file content searches, and more.
+This is a minimal implementation with modular plugin design, meaning you can choose different tech for different components.
 
-You may imagine that it is New Bing that supports file content search.
+You may imagine that it is like ChatGPT but supports file content search and latest web search.
+
+TODO: architecture and roadmap
 
 Features
 --------
 
-*   Web search with real-time results
-*   File content search
-*   Accurate results powered by OpenAI's ChatGPT technology
-*   Easy-to-use and intuitive user interface
+* Source: Web search with real-time results
+* Source: File content search (PPT/DOC/PDF, etc.)
+* Sematic search from source ([FAISS](https://github.com/facebookresearch/faiss) / [pyterrier](https://github.com/terrier-org/pyterrier))
+* LLM integration: ([OpenAI](https://platform.openai.com/docs/api-reference?lang=python) / [GooseAI](https://goose.ai/), etc.)
+* Frontend: Easy-to-use and intuitive user interface
+
+Why Grounded?
+---------------
+TODO
+
+Demo page
+---------------
+Coming soon...
 
 Getting Started
 ---------------
@@ -23,13 +34,14 @@ Getting Started
 To run `searchGPT`, you'll need:
 
 * [Python 3.10.8](https://www.python.org/downloads/)
-* [OpenAI API Key](https://beta.openai.com/signup)
-* [Java >= 11](https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows)
+* [OpenAI API Key](https://beta.openai.com/signup) or [GooseAI API Key](https://goose.ai/)
+  * OpenAI: First $18 is free
+* [Azure Bing Search API Key](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api/)
+  * Free version is available
 
-### Installation (users)
 
 
-### Installation (developer, backend)
+### Installation
 
 1. Create your conda env and install python packages
 ```
@@ -37,28 +49,25 @@ conda create --name searchgpt python=3.10.8
 conda activate searchgpt
 pip install -r requirements.txt
 ```
-2. Install JAVA >= 11
 
-Related linkes
-- https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows
-- https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.exe
+2. Download Punkt Sentence Tokenizer data for nltk, a NLP toolkit used in the footnote service, via its data downloader.
 
-Then set your JAVA_HOME environment variable
-
-`JAVA_HOME="C:\Program Files\Java\jdk-19"`
-
-3. Download Punkt Sentence Tokenizer data for nltk, a NLP toolkit used in the footnote service, via its data downloader.
-
-In Python, import nltk and run the following command:
+   - In Python, import nltk and run the following command:
 ```
 import nltk
 nltk.download('punkt')
 ```
 
-4. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
-5. Run `main.py`
+3. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
+4. Run `flask_app.py` for frontend web app launching. `main.py` for stdout output. 
+5. (optional, if you use pyterrier) Install JAVA >= 11
+   * Related linkes
+     - https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows
+     - https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.exe
 
-### Installation (developer, frontend)
+   - Then set your JAVA_HOME environment variable
+
+     - `JAVA_HOME="C:\Program Files\Java\jdk-19"`
 
 Contributing
 ------------
