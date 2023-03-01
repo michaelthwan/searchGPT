@@ -30,4 +30,4 @@ cache:  # .cache result for efficiency and consistency
   path: .cache
   max_number_of_cache: 10
 semantic_search:
-  provider: pyterrier # pyterrier/faiss
+  provider: faiss # pyterrier/faiss

@@ -104,6 +104,7 @@ class LangChainFAISSService(SemanticSearchService):
         self.provider = 'faiss'
 
     def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str):
+        logger.info(f"LangChainFAISSService.index_text_df. text_df.shape: {text_df.shape}")
         text_df['docno'] = text_df.index.tolist()
         texts, docno_list = text_df['text'].tolist(), text_df['docno'].tolist()
         docno_dict = [{'docno': docno} for docno in docno_list]
@@ -125,7 +126,7 @@ class LangChainFAISSService(SemanticSearchService):
         # result_df = pd.DataFrame({'docno': docno_list, 'score': score_list})
         # result_df['rank'] = result_df.index
 
-        k = 10
+        k = 30
         docs = index.max_marginal_relevance_search(search_text, k=k, fetch_k=999)
         docno_list = [doc.metadata['docno'] for doc in docs]
         result_df = pd.DataFrame({'docno': docno_list})

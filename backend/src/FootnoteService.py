@@ -51,7 +51,7 @@ class FootnoteService:
                     print(f'sentence {index}')
                     print(result_df[['text', 'url_id', 'score']])
                 SCORE_THRESHOLD = 0.6
-                top_k = 2
+                top_k = 1
                 # # distance for faiss (lower is closer)
                 # result_within_scope_df = result_df[result_df['score'] <= SCORE_THRESHOLD].head(top_k)
                 result_within_scope_df = result_df.head(top_k)
