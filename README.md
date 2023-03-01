@@ -36,6 +36,7 @@ To run `searchGPT`, you'll need:
 * [Python 3.10.8](https://www.python.org/downloads/)
 * [OpenAI API Key](https://beta.openai.com/signup) or [GooseAI API Key](https://goose.ai/)
   * OpenAI: First $18 is free
+  * GooseAI: First $10 is free
 * [Azure Bing Search API Key](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api/)
   * Free version is available
 
