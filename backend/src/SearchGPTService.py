@@ -110,7 +110,7 @@ class SearchGPTService:
         cache_path = Path(self.config.get('cache').get('path'))
         # TODO: strategy pattern to support different text sources (e.g. PDF later)
         bing_text_df = self._extract_bing_text_df(search_text, cache_path)
-        doc_text_df = self._extract_doc_text_df(search_text)
+        doc_text_df = self._extract_doc_text_df(bing_text_df)
         text_df = pd.concat([bing_text_df, doc_text_df], ignore_index=True)
 
         return self._prompt(search_text, text_df, cache_path)
