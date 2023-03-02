@@ -18,8 +18,9 @@ class FootnoteService:
         self.gpt_input_text_df = gpt_input_text_df[used_columns]
         self.semantic_search_service = semantic_search_service
 
-        if not pt.started():
-            pt.init()
+        if self.config.get('semantic_search').get('provider') == 'pyterrier':
+            if not pt.started():
+                pt.init()
 
     def extract_sentences_from_paragraph(self):
         # TODO: currently only support English

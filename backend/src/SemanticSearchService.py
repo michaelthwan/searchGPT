@@ -14,8 +14,9 @@ logger = setup_logger('PyTerrierService')
 
 
 class SemanticSearchService(ABC):
-    def __init__(self):
+    def __init__(self, config):
         self.cwd = os.getcwd()
+        self.config = config
         self.index = None
         self.provider = ''
 
@@ -44,8 +45,8 @@ class SemanticSearchService(ABC):
 
 
 class PyTerrierService(SemanticSearchService):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config):
+        super().__init__(config)
         self.provider = 'pyterrier'
 
     def create_index_column_in_df(self, text_df: pd.DataFrame) -> pd.DataFrame:
@@ -58,7 +59,7 @@ class PyTerrierService(SemanticSearchService):
         text_df["docno"] = text_df["docno"].astype(str)
         return text_df
 
-    def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str) -> pt.IndexRef:
+    def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str):
         """
         index the text_df to get a indexref
         :param text_df:
@@ -68,8 +69,9 @@ class PyTerrierService(SemanticSearchService):
         :return:
             indexref:
         """
-        if not pt.started():
-            pt.init()
+        if self.config.get('semantic_search').get('provider') == 'pyterrier':
+            if not pt.started():
+                pt.init()
         datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
         df_indexer_path = os.path.join(self.cwd, f".index/{indexref_folder_name}_" + datetime_str)
         if not os.path.exists(df_indexer_path):
@@ -99,8 +101,8 @@ class PyTerrierService(SemanticSearchService):
 
 
 class LangChainFAISSService(SemanticSearchService):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config):
+        super().__init__(config)
         self.provider = 'faiss'
 
     def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str):
@@ -147,9 +149,9 @@ class SemanticSearchServiceFactory:
     def create_semantic_search_service(config) -> SemanticSearchService:
         provider = config.get('semantic_search').get('provider')
         if provider == 'pyterrier':
-            return PyTerrierService()
+            return PyTerrierService(config)
         elif provider == 'faiss':
-            return LangChainFAISSService()
+            return LangChainFAISSService(config)
         else:
             logger.error(f'SemanticSearchService for {provider} is not yet implemented.')
             raise NotImplementedError(f'SemanticSearchService - {provider} - is not supported')
