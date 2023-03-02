@@ -4,18 +4,19 @@ from datetime import datetime
 
 import pandas as pd
 import pyterrier as pt
-# from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 
 from Util import setup_logger
 
-logger = setup_logger('PyTerrierService')
+logger = setup_logger('SemanticSearchService')
 
 
 class SemanticSearchService(ABC):
-    def __init__(self):
+    def __init__(self, config):
         self.cwd = os.getcwd()
+        self.config = config
         self.index = None
         self.provider = ''
 
@@ -44,8 +45,8 @@ class SemanticSearchService(ABC):
 
 
 class PyTerrierService(SemanticSearchService):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config):
+        super().__init__(config)
         self.provider = 'pyterrier'
 
     def create_index_column_in_df(self, text_df: pd.DataFrame) -> pd.DataFrame:
@@ -58,7 +59,7 @@ class PyTerrierService(SemanticSearchService):
         text_df["docno"] = text_df["docno"].astype(str)
         return text_df
 
-    def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str) -> pt.IndexRef:
+    def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str):
         """
         index the text_df to get a indexref
         :param text_df:
@@ -68,8 +69,9 @@ class PyTerrierService(SemanticSearchService):
         :return:
             indexref:
         """
-        if not pt.started():
-            pt.init()
+        if self.config.get('semantic_search').get('provider') == 'pyterrier':
+            if not pt.started():
+                pt.init()
         datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
         df_indexer_path = os.path.join(self.cwd, f".index/{indexref_folder_name}_" + datetime_str)
         if not os.path.exists(df_indexer_path):
@@ -99,17 +101,23 @@ class PyTerrierService(SemanticSearchService):
 
 
 class LangChainFAISSService(SemanticSearchService):
-    def __init__(self):
-        super().__init__()
-        self.provider = 'faiss'
+    def __init__(self, config):
+        super().__init__(config)
+        self.provider = self.config.get('semantic_search').get('provider')
+        self.embeddings = None
+        if self.provider == 'faiss-openai':
+            self.embeddings = OpenAIEmbeddings(openai_api_key=self.config.get('openai_api').get('api_key'))
+        elif self.provider == 'faiss-huggingface':
+            self.embeddings = HuggingFaceEmbeddings()
+        else:
+            raise Exception(f"provider {self.provider} is not supported")
 
     def index_text_df(self, text_df: pd.DataFrame, indexref_folder_name: str):
         logger.info(f"LangChainFAISSService.index_text_df. text_df.shape: {text_df.shape}")
         text_df['docno'] = text_df.index.tolist()
         texts, docno_list = text_df['text'].tolist(), text_df['docno'].tolist()
         docno_dict = [{'docno': docno} for docno in docno_list]
-        embeddings = HuggingFaceEmbeddings()  # OpenAIEmbeddings() cost money (OPENAI_API_KEY)
-        faiss_index = FAISS.from_texts(texts, embeddings, metadatas=docno_dict)
+        faiss_index = FAISS.from_texts(texts, self.embeddings, metadatas=docno_dict)
         return faiss_index
 
     @staticmethod
@@ -147,15 +155,13 @@ class SemanticSearchServiceFactory:
     def create_semantic_search_service(config) -> SemanticSearchService:
         provider = config.get('semantic_search').get('provider')
         if provider == 'pyterrier':
-            return PyTerrierService()
-        elif provider == 'faiss':
-            return LangChainFAISSService()
+            return PyTerrierService(config)
+        elif provider in ['faiss-openai', 'faiss-huggingface']:
+            return LangChainFAISSService(config)
         else:
             logger.error(f'SemanticSearchService for {provider} is not yet implemented.')
             raise NotImplementedError(f'SemanticSearchService - {provider} - is not supported')
 
 
 if __name__ == '__main__':
-    pyterrier_service = PyTerrierService()
-    search_text = ""
-    # print(pyterrier_service.text_retrieve_in_files(search_text))
+    pass
