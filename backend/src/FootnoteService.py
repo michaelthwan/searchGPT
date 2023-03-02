@@ -72,75 +72,63 @@ class FootnoteService:
         return footnote_result_list, in_scope_source_df
 
     def pretty_print_footnote_result_list(self, footnote_result_list, gpt_input_text_df):
-        print('===========Response text (ref):============')
-        response_text_with_footnote = ''
-
-        url_id_map = {}  # to reassign url_id as per appearance order
-
-        for footnote_result in footnote_result_list:
-            footnote_print = []
-            for url_id in footnote_result['url_unique_ids']:
-                if url_id not in url_id_map:
-                    url_id_map[url_id] = len(url_id_map) + 1
-                footnote_print += [f'[{url_id_map[url_id]}]']
-            sentence_with_footnote = f'{footnote_result["sentence"]} {"".join(sorted(footnote_print))}'
-            print(sentence_with_footnote)
-            response_text_with_footnote += sentence_with_footnote + ' '
-        print('===========Source text:============')
-        in_scope_source_df = gpt_input_text_df[gpt_input_text_df['in_scope']]
-        in_scope_source_df['docno'] = in_scope_source_df['docno'].astype(int)
-        in_scope_source_df.sort_values('docno', inplace=True)
-
-        source_url_df = in_scope_source_df[['url_id', 'url']].drop_duplicates().sort_values('url_id').reset_index(drop=True)
-        # for list with index
-
-        source_text_list = []
-        for index, row in source_url_df.iterrows():
-            if row['url_id'] not in url_id_map:
-                continue
-            url_text = ''
-            url_text += f"[{url_id_map[row['url_id']]}] {row['url']}\n"
-            for index, row in in_scope_source_df[in_scope_source_df['url_id'] == row['url_id']].iterrows():
-                url_text += f"  {row['text']}\n"
-            source_text_list.append(url_text)
-
-        source_text = ''.join(sorted(source_text_list))
-        print(source_text)
-        print()
-        print('===========footnote_result_list:============')
-        print(footnote_result_list)
-        return response_text_with_footnote, source_text
-
-    def extract_data_json(self, footnote_result_list, gpt_input_text_df):
         def create_response_json_object(text, type):
             return {"text": text, "type": type}
 
         def create_source_json_object(footnote, domain, url, title, text):
             return {"footnote": footnote, "domain": domain, "url": url, "title": title, "text": text}
 
-        response_json = []
-        for footnote_result in footnote_result_list:
-            response_json.append(
-                create_response_json_object(footnote_result["sentence"], "response")
-            )
-            for url_id in footnote_result['url_unique_ids']:
-                response_json.append(
-                    create_response_json_object(f'[{url_id}]', "footnote")
-                )
+        url_id_map = {}  # to reassign url_id as per appearance order
 
-        in_scope_source_df = gpt_input_text_df[gpt_input_text_df['in_scope']]
-        in_scope_source_df['docno'] = in_scope_source_df['docno'].astype(int)
+        # footnote text and json processing
+        response_text_with_footnote = ''
+        response_json = []
+
+        for footnote_result in footnote_result_list:
+            footnote_print = []
+            response_json.append(create_response_json_object(footnote_result["sentence"], "response"))
+
+            for url_id in footnote_result['url_unique_ids']:
+
+                if url_id not in url_id_map:
+                    url_id_map[url_id] = len(url_id_map) + 1
+
+                footnote_print += [f'[{url_id_map[url_id]}]']
+                response_json.append(create_response_json_object(f'[{url_id_map[url_id]}]', "footnote"))
+
+            response_text_with_footnote += f'{footnote_result["sentence"]}{" " + "".join(sorted(footnote_print)) if len(footnote_print) > 0 else ""} '
+
+        # source text and json processing
+        in_scope_source_df = gpt_input_text_df[gpt_input_text_df['in_scope']].copy()
+        in_scope_source_df.loc[:, 'docno'] = in_scope_source_df['docno'].astype(int)
         in_scope_source_df.sort_values('docno', inplace=True)
 
-        source_url_df = in_scope_source_df[['url_id', 'url', 'name', 'snippet']].drop_duplicates().sort_values('url_id').reset_index(drop=True)
-        # for list with index
+        source_text_list = []
         source_json = []
+
+        source_url_df = in_scope_source_df[['url_id', 'url', 'name', 'snippet']].drop_duplicates().sort_values('url_id').reset_index(drop=True)
         for index, row in source_url_df.iterrows():
-            # source_text += f"[{row['url_id']}] {row['url']}\n"
-            # for index, row in in_scope_source_df[in_scope_source_df['url_id'] == row['url_id']].iterrows():
-            #     source_text += f"  {row['text']}\n"
+            if row['url_id'] not in url_id_map:
+                continue
+
+            url_text = ''
+            url_text += f"[{url_id_map[row['url_id']]}] {row['url']}\n"
+
+            for index, row in in_scope_source_df[in_scope_source_df['url_id'] == row['url_id']].iterrows():
+                url_text += f"  {row['text']}\n"
+
+            source_text_list.append(url_text)
+
             domain_name = urlparse(row['url']).netloc.replace('www.', '')
-            source_json.append(
-                create_source_json_object(f"[{row['url_id']}]", domain_name, row['url'], row['name'], row['snippet'])
-            )
-        return {'response_json': response_json, 'source_json': source_json}
+            source_json.append(create_source_json_object(f"[{url_id_map[row['url_id']]}]", domain_name, row['url'], row['name'],row['snippet']))
+
+        source_text = ''.join(sorted(source_text_list))
+
+        print('===========Response text (ref):============')
+        print(response_text_with_footnote)
+        print()
+        print('===========Source text:============')
+        print(source_text)
+        print()
+
+        return response_text_with_footnote, source_text, {'response_json': response_json, 'source_json': source_json}

@@ -54,8 +54,7 @@ class SearchGPTService:
 
         footnote_service = FootnoteService(self.config, response_text, gpt_input_text_df, semantic_search_service)
         footnote_result_list, in_scope_source_df = footnote_service.get_footnote_from_sentences()
-        response_text_with_footnote, source_text = footnote_service.pretty_print_footnote_result_list(footnote_result_list, gpt_input_text_df)
-        data_json = footnote_service.extract_data_json(footnote_result_list, gpt_input_text_df)
+        response_text_with_footnote, source_text, data_json = footnote_service.pretty_print_footnote_result_list(footnote_result_list, gpt_input_text_df)
 
         return response_text, response_text_with_footnote, source_text, data_json
 
