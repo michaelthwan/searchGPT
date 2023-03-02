@@ -124,6 +124,7 @@ class FootnoteService:
             source_json.append(create_source_json_object(f"[{url_id_map[row['url_id']]}]", domain_name, row['url'], row['name'],row['snippet']))
 
         source_text = ''.join(sorted(source_text_list))
+        source_json = sorted(source_json, key=lambda x: x['footnote'])
 
         print('===========Response text (ref):============')
         print(response_text_with_footnote)
