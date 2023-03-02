@@ -38,7 +38,7 @@ class SearchGPTService:
             prompt = llm_service.get_prompt(search_text, gpt_input_text_df)
             response_text = llm_service.call_api(prompt)
 
-            llm_config = self.config.get(f'{llm_service_provider}_api')
+            llm_config = self.config.get(f'{llm_service_provider}_api').copy()
             llm_config.pop('api_key')  # delete api_key to avoid saving it to .cache
             save_result_cache(cache_path, search_text, llm_service_provider, prompt=prompt, response_text=response_text, config=llm_config)
 
@@ -73,7 +73,7 @@ class SearchGPTService:
                 website_df = bing_service.call_bing_search_api(search_text)
                 bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df)
 
-                bing_search_config = self.config.get('bing_search')
+                bing_search_config = self.config.get('bing_search').copy()
                 bing_search_config.pop('subscription_key')  # delete api_key from config to avoid saving it to .cache
                 save_result_cache(cache_path, search_text, 'bing_search', bing_text_df=bing_text_df, config=bing_search_config)
         return bing_text_df
