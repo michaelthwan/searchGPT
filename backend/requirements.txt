@@ -1,6 +1,6 @@
 ## python 3.10.8
 # basic
-openai==0.26.5
+openai==0.27.0
 pandas==1.5.3
 PyYAML==6.0
 
