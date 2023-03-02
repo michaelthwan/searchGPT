@@ -18,13 +18,17 @@ class LLMService(ABC):
     def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
         prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
-        prompt_engineering = f"\n\nSummarize the question '{search_text}' using above information with about 100 words:"
-        prompt = ""
-        for index, row in gpt_input_text_df.iterrows():
-            prompt += f"""{row['text']}\n"""
-        # limit the prompt length
-        prompt = prompt[:prompt_length_limit]
-        return prompt + prompt_engineering
+        is_use_source = self.config.get('search_option').get('is_use_source')
+        if is_use_source:
+            prompt_engineering = f"\n\nAnswer the question '{search_text}' using above information with about 100 words:"
+            prompt = ""
+            for index, row in gpt_input_text_df.iterrows():
+                prompt += f"""{row['text']}\n"""
+            # limit the prompt length
+            prompt = prompt[:prompt_length_limit]
+            return prompt + prompt_engineering
+        else:
+            return f"\n\nAnswer the question '{search_text}' with about 100 words:"
 
     def get_prompt_v2(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt_v2. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
@@ -39,7 +43,7 @@ class LLMService(ABC):
         prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
         context_str = context_str[:prompt_length_limit]
         prompt = \
-f"""
+            f"""
 Answer with 100 words for the question below based on the provided sources using a scientific tone. 
 If the context is insufficient, reply "I cannot answer".
 Use Markdown for formatting code or text.
@@ -64,19 +68,34 @@ class OpenAIService(LLMService):
         openai.api_key = open_api_key
 
     def call_api(self, prompt: str):
-        logger.info(f"OpenAIService.call_openai_api. len(prompt): {len(prompt)}")
         openai_api_config = self.config.get('openai_api')
-        try:
-            response = openai.Completion.create(
-                model=openai_api_config.get('model'),
-                prompt=prompt,
-                max_tokens=openai_api_config.get('max_tokens'),
-                temperature=openai_api_config.get('temperature'),
-                top_p=openai_api_config.get('top_p'),
-            )
-        except Exception as ex:
-            raise ex
-        return self.clean_response_text(response.choices[0].text)
+        model = openai_api_config.get('model')
+        logger.info(f"OpenAIService.call_api. model: {model}, len(prompt): {len(prompt)}")
+
+        if model == 'gpt-3.5-turbo':
+            try:
+                completion = openai.ChatCompletion.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": "You are a helpful search engine."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+            except Exception as ex:
+                raise ex
+            return completion.choices[0].message.content
+        else:
+            try:
+                response = openai.Completion.create(
+                    model=model,
+                    prompt=prompt,
+                    max_tokens=openai_api_config.get('max_tokens'),
+                    temperature=openai_api_config.get('temperature'),
+                    top_p=openai_api_config.get('top_p'),
+                )
+            except Exception as ex:
+                raise ex
+            return self.clean_response_text(response.choices[0].text)
 
 
 class GooseAIService(LLMService):

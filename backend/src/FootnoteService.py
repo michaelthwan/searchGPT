@@ -47,7 +47,7 @@ class FootnoteService:
             if self.semantic_search_service.provider == 'pyterrier':
                 SCORE_THRESHOLD = 5
                 result_within_scope_df = result_df[result_df['score'] >= SCORE_THRESHOLD]
-            elif self.semantic_search_service.provider == 'faiss':
+            elif self.semantic_search_service.provider in ['faiss-openai', 'faiss-huggingface']:
                 # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
                 # print(f'sentence {index}')
                 # print(result_df[['text', 'url_id', 'score']])
