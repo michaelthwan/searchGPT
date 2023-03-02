@@ -34,5 +34,5 @@ semantic_search:
   # faiss-openai (default): Use OpenAIEmbedding. fast, good accuracy but need openai key (cost)
   # faiss-huggingface: Use HuggingFaceEmbedding. slow, good accuracy but free (need to download)
   # pyterrier: Use PyTerrier Tf (term frequency). fast, fair accuracy and free (need to install pyterrier and java)
-  provider: faiss-huggingface
+  provider: faiss-openai
 
