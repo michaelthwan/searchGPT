@@ -10,7 +10,7 @@ from langchain.vectorstores import FAISS
 
 from Util import setup_logger
 
-logger = setup_logger('PyTerrierService')
+logger = setup_logger('SemanticSearchService')
 
 
 class SemanticSearchService(ABC):
