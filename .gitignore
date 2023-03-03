@@ -17,3 +17,4 @@ data*.properties
 /.idea/*
 cache
 *.pickle
+/backend/venv/*
