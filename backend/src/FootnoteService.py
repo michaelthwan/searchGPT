@@ -12,6 +12,7 @@ logger = setup_logger('FootnoteService')
 
 class FootnoteService:
     def __init__(self, config, response_text, gpt_input_text_df, semantic_search_service: SemanticSearchService):
+        self.download_nltk_data_if_not()
         self.config = config
         self.response_text = response_text
         used_columns = ['docno', 'name', 'url', 'url_id', 'text', 'len_text', 'in_scope']  # TODO: add url_id
@@ -21,6 +22,13 @@ class FootnoteService:
         if self.config.get('semantic_search').get('provider') == 'pyterrier':
             if not pt.started():
                 pt.init()
+
+    @staticmethod
+    def download_nltk_data_if_not():
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt')
 
     def extract_sentences_from_paragraph(self):
         # TODO: currently only support English

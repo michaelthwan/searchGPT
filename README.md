@@ -52,24 +52,13 @@ conda activate searchgpt
 pip install -r requirements.txt
 ```
 
-2. Download Punkt Sentence Tokenizer data for nltk, a NLP toolkit used in the footnote service, via its data downloader.
-
-    - In Python, import nltk and run the following command:
-
-```
-import nltk
-nltk.download('punkt')
-```
-
-3. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
-4. Run `flask_app.py` for frontend web app launching. `main.py` for stdout output.
-5. (optional, if you use pyterrier) Install JAVA >= 11
+2. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
+3. Run `flask_app.py` for frontend web app launching. `main.py` for stdout output.
+4. (optional, if you use pyterrier) Install JAVA >= 11
     * Related linkes
         - https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows
         - https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.exe
-
     - Then set your JAVA_HOME environment variable
-
         - `JAVA_HOME="C:\Program Files\Java\jdk-19"`
 
 Contributing
