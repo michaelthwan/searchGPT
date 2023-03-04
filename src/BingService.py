@@ -1,10 +1,11 @@
+import os
 import re
 import concurrent.futures
 import pandas as pd
 import requests
 import yaml
 
-from Util import setup_logger
+from Util import setup_logger, get_project_root
 from text_extract.html.beautiful_soup import BeautifulSoupSvc
 from text_extract.html.trafilatura import TrafilaturaSvc
 
@@ -116,7 +117,7 @@ class BingService:
 
 if __name__ == '__main__':
     # Load config
-    with open('config/config.yaml') as f:
+    with open(os.path.join(get_project_root(), 'src/config/config.yaml')) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
         service = BingService(config)
         website_df = service.call_bing_search_api('What is ChatGPT')
