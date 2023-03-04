@@ -44,23 +44,28 @@ To run `searchGPT`, you'll need:
 
 ### Installation
 
-1. Create your conda env and install python packages
+1. Create your python or anaconda env and install python packages
 
+Native
+```
+# using python=3.10.8
+pip install -r requirements.txt
+```
+
+Anaconda
 ```
 conda create --name searchgpt python=3.10.8
 conda activate searchgpt
 pip install -r requirements.txt
 ```
 
-2. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
+2. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml` (or using UI)
 3. Run `flask_app.py` for frontend web app launching. `main.py` for stdout output.
 4. (optional, if you use pyterrier) Install JAVA >= 11
     * Related linkes
         - https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows
         - https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.exe
-
     - Then set your JAVA_HOME environment variable
-
         - `JAVA_HOME="C:\Program Files\Java\jdk-19"`
 
 Contributing
