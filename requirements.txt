@@ -23,7 +23,6 @@ trafilatura==1.4.1
 # python-terrier==0.9.2
 
 # doc indexer2
-sentence-transformers==2.2.2
 faiss-cpu==1.7.3
 langchain==0.0.95
 

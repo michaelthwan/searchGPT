@@ -1,7 +1,6 @@
 from urllib.parse import urlparse
 
 import pandas as pd
-import pyterrier as pt
 
 from SemanticSearchService import SemanticSearchService
 from Util import setup_logger, split_sentences_from_paragraph
@@ -18,6 +17,7 @@ class FootnoteService:
         self.semantic_search_service = semantic_search_service
 
         if self.config.get('semantic_search').get('provider') == 'pyterrier':
+            import pyterrier as pt
             if not pt.started():
                 pt.init()
 

@@ -9,7 +9,7 @@ from BingService import BingService
 from FootnoteService import FootnoteService
 from LLMService import LLMServiceFactory
 from SemanticSearchService import SemanticSearchServiceFactory
-from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache
+from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root
 from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
 
@@ -18,7 +18,7 @@ logger = setup_logger('SearchGPTService')
 
 class SearchGPTService:
     def __init__(self, ui_overriden_config=None):
-        with open('config/config.yaml') as f:
+        with open(os.path.join(get_project_root(), 'src/config/config.yaml')) as f:
             self.config = yaml.load(f, Loader=yaml.FullLoader)
         self.overide_config_by_query_string(ui_overriden_config)
         self.validate_config()

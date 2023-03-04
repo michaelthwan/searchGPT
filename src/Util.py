@@ -1,10 +1,14 @@
 import logging
 import os
-import re
 import pickle
+import re
 import shutil
 from hashlib import md5
 from pathlib import Path
+
+
+def get_project_root() -> Path:
+    return Path(__file__).parent.parent
 
 
 def setup_logger(tag):
@@ -66,6 +70,7 @@ def check_max_number_of_cache(path: Path, max_number_of_cache: int = 10):
         ctime_list = [(os.path.getctime(path / file), file) for file in os.listdir(path)]
         oldest_file = sorted(ctime_list)[0][1]
         shutil.rmtree(path / oldest_file)
+
 
 def split_sentences_from_paragraph(text):
     sentences = re.split(r"(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s", text)

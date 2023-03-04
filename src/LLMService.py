@@ -1,9 +1,11 @@
+import os
 from abc import ABC, abstractmethod
+
 import openai
 import pandas as pd
 import yaml
 
-from Util import setup_logger
+from Util import setup_logger, get_project_root
 
 logger = setup_logger('LLMService')
 
@@ -137,7 +139,7 @@ class LLMServiceFactory:
 
 if __name__ == '__main__':
     # Load config
-    with open('config/config.yaml') as f:
+    with open(os.path.join(get_project_root(), 'src/config/config.yaml')) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
         service_factory = LLMServiceFactory()
         service = service_factory.create_llm_service(config)

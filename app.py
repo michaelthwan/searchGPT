@@ -1,12 +1,9 @@
-from flask import Flask
+from src.website import create_app
+import os, sys
 
-app = Flask(__name__)
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
-
-@app.route("/")
-def index():
-    return "Hello World!"
-
+app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=True)
