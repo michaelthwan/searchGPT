@@ -15,5 +15,6 @@
 *.pyc
 data*.properties
 /.idea/*
+/venv/*
 cache
 *.pickle

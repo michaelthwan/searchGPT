@@ -37,39 +37,35 @@ To run `searchGPT`, you'll need:
 
 * [Python 3.10.8](https://www.python.org/downloads/)
 * [OpenAI API Key](https://beta.openai.com/signup) or [GooseAI API Key](https://goose.ai/)
-    * OpenAI: First $18 is free
+    * OpenAI: First $18 is free (enough for you to have 3000+ searchs)
     * GooseAI: First $10 is free
 * [Azure Bing Search API Key](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api/)
-    * Free version is available
+    * Free version is available (3 searchs per second, 1000 searchs per month
 
 ### Installation
 
-1. Create your conda env and install python packages
+1. Create your python or anaconda env and install python packages
 
+Native
+```
+# using python=3.10.8
+pip install -r requirements.txt
+```
+
+Anaconda
 ```
 conda create --name searchgpt python=3.10.8
 conda activate searchgpt
 pip install -r requirements.txt
 ```
 
-2. Download Punkt Sentence Tokenizer data for nltk, a NLP toolkit used in the footnote service, via its data downloader.
-
-    - In Python, import nltk and run the following command:
-
-```
-import nltk
-nltk.download('punkt')
-```
-
-3. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml`
-4. Run `flask_app.py` for frontend web app launching. `main.py` for stdout output.
-5. (optional, if you use pyterrier) Install JAVA >= 11
+2. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml` (or using UI)
+3. Run `flask_app.py` for frontend web app launching. `main.py` for stdout output.
+4. (optional, if you use pyterrier) Install JAVA >= 11
     * Related linkes
         - https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows
         - https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.exe
-
     - Then set your JAVA_HOME environment variable
-
         - `JAVA_HOME="C:\Program Files\Java\jdk-19"`
 
 Contributing
