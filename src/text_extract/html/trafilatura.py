@@ -9,4 +9,7 @@ class TrafilaturaSvc(AbstractHtmlExtractSvc):
 
     def extract_from_html(self, html_str: str):
         extract = bare_extraction(html_str, favor_precision=True)
-        return extract['text'].split("\n")
+        try:
+            return extract['text'].split("\n")
+        except:
+            return []
