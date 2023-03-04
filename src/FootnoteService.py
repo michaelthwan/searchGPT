@@ -28,8 +28,28 @@ class FootnoteService:
         return response_df
 
     def get_footnote_from_sentences(self):
+        def get_footnote_result_sentence_dict(sentence, docno, rank, score, url_unique_ids, url, url_ids, source_sentence):
+            return {
+                'sentence': sentence,
+                'docno': docno,
+                'rank': rank,
+                'score': score,
+                'url_unique_ids': url_unique_ids,
+                'url': url,
+                'url_ids': url_ids,
+                'source_sentence': source_sentence
+            }
+
         logger.info(f'FootnoteService.get_footnote_from_sentences()')
+
         response_sentences_df = self.extract_sentences_from_paragraph()
+        if not self.config.get('search_option').get('is_use_source'):
+            footnote_result_list = []
+            for index, row in response_sentences_df.iterrows():
+                footnote_result_sentence_dict = get_footnote_result_sentence_dict(row["response_text_sentence"], [], [], [], [], [], [], [])
+                footnote_result_list.append(footnote_result_sentence_dict)
+            return footnote_result_list, pd.DataFrame()
+
         in_scope_source_df = self.gpt_input_text_df[self.gpt_input_text_df['in_scope']]
         source_index = self.semantic_search_service.index_text_df(in_scope_source_df, 'source_index')
 
@@ -58,16 +78,15 @@ class FootnoteService:
             else:
                 NotImplementedError(f'Unsupported semantic search provider: {self.semantic_search_service.provider}')
 
-            footnote_result_sentence_dict = {
-                'sentence': response_text_sentence,
-                'docno': result_within_scope_df['docno'].tolist(),
-                'rank': result_within_scope_df['rank'].tolist(),
-                'score': result_within_scope_df['score'].tolist(),
-                'url_unique_ids': sorted(result_within_scope_df['url_id'].unique().tolist()),
-                'url': result_within_scope_df['url'].tolist(),
-                'url_ids': result_within_scope_df['url_id'].tolist(),
-                'source_sentence': result_within_scope_df['text'].tolist()
-            }
+            footnote_result_sentence_dict = get_footnote_result_sentence_dict(response_text_sentence,
+                                                                              result_within_scope_df['docno'].tolist(),
+                                                                              result_within_scope_df['rank'].tolist(),
+                                                                              result_within_scope_df['score'].tolist(),
+                                                                              sorted(result_within_scope_df['url_id'].unique().tolist()),
+                                                                              result_within_scope_df['url'].tolist(),
+                                                                              result_within_scope_df['url_id'].tolist(),
+                                                                              result_within_scope_df['text'].tolist()
+                                                                              )
             footnote_result_list.append(footnote_result_sentence_dict)
         return footnote_result_list, in_scope_source_df
 
@@ -120,7 +139,7 @@ class FootnoteService:
             source_text_list.append(url_text)
 
             domain_name = urlparse(row['url']).netloc.replace('www.', '')
-            source_json.append(create_source_json_object(f"[{url_id_map[row['url_id']]}]", domain_name, row['url'], row['name'],row['snippet']))
+            source_json.append(create_source_json_object(f"[{url_id_map[row['url_id']]}]", domain_name, row['url'], row['name'], row['snippet']))
 
         source_text = ''.join(sorted(source_text_list))
         source_json = sorted(source_json, key=lambda x: x['footnote'])

@@ -1,12 +1,19 @@
 {% extends "base.html" %} {% block title %}SearchGPT{% endblock %}
 {% block content %}
 <div class="container mt-4">
+    {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Encountered error</strong> {{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
     <div>
         <form action="/index" method="get">
             <div class="input-group">
                 <input type="search" id="form1" class="form-control"
                        placeholder="Ask: e.g. What is ChatGPT"
-                       name="q" value="{{ request.args.get('q', '') }}"/>
+                       name="q" value="{{ request.args.get('q', '') }}"
+                       minlength="10" maxlength="200" required/>
                 <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
             </div>
             <div class="row mt-4">
@@ -48,10 +55,12 @@
                         <select class="form-control" id="llm_model" name="llm_model">
                             <option value="gpt-3.5-turbo">gpt-3.5-turbo (Best model that supporting ChatGPT)</option>
                             <option value="text-davinci-003"
-                                    {% if request.args.get('llm_model') == 'text-davinci-003' %} selected {% endif %}
+                                    {% if request.args.get(
+                            'llm_model') == 'text-davinci-003' %} selected {% endif %}
                             >text-davinci-003</option>
                             <option value="text-curie-001"
-                                    {% if request.args.get('llm_model') == 'text-curie-001' %} selected {% endif %}
+                                    {% if request.args.get(
+                            'llm_model') == 'text-curie-001' %} selected {% endif %}
                             >text-curie-001</option>
                         </select>
                     </div>
@@ -60,7 +69,8 @@
                         <select class="form-control" id="semantic_search_provider" name="semantic_search_provider">
                             <option value="faiss-openai">FAISS-OpenAI Embedding (fast, best accuracy, need OpenAI key)</option>
                             <option value="faiss-huggingface"
-                                    {% if request.args.get('semantic_search_provider') == 'faiss-huggingface' %} selected {% endif %}
+                                    {% if request.args.get(
+                            'semantic_search_provider') == 'faiss-huggingface' %} selected {% endif %}
                             >FAISS-HuggingFace Embedding (slow, good accuracy, free)</option>
                         </select>
                     </div>

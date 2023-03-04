@@ -1,6 +1,10 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %}
 {% block content %}
 <div class="container mt-4">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Encountered error!</strong> {{ "error message." }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     <div>
         <form action="#" method="get">
             <div class="input-group">
