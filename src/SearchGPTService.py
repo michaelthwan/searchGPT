@@ -17,9 +17,45 @@ logger = setup_logger('SearchGPTService')
 
 
 class SearchGPTService:
-    def __init__(self):
+    def __init__(self, ui_overriden_config=None):
         with open('config/config.yaml') as f:
             self.config = yaml.load(f, Loader=yaml.FullLoader)
+        self.overide_config_by_query_string(ui_overriden_config)
+        self.validate_config()
+
+    def overide_config_by_query_string(self, ui_overriden_config):
+        if ui_overriden_config is None:
+            return
+        for key, value in ui_overriden_config.items():
+            if value is not None:
+                # query_string is flattened (one level) while config.yaml is nested (two+ levels)
+                # Any better way to handle this?
+                if key == 'bing_search_subscription_key':
+                    self.config['bing_search']['subscription_key'] = value
+                elif key == 'openai_api_key':
+                    self.config['openai_api']['api_key'] = value
+                elif key == 'is_use_source':
+                    self.config['search_option']['is_use_source'] = False if value.lower() in ['false', '0'] else True
+                elif key == 'llm_service_provider':
+                    self.config['llm_service']['provider'] = value
+                elif key == 'llm_model':
+                    if self.config['llm_service']['provider'] == 'openai':
+                        self.config['openai_api']['model'] = value
+                    elif self.config['llm_service']['provider'] == 'goose_ai':
+                        self.config['goose_ai_api']['model'] = value
+                    else:
+                        raise Exception(f"llm_model is not supported for llm_service_provider: {self.config['llm_service']['provider']}")
+                elif key == 'semantic_search_provider':
+                    self.config['semantic_search']['provider'] = value
+                else:
+                    # invalid query_string but not throwing exception first
+                    pass
+
+    def validate_config(self):
+        if self.config['search_option']['is_enable_bing_search']:
+            assert self.config['bing_search']['subscription_key'], 'bing_search_subscription_key is required'
+        if self.config['llm_service']['provider'] == 'openai':
+            assert self.config['openai_api']['api_key'], 'openai_api_key is required'
 
     def _prompt(self, search_text, text_df, cache_path=None):
         semantic_search_service_factory = SemanticSearchServiceFactory()
