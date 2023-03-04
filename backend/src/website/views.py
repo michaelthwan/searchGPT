@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request
 from SearchGPTService import SearchGPTService
 from Util import setup_logger
 
-logger = setup_logger('SearchGPTService')
+logger = setup_logger('Views')
 views = Blueprint('views', __name__)
 
 
@@ -25,6 +25,7 @@ def index_page():
     if search_text is not None:
         search_gpt_service = SearchGPTService(ui_overriden_config)
         response_text, response_text_with_footnote, source_text, data_json = search_gpt_service.query_and_get_answer(search_text)
+        # response_text, response_text_with_footnote, source_text, data_json = "test", "test", "test", {'response_json': [], 'source_json': []}
     return render_template("index.html",
                            search_text=search_text or "Please search for something.",
                            response_json=data_json.get('response_json'),

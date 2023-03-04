@@ -35,7 +35,7 @@ class SearchGPTService:
                 elif key == 'openai_api_key':
                     self.config['openai_api']['api_key'] = value
                 elif key == 'is_use_source':
-                    self.config['search_option']['is_use_source'] = bool(value)
+                    self.config['search_option']['is_use_source'] = False if value.lower() in ['false', '0'] else True
                 elif key == 'llm_service_provider':
                     self.config['llm_service']['provider'] = value
                 elif key == 'llm_model':
