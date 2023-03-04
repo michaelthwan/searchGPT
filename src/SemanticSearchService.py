@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 import pandas as pd
-import pyterrier as pt
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
@@ -69,9 +68,9 @@ class PyTerrierService(SemanticSearchService):
         :return:
             indexref:
         """
-        if self.config.get('semantic_search').get('provider') == 'pyterrier':
-            if not pt.started():
-                pt.init()
+        import pyterrier as pt
+        if not pt.started():
+            pt.init()
         datetime_str = datetime.now().strftime("%Y%m%d_%H%M%S")
         df_indexer_path = os.path.join(self.cwd, f".index/{indexref_folder_name}_" + datetime_str)
         if not os.path.exists(df_indexer_path):
