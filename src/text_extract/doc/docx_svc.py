@@ -1,6 +1,6 @@
 import docx
-import nltk
 
+from Util import split_sentences_from_paragraph
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
 
 
@@ -13,7 +13,7 @@ class DocxSvc(AbstractDocExtractSvc):
         raw_text_list = [paragraph.text for paragraph in doc_file.paragraphs if len(paragraph.text) > 0]
         sentence_list = list()
         for raw_text in raw_text_list:
-            sentence_list.extend(nltk.sent_tokenize(raw_text))
+            sentence_list.extend(split_sentences_from_paragraph(raw_text))
 
         # Remove duplicates
         sentence_list = list(dict.fromkeys(sentence_list))

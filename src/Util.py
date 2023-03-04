@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import pickle
 import shutil
 from hashlib import md5
@@ -65,3 +66,14 @@ def check_max_number_of_cache(path: Path, max_number_of_cache: int = 10):
         ctime_list = [(os.path.getctime(path / file), file) for file in os.listdir(path)]
         oldest_file = sorted(ctime_list)[0][1]
         shutil.rmtree(path / oldest_file)
+
+def split_sentences_from_paragraph(text):
+    sentences = re.split(r"(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s", text)
+    return sentences
+
+
+if __name__ == '__main__':
+    text = "There are many things you can do to learn how to run faster, Mr. Wan, such as incorporating speed workouts into your running schedule, running hills, counting your strides, and adjusting your running form. Lean forward when you run and push off firmly with each foot. Pump your arms actively and keep your elbows bent at a 90-degree angle. Try to run every day, and gradually increase the distance you run for long-distance runs. Make sure you rest at least one day per week to allow your body to recover. Avoid running with excess gear that could slow you down."
+    sentences = split_sentences_from_paragraph(text)
+    print(len(sentences))
+    print(sentences)

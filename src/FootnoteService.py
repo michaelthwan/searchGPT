@@ -1,11 +1,10 @@
 from urllib.parse import urlparse
 
-import nltk
 import pandas as pd
 import pyterrier as pt
 
 from SemanticSearchService import SemanticSearchService
-from Util import setup_logger
+from Util import setup_logger, split_sentences_from_paragraph
 
 logger = setup_logger('FootnoteService')
 
@@ -24,7 +23,7 @@ class FootnoteService:
 
     def extract_sentences_from_paragraph(self):
         # TODO: currently only support English
-        sentences = nltk.sent_tokenize(self.response_text)
+        sentences = split_sentences_from_paragraph(self.response_text)
         response_df = pd.DataFrame(sentences, columns=['response_text_sentence'])
         return response_df
 
