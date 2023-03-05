@@ -27,7 +27,7 @@ class SearchGPTService:
         if ui_overriden_config is None:
             return
         for key, value in ui_overriden_config.items():
-            if value is not None:
+            if value is not None and value != '':
                 # query_string is flattened (one level) while config.yaml is nested (two+ levels)
                 # Any better way to handle this?
                 if key == 'bing_search_subscription_key':
