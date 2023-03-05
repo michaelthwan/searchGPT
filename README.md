@@ -7,6 +7,8 @@ This is a minimal implementation with modular plugin design, meaning you can cho
 
 You may imagine that it is like ChatGPT but answers using sources like the Internet and supports file content search.
 
+(Demo page link is available below!)
+
 ![webui](/img/webui.png)
 
 Features
