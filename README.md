@@ -7,7 +7,7 @@ This is a minimal implementation with modular plugin design, meaning you can cho
 
 You may imagine that it is like ChatGPT but answers using sources like the Internet and supports file content search.
 
-(Demo page link is available below!)
+### **(Demo page link is available below!)**
 
 ![webui](/img/webui.png)
 
@@ -19,6 +19,12 @@ Features
 * Sematic search from source ([FAISS](https://github.com/facebookresearch/faiss) / [pyterrier](https://github.com/terrier-org/pyterrier))
 * LLM integration: ([OpenAI](https://platform.openai.com/docs/api-reference?lang=python) / [GooseAI](https://goose.ai/), etc.)
 * Frontend: Easy-to-use and intuitive user interface
+
+Demo page
+---------------
+https://searchgpt-demo.herokuapp.com/index
+- Please remain only UI search and don't call it with a program.
+- Please be patient for the search loading time, which usually need ~10 seconds
 
 Architecture and roadmap
 ------------------------
@@ -43,11 +49,6 @@ Example of ungrounded false answers (both using `text-curie-001` model):
 |---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Japanese "www" is typically used as a placeholder for "www." For example, "This is www." is typically translated to "Kore wa www.". Japanese "www" is also used to indicate that a webpage is not currently being viewed.  | The meaning of "www" in Japanese is typically used to show amusement or to convey sarcasm. [1] It can also be used as a casual way to say "yes" or "okay." Additionally, speakers of Japanese may use "w" to represent the kana "笑" in online chat because it looks similar to the character for "laugh." [2] | 
 
-Demo page
----------------
-https://searchgpt-demo.herokuapp.com/index
-- Please remain only UI search and don't call it with a program.
-- Please be patient for the search loading time, which usually need ~10 seconds
 
 Getting Started
 ---------------
@@ -100,8 +101,3 @@ License
 -------
 
 `searchGPT` is licensed under the [MIT License](./LICENSE).
-
-Acknowledgments
----------------
-
-`searchGPT` wouldn't be possible without the support of the OpenAI community and the amazing technology provided by OpenAI.
