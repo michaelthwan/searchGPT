@@ -12,7 +12,7 @@ $(document).ready(function () {
                 q: search_text,
                 bing_search_subscription_key: $('#bing_search_subscription_key').val(),
                 openai_api_key: $('#openai_api_key').val(),
-                is_use_source: $('input[name="is_use_source"]').val(),
+                is_use_source: $('input[name="is_use_source"]')[0].checked,
                 llm_service_provider: $('#llm_service_provider').val(),
                 llm_model: $('#llm_model').val(),
                 semantic_search_provider: $('#semantic_search_provider').val()
