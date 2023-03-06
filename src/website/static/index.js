@@ -1,11 +1,7 @@
 $(document).ready(function () {
-    $('#search-btn').click(function (event) {
+    $('form').submit(function(event) {
         event.preventDefault();
         let search_text = $('#form1').val();
-        if (search_text.length === 0) {
-            alert("Please input any search query. ");
-            return
-        }
         $('#search-btn')[0].disabled = true;
         $('#search-result-spinner').addClass('d-flex');
         $('#search-results').hide();
