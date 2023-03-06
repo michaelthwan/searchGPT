@@ -8,6 +8,7 @@ views = Blueprint('views', __name__)
 
 
 @views.route('/', methods=['GET'])
+@views.route('/index', methods=['GET'])
 def start_page():
     data_json = {'response_json': [], 'source_json': []}
     return render_template("index.html",
