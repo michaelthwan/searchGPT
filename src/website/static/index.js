@@ -6,6 +6,9 @@ $(document).ready(function () {
             alert("Please input any search query. ");
             return
         }
+        $('#search-btn')[0].disabled = true;
+        $('#search-result-spinner').addClass('d-flex');
+        $('#search-results').hide();
         $.ajax({
             url: '/search',
             type: 'POST',
@@ -20,9 +23,15 @@ $(document).ready(function () {
             },
             success: function (response) {
                 $('#' + response.id).html(response.html)
+                $('#search-btn')[0].disabled = false;
+                $('#search-result-spinner').removeClass('d-flex');
+                $('#search-results').show();
             },
             error: function (error) {
                 console.log(error)
+                $('#search-btn')[0].disabled = false;
+                $('#search-result-spinner').removeClass('d-flex');
+                $('#search-results').show();
             }
         })
     })
