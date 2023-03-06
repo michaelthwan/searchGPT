@@ -10,7 +10,7 @@
                 <input type="search" id="form1" class="form-control"
                        placeholder="Ask: e.g. What is ChatGPT"
                        name="q" value="{{ request.args.get('q', '') }}"
-                       minlength="10" maxlength="200" required/>
+                       minlength="5" maxlength="200" required/>
                 <button type="submit" class="btn btn-primary" id="search-btn"><i class="fa fa-search"></i></button>
             </div>
             <div class="row mt-4">
