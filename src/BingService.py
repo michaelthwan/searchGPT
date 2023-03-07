@@ -103,15 +103,18 @@ class BingService:
 
     def extract_sentences_from_url(self, url):
         # Fetch the HTML content of the page
+        extract_text = []
+
         try:
             response = requests.get(url, timeout=3)
+
+            if response.status_code == 200:
+                # Parse HTML and extract text
+                extract_text = self.txt_extract_svc.extract_from_html(response.text)
+
         except:
             logger.error(f"Failed to fetch url: {url}")
-            return []
-        html_content = response.text
 
-        # Use BeautifulSoup to parse the HTML and extract the text
-        extract_text = self.txt_extract_svc.extract_from_html(html_content)
         return extract_text
 
 
