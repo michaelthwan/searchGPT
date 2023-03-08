@@ -179,7 +179,7 @@ class BatchOpenAISemanticSearchService:
     @staticmethod
     def compute_embeddings_for_text_df(text_df: pd.DataFrame):
         """Compute embeddings for a text_df and return the text_df with the embeddings column added."""
-        print(f'compute_embeddings_2() len(texts): {len(text_df)}')
+        print(f'compute_embeddings_for_text_df() len(texts): {len(text_df)}')
         text_df['text'] = text_df['text'].apply(lambda x: x.replace("\n", " "))
         text_df['embedding'] = BatchOpenAISemanticSearchService.batch_call_embeddings(text_df['text'].tolist())
         return text_df

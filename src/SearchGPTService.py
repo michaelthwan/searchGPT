@@ -70,7 +70,7 @@ class SearchGPTService:
             prompt, response_text = cache['prompt'], cache['response_text']
         else:
             llm_service = LLMServiceFactory.create_llm_service(self.config)
-            prompt = llm_service.get_prompt(search_text, gpt_input_text_df)
+            prompt = llm_service.get_prompt_v3(search_text, gpt_input_text_df)
             response_text = llm_service.call_api(prompt)
 
             llm_config = self.config.get(f'{llm_service_provider}_api').copy()

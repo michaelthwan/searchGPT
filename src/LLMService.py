@@ -56,6 +56,31 @@ Answer:
 """
         return prompt
 
+    def get_prompt_v3(self, search_text: str, gpt_input_text_df: pd.DataFrame):
+        logger.info(f"OpenAIService.get_prompt_v3. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
+        context_str = ""
+        gpt_input_text_df = gpt_input_text_df[gpt_input_text_df['in_scope']].sort_values('url_id')
+        url_id_list = gpt_input_text_df['url_id'].unique()
+        for url_id in url_id_list:
+            context_str += f"Source ({url_id})\n"
+            for index, row in gpt_input_text_df[gpt_input_text_df['url_id'] == url_id].iterrows():
+                context_str += f"{row['text']}\n"
+            context_str += "\n"
+        prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
+        context_str = context_str[:prompt_length_limit]
+        prompt = \
+            f"""
+Web search result:
+{context_str}
+
+Instructions: Using the provided web search results, write a comprehensive reply to the given query. 
+Make sure to cite results using [number] notation after the reference.
+If the provided search results refer to multiple subjects with the same name, write separate answers for each subject. 
+If the context is insufficient, reply "I cannot answer".
+Query: {search_text}
+"""
+        return prompt
+
     @abstractmethod
     def call_api(self, prompt):
         pass
