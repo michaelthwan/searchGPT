@@ -85,7 +85,7 @@ Web search result:
 Instructions: Using the provided web search results, write a comprehensive reply to the given query. 
 Make sure to cite results using [number] notation after the reference.
 If the provided search results refer to multiple subjects with the same name, write separate answers for each subject. 
-If the context is insufficient, reply "I cannot answer".
+If the context is insufficient, reply "I cannot answer because my reference sources don't have related info".
 Query: {search_text}
 """
         return prompt

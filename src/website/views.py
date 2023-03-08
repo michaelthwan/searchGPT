@@ -31,7 +31,6 @@ def index_page():
             'is_use_source': request.values.get('is_use_source'),
             'llm_service_provider': request.values.get('llm_service_provider'),
             'llm_model': request.values.get('llm_model'),
-            'semantic_search_provider': request.values.get('semantic_search_provider'),
         }
         logger.info(f"GET ui_overriden_config: {ui_overriden_config}")
 

@@ -45,8 +45,6 @@ class SearchGPTService:
                         self.config['goose_ai_api']['model'] = value
                     else:
                         raise Exception(f"llm_model is not supported for llm_service_provider: {self.config['llm_service']['provider']}")
-                elif key == 'semantic_search_provider':
-                    self.config['semantic_search']['provider'] = value
                 else:
                     # invalid query_string but not throwing exception first
                     pass
