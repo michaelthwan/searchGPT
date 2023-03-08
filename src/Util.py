@@ -2,11 +2,12 @@ import logging
 import os
 import pickle
 import re
-import shutil
+from copy import deepcopy
 from functools import wraps
 from hashlib import md5
 from pathlib import Path
-from copy import deepcopy
+
+
 def get_project_root() -> Path:
     return Path(__file__).parent.parent
 
