@@ -9,7 +9,7 @@ from BingService import BingService
 from FootnoteService import FootnoteService
 from LLMService import LLMServiceFactory
 from SemanticSearchService import SemanticSearchServiceFactory
-from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root, storage_cached
+from Util import setup_logger, post_process_gpt_input_text_df, get_project_root, storage_cached
 from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
 
@@ -66,9 +66,6 @@ class SearchGPTService:
         llm_service = LLMServiceFactory.create_llm_service(self.config)
         prompt = llm_service.get_prompt(search_text, gpt_input_text_df)
         response_text = llm_service.call_api(prompt=prompt)
-
-        # check whether the number of cache exceeds the limit
-        check_max_number_of_cache(cache_path, self.config.get('cache').get('max_number_of_cache'))
 
         print('===========Prompt:============')
         print(prompt)

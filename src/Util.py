@@ -43,33 +43,30 @@ def post_process_gpt_input_text_df(gpt_input_text_df, prompt_length_limit):
 
 
 def save_result_cache(path: Path, hash: str, type: str, **kwargs):
-    cache_dir = path / md5(hash.encode()).hexdigest()
-
+    cache_dir = path / type
     os.makedirs(cache_dir, exist_ok=True)
-    path = Path(cache_dir, f'{type}.pickle')
+    path = Path(cache_dir, f'{hash}.pickle')
     with open(path, 'wb') as f:
         pickle.dump(kwargs, f)
 
 
 def load_result_from_cache(path: Path, hash: str, type: str):
-    path = path / f'{md5(hash.encode()).hexdigest()}' / f'{type}.pickle'
+    path = path / type / f'{hash}.pickle'
     with open(path, 'rb') as f:
         return pickle.load(f)
 
 
 def check_result_cache_exists(path: Path, hash: str, type: str) -> bool:
-    path = path / f'{md5(hash.encode()).hexdigest()}' / f'{type}.pickle'
-    if os.path.exists(path):
-        return True
-    else:
-        return False
+    path = path / type / f'{hash}.pickle'
+    return True if os.path.exists(path) else False
 
 
-def check_max_number_of_cache(path: Path, max_number_of_cache: int = 10):
-    if len(os.listdir(path)) >= max_number_of_cache:
+def check_max_number_of_cache(path: Path, type: str, max_number_of_cache: int = 10):
+    path = path / type
+    if len(os.listdir(path)) > max_number_of_cache:
         ctime_list = [(os.path.getctime(path / file), file) for file in os.listdir(path)]
         oldest_file = sorted(ctime_list)[0][1]
-        shutil.rmtree(path / oldest_file)
+        os.remove(path / oldest_file)
 
 
 def split_sentences_from_paragraph(text):
@@ -110,8 +107,10 @@ def storage_cached(cache_type: str, cache_hash_key_name: str):
                 else:
                     result = func(*args, **kwargs)
                     config_for_cache = deepcopy(config)
-                    config_for_cache = remove_api_keys(config_for_cache)   # remove api keys
+                    config_for_cache = remove_api_keys(config_for_cache)  # remove api keys
                     save_result_cache(cache_path, cache_hash, cache_type, result=result, config=config_for_cache)
+
+                    check_max_number_of_cache(cache_path, cache_type, config.get('cache').get('max_number_of_cache'))
             else:
                 result = func(*args, **kwargs)
 

@@ -36,7 +36,7 @@ cache:  # .cache result for efficiency and consistency
     openai: false
     gooseai: false
   path: .cache
-  max_number_of_cache: 0
+  max_number_of_cache: 10
 semantic_search:
   # provider list:
   # faiss-openai (default): Use OpenAIEmbedding. fast, good accuracy but need openai key (cost)
