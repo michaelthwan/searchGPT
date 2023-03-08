@@ -8,7 +8,7 @@ import yaml
 from BingService import BingService
 from FootnoteService import FootnoteService
 from LLMService import LLMServiceFactory
-from SemanticSearchService import SemanticSearchServiceFactory
+from SemanticSearchService import BatchOpenAISemanticSearchService
 from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root
 from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
@@ -58,9 +58,8 @@ class SearchGPTService:
             assert self.config['openai_api']['api_key'], 'openai_api_key is required'
 
     def _prompt(self, search_text, text_df, cache_path=None):
-        semantic_search_service_factory = SemanticSearchServiceFactory()
-        semantic_search_service = semantic_search_service_factory.create_semantic_search_service(self.config)
-        gpt_input_text_df = semantic_search_service.retrieve_result_by_search_text_from_text_df(search_text, text_df)
+        semantic_search_service = BatchOpenAISemanticSearchService(self.config)
+        gpt_input_text_df = semantic_search_service.search_related_source(text_df, search_text)
         gpt_input_text_df = post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('openai_api').get('prompt').get('prompt_length_limit'))
 
         llm_service_provider = self.config.get('llm_service').get('provider')

@@ -40,7 +40,7 @@ def search_similar(df: pd.DataFrame, target_text, n=3, pprint=True):
     return res, df
 
 
-def compute_embeddings_2(df, model=BASE_MODEL, chunk_size=1000):
+def compute_embeddings_2(text_df, model=BASE_MODEL, chunk_size=1000):
     print(f'compute_embeddings_2() len(texts): {len(df)}')
     text_df['text'] = text_df['text'].apply(lambda x: x.replace("\n", " "))
     embeddings = []

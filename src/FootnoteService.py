@@ -2,14 +2,14 @@ from urllib.parse import urlparse
 
 import pandas as pd
 
-from SemanticSearchService import SemanticSearchService
+from SemanticSearchService import BatchOpenAISemanticSearchService
 from Util import setup_logger, split_sentences_from_paragraph
 
 logger = setup_logger('FootnoteService')
 
 
 class FootnoteService:
-    def __init__(self, config, response_text, gpt_input_text_df, semantic_search_service: SemanticSearchService):
+    def __init__(self, config, response_text, gpt_input_text_df, semantic_search_service: BatchOpenAISemanticSearchService):
         self.config = config
         self.response_text = response_text
         used_columns = ['docno', 'name', 'url', 'url_id', 'text', 'len_text', 'in_scope']  # TODO: add url_id
