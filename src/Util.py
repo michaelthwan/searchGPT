@@ -96,11 +96,11 @@ def storage_cached(cache_type: str, cache_hash_key_name: str):
         @wraps(func)
         def wrapper(*args, **kwargs):
             assert getattr(args[0], 'config'), 'storage_cached is only applicable to class method with config attribute'
-            assert kwargs[cache_hash_key_name], f'Target method does not have {cache_hash_key_name} keyword argument'
+            assert cache_hash_key_name in kwargs, f'Target method does not have {cache_hash_key_name} keyword argument'
 
             config = getattr(args[0], 'config')
             if config.get('cache').get('is_enable').get(cache_type):
-                hash_key = kwargs[cache_hash_key_name]
+                hash_key = str(kwargs[cache_hash_key_name])
 
                 cache_path = Path(config.get('cache').get('path'))
                 cache_hash = md5(str(config).encode() + hash_key.encode()).hexdigest()
