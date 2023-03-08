@@ -31,6 +31,10 @@ goose_ai_api:
 cache:  # .cache result for efficiency and consistency
   is_enable:
     web: true
+    bing_search_website: false
+    bing_search_website_content: false
+    openai: false
+    gooseai: false
   path: .cache
   max_number_of_cache: 0
 semantic_search:
