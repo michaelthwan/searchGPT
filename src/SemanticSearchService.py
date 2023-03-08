@@ -192,6 +192,7 @@ class BatchOpenAISemanticSearchService:
         text_df['similarities'] = text_df['embedding'].apply(lambda x: cosine_similarity(x, embedding))
         result_df = text_df.sort_values('similarities', ascending=False).head(n)
         result_df['rank'] = range(1, len(result_df) + 1)
+        result_df['docno'] = range(1, len(result_df) + 1)
         return result_df
 
 
