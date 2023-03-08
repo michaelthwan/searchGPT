@@ -9,7 +9,7 @@ from BingService import BingService
 from FootnoteService import FootnoteService
 from LLMService import LLMServiceFactory
 from SemanticSearchService import SemanticSearchServiceFactory
-from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root
+from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root, storage_cached
 from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
 
@@ -143,6 +143,7 @@ class SearchGPTService:
         doc_text_df = pd.DataFrame(doc_sentence_list)
         return doc_text_df
 
+    @storage_cached('web', 'search_text')
     def query_and_get_answer(self, search_text):
         cache_path = Path(self.config.get('cache').get('path'))
         # TODO: strategy pattern to support different text sources (e.g. PDF later)
