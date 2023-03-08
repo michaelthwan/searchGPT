@@ -6,7 +6,7 @@ import shutil
 from functools import wraps
 from hashlib import md5
 from pathlib import Path
-
+from copy import deepcopy
 def get_project_root() -> Path:
     return Path(__file__).parent.parent
 
@@ -109,7 +109,7 @@ def storage_cached(cache_type: str, cache_hash_key_name: str):
                     result = load_result_from_cache(cache_path, cache_hash, cache_type)['result']
                 else:
                     result = func(*args, **kwargs)
-                    config_for_cache = config.copy()
+                    config_for_cache = deepcopy(config)
                     config_for_cache = remove_api_keys(config_for_cache)   # remove api keys
                     save_result_cache(cache_path, cache_hash, cache_type, result=result, config=config_for_cache)
             else:
