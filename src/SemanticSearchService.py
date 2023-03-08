@@ -163,6 +163,7 @@ logger = setup_logger('SemanticSearchService')
 
 class BatchOpenAISemanticSearchService:
     def __init__(self, config):
+        self.config = config
         openai.api_key = config.get('openai_api').get('api_key')
 
     @staticmethod
@@ -184,8 +185,11 @@ class BatchOpenAISemanticSearchService:
         text_df['embedding'] = BatchOpenAISemanticSearchService.batch_call_embeddings(text_df['text'].tolist())
         return text_df
 
-    @staticmethod
-    def search_related_source(text_df: pd.DataFrame, target_text, n=30):
+    def search_related_source(self, text_df: pd.DataFrame, target_text, n=30):
+        if not self.config.get('search_option').get('is_use_source'):
+            col = ['name', 'url', 'url_id', 'snippet', 'text', 'similarities', 'rank', 'docno']
+            return pd.DataFrame(columns=col)
+
         print(f'search_similar() text: {target_text}')
         embedding = BatchOpenAISemanticSearchService.batch_call_embeddings([target_text])[0]
         text_df = BatchOpenAISemanticSearchService.compute_embeddings_for_text_df(text_df)

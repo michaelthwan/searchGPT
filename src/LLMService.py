@@ -57,6 +57,15 @@ Answer:
         return prompt
 
     def get_prompt_v3(self, search_text: str, gpt_input_text_df: pd.DataFrame):
+        if not self.config.get('search_option').get('is_use_source'):
+            prompt = \
+                f"""
+Instructions: Write a comprehensive reply to the given query.  
+If the context is insufficient, reply "I cannot answer".
+Query: {search_text}
+"""
+            return prompt
+
         logger.info(f"OpenAIService.get_prompt_v3. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
         context_str = ""
         gpt_input_text_df = gpt_input_text_df[gpt_input_text_df['in_scope']].sort_values('url_id')
