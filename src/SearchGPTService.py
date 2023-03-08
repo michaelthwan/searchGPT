@@ -6,7 +6,7 @@ import pandas as pd
 import yaml
 
 from BingService import BingService
-from FootnoteService import FootnoteService
+from FrontendService import FrontendService
 from LLMService import LLMServiceFactory
 from SemanticSearchService import BatchOpenAISemanticSearchService
 from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root
@@ -87,9 +87,8 @@ class SearchGPTService:
         print('===========Response text (raw):============')
         print(response_text)
 
-        footnote_service = FootnoteService(self.config, response_text, gpt_input_text_df, semantic_search_service)
-        footnote_result_list, in_scope_source_df = footnote_service.get_footnote_from_sentences()
-        response_text_with_footnote, source_text, data_json = footnote_service.pretty_print_footnote_result_list(footnote_result_list, gpt_input_text_df)
+        frontend_service = FrontendService(self.config, response_text, gpt_input_text_df)
+        response_text_with_footnote, source_text, data_json = frontend_service.get_data_json(response_text, gpt_input_text_df)
 
         return response_text, response_text_with_footnote, source_text, data_json
 
