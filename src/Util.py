@@ -99,7 +99,7 @@ def storage_cached(cache_type: str, cache_hash_key_name: str):
             assert kwargs[cache_hash_key_name], f'Target method does not have {cache_hash_key_name} keyword argument'
 
             config = getattr(args[0], 'config')
-            if config.get('cache').get('is_enable_cache'):
+            if config.get('cache').get('is_enable').get(cache_type):
                 hash_key = kwargs[cache_hash_key_name]
 
                 cache_path = Path(config.get('cache').get('path'))

@@ -29,7 +29,8 @@ goose_ai_api:
   model: gpt-neo-20b
   max_tokens: 100
 cache:  # .cache result for efficiency and consistency
-  is_enable_cache: false
+  is_enable:
+    web: true
   path: .cache
   max_number_of_cache: 0
 semantic_search:
