@@ -21,7 +21,7 @@ class FrontendService:
         def create_source_json_object(footnote, domain, url, title, text):
             return {"footnote": footnote, "domain": domain, "url": url, "title": title, "text": text}
 
-        def get_response_json(create_response_json_object, response_text):
+        def get_response_json(response_text):
             response_json = []
             split_sentence = re.findall(r'\[[0-9]+\]|[^\[\]]+', response_text)
             for sentence in split_sentence:
@@ -29,10 +29,9 @@ class FrontendService:
                     response_json.append(create_response_json_object(sentence, "footnote"))
                 else:
                     response_json.append(create_response_json_object(sentence, "response"))
-            response_text_with_footnote = response_text
-            return response_json, response_text_with_footnote
+            return response_json
 
-        def get_source_json(create_source_json_object, gpt_input_text_df):
+        def get_source_json(gpt_input_text_df):
             in_scope_source_df = gpt_input_text_df[gpt_input_text_df['in_scope']].copy()
             in_scope_source_df.loc[:, 'docno'] = in_scope_source_df['docno'].astype(int)
             in_scope_source_df.sort_values('docno', inplace=True)
@@ -51,13 +50,14 @@ class FrontendService:
                 domain_name = urlparse(row['url']).netloc.replace('www.', '')
                 source_json.append(create_source_json_object(f"[{row['url_id']}]", domain_name, row['url'], row['name'], row['snippet']))
             source_text = ''.join(sorted(source_text_list))
+
             source_json = sorted(source_json, key=lambda x: x['footnote'])
             return source_json, source_text
 
-        response_json, response_text_with_footnote = get_response_json(create_response_json_object, response_text)
-        source_json, source_text = get_source_json(create_source_json_object, gpt_input_text_df)
+        response_json = get_response_json(response_text)
+        source_json, source_text = get_source_json(gpt_input_text_df)
 
-        return response_text_with_footnote, source_text, {'response_json': response_json, 'source_json': source_json}
+        return source_text, {'response_json': response_json, 'source_json': source_json}
 
 
 if __name__ == '__main__':

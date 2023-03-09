@@ -87,8 +87,7 @@ class SearchGPTService:
 
         frontend_service = FrontendService(self.config, response_text, gpt_input_text_df)
         response_text_with_footnote, source_text, data_json = frontend_service.get_data_json(response_text, gpt_input_text_df)
-
-        return response_text, response_text_with_footnote, source_text, data_json
+        return response_text, source_text, data_json
 
     def _extract_bing_text_df(self, search_text, cache_path):
         # BingSearch using search_text

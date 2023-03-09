@@ -36,8 +36,7 @@ def index_page():
 
         if search_text is not None:
             search_gpt_service = SearchGPTService(ui_overriden_config)
-            response_text, response_text_with_footnote, source_text, data_json = search_gpt_service.query_and_get_answer(search_text)
-            # response_text, response_text_with_footnote, source_text, data_json = "test", "test", "test", {'response_json': [], 'source_json': []}
+            _, _, data_json = search_gpt_service.query_and_get_answer(search_text)
     except Exception as e:
         error = str(e)
 
