@@ -24,6 +24,7 @@ def setup_logger(tag):
 
 def post_process_gpt_input_text_df(gpt_input_text_df, prompt_length_limit):
     # clean out of prompt texts
+    gpt_input_text_df['text'] = gpt_input_text_df['text'].apply(lambda x: re.sub(r'\[[0-9]+\]', '', x))
     gpt_input_text_df['len_text'] = gpt_input_text_df['text'].apply(lambda x: len(x))
     gpt_input_text_df['cumsum_len_text'] = gpt_input_text_df['len_text'].cumsum()
     max_rank = gpt_input_text_df[gpt_input_text_df['cumsum_len_text'] <= prompt_length_limit]['rank'].max() + 1
