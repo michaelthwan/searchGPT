@@ -1,0 +1,40 @@
+<div id="accordion">
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Explain
+                </button>
+            </h5>
+        </div>
+        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h2>{{search_text}}</h2>
+                        <p>
+                            {% for item in response_explain_json %}
+                            {% if item['type'] == 'keyword' %}
+                            <span style="background-color: {{item['color']}}">{{ item['text'] }}</span>
+                            {% else %}
+                            {{ item['text'] }}
+                            {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                    <div class="col-md-8">
+                        <p>
+                            {% for item in source_explain_json %}
+                            {% if item['type'] == 'keyword' %}
+                            <span style="background-color: {{item['color']}}">{{ item['text'] }}</span>
+                            {% else %}
+                            {{ item['text'] }}
+                            {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
