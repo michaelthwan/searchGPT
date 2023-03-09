@@ -22,17 +22,27 @@ class FrontendService:
             return {"footnote": footnote, "domain": domain, "url": url, "title": title, "text": text}
 
         def get_response_json(response_text):
+            # find reference in text & re-order
+            url_id_list = [int(x) for x in dict.fromkeys(re.findall(r'\[([0-9]+)\]', response_text))]
+            url_id_map = dict(zip(url_id_list, range(1, len(url_id_list) + 1)))
+
+            for url_id, new_url_id in url_id_map.items():
+                response_text = response_text.replace(f'[{url_id}]', f'[{new_url_id}]')
+
             response_json = []
             split_sentence = re.findall(r'\[[0-9]+\]|[^\[\]]+', response_text)
+
             for sentence in split_sentence:
                 if sentence.startswith('[') and sentence.endswith(']'):
                     response_json.append(create_response_json_object(sentence, "footnote"))
                 else:
                     response_json.append(create_response_json_object(sentence, "response"))
-            return response_json
+            return response_json, url_id_map
 
-        def get_source_json(gpt_input_text_df):
-            in_scope_source_df = gpt_input_text_df[gpt_input_text_df['in_scope']].copy()
+        def get_source_json(gpt_input_text_df, url_id_map):
+            # include only sources used in response_text & remap url_id
+            in_scope_source_df = gpt_input_text_df[gpt_input_text_df['url_id'].isin(url_id_map.keys()) & gpt_input_text_df['in_scope']].copy()
+            in_scope_source_df['url_id'] = in_scope_source_df['url_id'].map(url_id_map)
             in_scope_source_df.loc[:, 'docno'] = in_scope_source_df['docno'].astype(int)
             in_scope_source_df.sort_values('docno', inplace=True)
             source_text_list = []
@@ -54,8 +64,8 @@ class FrontendService:
             source_json = sorted(source_json, key=lambda x: x['footnote'])
             return source_json, source_text
 
-        response_json = get_response_json(response_text)
-        source_json, source_text = get_source_json(gpt_input_text_df)
+        response_json, url_id_map = get_response_json(response_text)
+        source_json, source_text = get_source_json(gpt_input_text_df, url_id_map)
 
         return source_text, {'response_json': response_json, 'source_json': source_json}
 

@@ -68,7 +68,6 @@ Query: {search_text}
 
         logger.info(f"OpenAIService.get_prompt_v3. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
         context_str = ""
-        gpt_input_text_df = gpt_input_text_df[gpt_input_text_df['in_scope']].sort_values('url_id')
         url_id_list = gpt_input_text_df['url_id'].unique()
         for url_id in url_id_list:
             context_str += f"Source ({url_id})\n"

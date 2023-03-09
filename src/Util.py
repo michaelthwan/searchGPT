@@ -29,6 +29,9 @@ def post_process_gpt_input_text_df(gpt_input_text_df, prompt_length_limit):
     gpt_input_text_df['cumsum_len_text'] = gpt_input_text_df['len_text'].cumsum()
     max_rank = gpt_input_text_df[gpt_input_text_df['cumsum_len_text'] <= prompt_length_limit]['rank'].max() + 1
     gpt_input_text_df['in_scope'] = gpt_input_text_df['rank'] <= max_rank  # In order to get also the row slightly larger than prompt_length_limit
+    url_id_list = gpt_input_text_df['url_id'].unique()
+    url_id_map = dict(zip(url_id_list, range(1, len(url_id_list) + 1)))
+    gpt_input_text_df['url_id'] = gpt_input_text_df['url_id'].map(url_id_map)
     return gpt_input_text_df
 
 
