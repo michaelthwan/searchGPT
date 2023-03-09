@@ -32,10 +32,3 @@ cache:  # .cache result for efficiency and consistency
   is_enable_cache: false
   path: .cache
   max_number_of_cache: 0
-semantic_search:
-  # provider list:
-  # faiss-openai (default): Use OpenAIEmbedding. fast, good accuracy but need openai key (cost)
-  # faiss-huggingface: Use HuggingFaceEmbedding. slow, good accuracy but free (need to download)
-  # pyterrier: Use PyTerrier Tf (term frequency). fast, fair accuracy and free (need to install pyterrier and java)
-  provider: faiss-openai
-

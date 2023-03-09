@@ -14,8 +14,7 @@ $(document).ready(function () {
                 openai_api_key: $('#openai_api_key').val(),
                 is_use_source: $('input[name="is_use_source"]')[0].checked,
                 llm_service_provider: $('#llm_service_provider').val(),
-                llm_model: $('#llm_model').val(),
-                semantic_search_provider: $('#semantic_search_provider').val()
+                llm_model: $('#llm_model').val()
             },
             success: function (response) {
                 $('#' + response.id).html(response.html)

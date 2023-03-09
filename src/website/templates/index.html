@@ -63,17 +63,6 @@
                             >text-curie-001</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="semantic_search_provider">Semantic Search Provider</label>
-                        <select class="form-control" id="semantic_search_provider" name="semantic_search_provider">
-                            <option value="faiss-openai">FAISS-OpenAI Embedding (fast, best accuracy, need OpenAI key)
-                            </option>
-                            <option value="faiss-huggingface"
-                                    {% if request.args.get(
-                            'semantic_search_provider') == 'faiss-huggingface' %} selected {% endif %}
-                            >FAISS-HuggingFace Embedding (slow, good accuracy, free)</option>
-                        </select>
-                    </div>
                 </div>
             </div>
         </form>
