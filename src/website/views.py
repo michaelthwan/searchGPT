@@ -19,11 +19,13 @@ memory_snapshot = None
 @views.route('/', methods=['GET'])
 @views.route('/index', methods=['GET'])
 def start_page():
-    data_json = {'response_json': [], 'source_json': []}
+    data_json = {'response_json': [], 'source_json': [], 'response_explain_json': [], 'source_explain_json': []}
     return render_template("index.html",
                            search_text='' or "Please search for something.",
                            response_json=data_json.get('response_json'),
                            source_json=data_json.get('source_json'),
+                           response_explain_json=data_json.get('response_explain_json'),
+                           source_explain_json=data_json.get('source_explain_json'),
                            error=None
                            )
 
@@ -53,16 +55,30 @@ def index_page():
         result_html = render_template('search_result.html',
                                       search_text=search_text,
                                       response_json=data_json.get('response_json'),
-                                      source_json=data_json.get('source_json'))
+                                      source_json=data_json.get('source_json'),
+                                      )
+        explain_html = render_template('explain_result.html',
+                                       search_text=search_text,
+                                       response_explain_json=data_json.get('response_explain_json'),
+                                       source_explain_json=data_json.get('source_explain_json'),
+                                       )
+
         return {
             'id': 'search-results',
-            'html': result_html
+            'html': result_html,
+            'explain_html': explain_html,
         }
     else:
         result_html = render_template('alert_box.html', error=error)
+        explain_html = render_template('explain_result.html',
+                                       search_text=search_text,
+                                       response_explain_json=[],
+                                       source_explain_json=[],
+                                       )
         return {
             'id': 'alert-box',
-            'html': result_html
+            'html': result_html,
+            'explain_html': explain_html,
         }
 
 
