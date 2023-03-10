@@ -1,3 +1,7 @@
+import tracemalloc
+
+import os
+import psutil
 from flask import Blueprint, render_template, request
 
 from SearchGPTService import SearchGPTService
@@ -5,6 +9,11 @@ from Util import setup_logger
 
 logger = setup_logger('Views')
 views = Blueprint('views', __name__)
+
+
+process = psutil.Process(os.getpid())
+tracemalloc.start()
+memory_snapshot = None
 
 
 @views.route('/', methods=['GET'])
@@ -65,3 +74,23 @@ def index_static_page():
 @views.route("/data", methods=["GET"])
 def get_data():
     return {'id': 1, 'test': 'test'}
+
+@views.route('/memory')
+def print_memory():
+    return {'memory': process.memory_info().rss}
+
+
+@views.route("/snapshot")
+def snap():
+    global memory_snapshot
+    if not memory_snapshot:
+        memory_snapshot = tracemalloc.take_snapshot()
+        return "taken snapshot\n"
+    else:
+        lines = []
+        memory_snapshot_temp = tracemalloc.take_snapshot()
+        top_stats = memory_snapshot_temp.compare_to(memory_snapshot, 'lineno')
+        memory_snapshot = memory_snapshot_temp
+        for stat in top_stats[:5]:
+            lines.append(str(stat))
+        return "\n".join(lines)
