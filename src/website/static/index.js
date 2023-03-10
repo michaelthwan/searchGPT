@@ -5,6 +5,7 @@ $(document).ready(function () {
         $('#search-btn')[0].disabled = true;
         $('#search-result-spinner').addClass('d-flex');
         $('#search-results').hide();
+        $('#explain_results').hide();
         $.ajax({
             url: '/search',
             type: 'POST',
@@ -22,6 +23,7 @@ $(document).ready(function () {
                 $('#search-btn')[0].disabled = false;
                 $('#search-result-spinner').removeClass('d-flex');
                 $('#search-results').show();
+                $('#explain_results').show();
             },
             error: function (error) {
                 console.log(error)
@@ -29,6 +31,7 @@ $(document).ready(function () {
                 $('#search-btn')[0].disabled = false;
                 $('#search-result-spinner').removeClass('d-flex');
                 $('#search-results').show();
+                $('#explain_results').show();
             }
         })
     })
