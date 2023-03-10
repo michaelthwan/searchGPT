@@ -22,3 +22,6 @@ python-pptx==0.6.21
 # html extraction
 beautifulsoup4==4.11.2
 trafilatura==1.4.1
+
+# misc
+psutil==5.9.4

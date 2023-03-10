@@ -78,17 +78,19 @@ class SearchGPTService:
         # check whether the number of cache exceeds the limit
         check_max_number_of_cache(cache_path, self.config.get('cache').get('max_number_of_cache'))
 
+        frontend_service = FrontendService(self.config, response_text, gpt_input_text_df)
+        source_text, data_json = frontend_service.get_data_json(response_text, gpt_input_text_df)
+
         print('===========Prompt:============')
         print(prompt)
         print('===========Search:============')
         print(search_text)
-        print('===========Response text (raw):============')
+        print('===========Response text:============')
         print(response_text)
+        print('===========Source text:============')
+        print(source_text)
 
-        frontend_service = FrontendService(self.config, response_text, gpt_input_text_df)
-        response_text_with_footnote, source_text, data_json = frontend_service.get_data_json(response_text, gpt_input_text_df)
-
-        return response_text, response_text_with_footnote, source_text, data_json
+        return response_text, source_text, data_json
 
     def _extract_bing_text_df(self, search_text, cache_path):
         # BingSearch using search_text

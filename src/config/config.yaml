@@ -6,8 +6,8 @@ search_option:
 bing_search:
   end_point: https://api.bing.microsoft.com
   subscription_key:
-  result_count: 5
-  text_extract: trafilatura # beautifulsoup
+  result_count: 3
+  text_extract: beautifulsoup # beautifulsoup / trafilatura
 llm_service:
   provider: openai # openai/goose_ai
 openai_api:
