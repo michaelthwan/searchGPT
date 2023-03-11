@@ -2,7 +2,8 @@ import logging
 import os
 import pickle
 import re
-import shutil
+from copy import deepcopy
+from functools import wraps
 from hashlib import md5
 from pathlib import Path
 
@@ -41,7 +42,7 @@ def check_result_cache_exists(path: Path, hash: str, type: str) -> bool:
     return True if os.path.exists(path) else False
 
 
-def check_max_number_of_cache(path: Path, type: str, max_number_of_cache: int = 10):
+def check_max_number_of_cache(path: Path, type, max_number_of_cache: int = 10):
     path = path / type
     if len(os.listdir(path)) > max_number_of_cache:
         ctime_list = [(os.path.getctime(path / file), file) for file in os.listdir(path)]

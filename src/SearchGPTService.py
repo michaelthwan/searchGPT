@@ -8,9 +8,7 @@ from FrontendService import FrontendService
 from LLMService import LLMServiceFactory
 from SemanticSearchService import BatchOpenAISemanticSearchService
 from SourceService import SourceService
-from Util import setup_logger, post_process_gpt_input_text_df, get_project_root, storage_cached
-from Util import setup_logger, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root
-SearchGPTService
+from Util import setup_logger, get_project_root
 
 logger = setup_logger('SearchGPTService')
 
@@ -71,25 +69,22 @@ class SearchGPTService:
             assert self.config['llm_service']['openai_api']['api_key'], 'openai_api_key is required'
 
     def query_and_get_answer(self, search_text):
-        cache_path = Path(self.config.get('cache').get('path')) # TODO: hide cache logic in main entrance
+        cache_path = Path(self.config.get('cache').get('path'))  # TODO: hide cache logic in main entrance
 
         source_module = SourceService(self.config)
-        bing_text_df = source_module.extract_bing_text_df(search_text, cache_path)
+        bing_text_df = source_module.extract_bing_text_df(search_text)
         doc_text_df = source_module.extract_doc_text_df(bing_text_df)
         text_df = pd.concat([bing_text_df, doc_text_df], ignore_index=True)
 
-
         semantic_search_service = BatchOpenAISemanticSearchService(self.config)
         gpt_input_text_df = semantic_search_service.search_related_source(text_df, search_text)
-        gpt_input_text_df = BatchOpenAISemanticSearchService.post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit'))
+        gpt_input_text_df = BatchOpenAISemanticSearchService.post_process_gpt_input_text_df(gpt_input_text_df,
+                                                                                            self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit'))
 
-            # TODO: hide cache logic in main entrance
         llm_service = LLMServiceFactory.create_llm_service(self.config)
         prompt = llm_service.get_prompt_v3(search_text, gpt_input_text_df)
         response_text = llm_service.call_api(prompt=prompt)
 
-        llm_config = self.config.get('llm_service').get(f'{llm_service_provider}_api').copy()
-        # TODO: hide cache logic in main entrance
         frontend_service = FrontendService(self.config, response_text, gpt_input_text_df)
         source_text, data_json = frontend_service.get_data_json(response_text, gpt_input_text_df)
 
@@ -103,5 +98,3 @@ class SearchGPTService:
         print(source_text)
 
         return response_text, source_text, data_json
-
-    @storage_cached('web', 'search_text')

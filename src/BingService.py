@@ -21,13 +21,13 @@ class BingService:
         elif extract_svc == 'beautifulsoup':
             self.txt_extract_svc = BeautifulSoupSvc()
 
-    @storage_cached('bing_search_website', 'query')
-    def call_bing_search_api(self, query: str) -> pd.DataFrame:
-        logger.info("BingService.call_bing_search_api. query: " + query)
+    @storage_cached('bing_search_website', 'search_text')
+    def call_bing_search_api(self, search_text: str) -> pd.DataFrame:
+        logger.info("BingService.call_bing_search_api. query: " + search_text)
         subscription_key = self.config.get('source_service').get('bing_search').get('subscription_key')
         endpoint = self.config.get('source_service').get('bing_search').get('end_point') + "/v7.0/search"
         mkt = 'en-US'
-        params = {'q': query, 'mkt': mkt}
+        params = {'q': search_text, 'mkt': mkt}
         headers = {'Ocp-Apim-Subscription-Key': subscription_key}
 
         try:
