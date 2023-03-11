@@ -13,7 +13,7 @@ from Util import setup_logger, check_result_cache_exists, load_result_from_cache
 logger = setup_logger('SearchGPTService')
 
 
-class SearchGPT:
+class SearchGPTService:
     """
     SearchGPT app->service->child-service structure
     - (Try to) app import service, child-service inherit service
@@ -26,7 +26,7 @@ class SearchGPT:
     - LLMService
     -- OpenAIService
     -- GooseAPIService
-    -- FrontendService
+    - FrontendService
 
     """
 

@@ -4,7 +4,7 @@ import os
 import psutil
 from flask import Blueprint, render_template, request
 
-from SearchGPT import SearchGPT
+from SearchGPTService import SearchGPTService
 from Util import setup_logger
 
 logger = setup_logger('Views')
@@ -47,7 +47,7 @@ def index_page():
         logger.info(f"GET ui_overriden_config: {ui_overriden_config}")
 
         if search_text is not None:
-            search_gpt_service = SearchGPT(ui_overriden_config)
+            search_gpt_service = SearchGPTService(ui_overriden_config)
             _, _, data_json = search_gpt_service.query_and_get_answer(search_text)
     except Exception as e:
         error = str(e)
