@@ -95,7 +95,7 @@ def storage_cached(cache_type: str, cache_hash_key_name: str):
             if config.get('cache').get('is_enable').get(cache_type):
                 hash_key = str(kwargs[cache_hash_key_name])
 
-                cache_path = Path(config.get('cache').get('path'))
+                cache_path = Path(get_project_root(), config.get('cache').get('path'))
                 cache_hash = md5(str(config).encode() + hash_key.encode()).hexdigest()
 
                 if check_result_cache_exists(cache_path, cache_hash, cache_type):
