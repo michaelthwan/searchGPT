@@ -29,6 +29,11 @@ llm_service:
     model: gpt-neo-20b
     max_tokens: 100
 cache:  # .cache result for efficiency and consistency
-  is_enable_cache: false
+  is_enable:
+    web: false
+    bing_search_website: false
+    bing_search_website_content: false
+    openai: false
+    gooseai: false
   path: .cache
-  max_number_of_cache: 0
+  max_number_of_cache: 50

@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 import yaml
 
-from Util import setup_logger, get_project_root
+from Util import setup_logger, get_project_root, storage_cached
 from text_extract.html.beautiful_soup import BeautifulSoupSvc
 from text_extract.html.trafilatura import TrafilaturaSvc
 
@@ -21,6 +21,7 @@ class BingService:
         elif extract_svc == 'beautifulsoup':
             self.txt_extract_svc = BeautifulSoupSvc()
 
+    @storage_cached('bing_search_website', 'query')
     def call_bing_search_api(self, query: str) -> pd.DataFrame:
         logger.info("BingService.call_bing_search_api. query: " + query)
         subscription_key = self.config.get('source_service').get('bing_search').get('subscription_key')
@@ -81,6 +82,7 @@ class BingService:
         logger.info(f"  receive sentences: {len(sentences)}")
         return sentences, name, url, url_id, snippet
 
+    @storage_cached('bing_search_website_content', 'website_df')
     def call_urls_and_extract_sentences_concurrent(self, website_df):
         logger.info(f"BingService.call_urls_and_extract_sentences_async. website_df.shape: {website_df.shape}")
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
