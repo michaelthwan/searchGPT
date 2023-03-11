@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 import pandas as pd
 import yaml
@@ -8,7 +7,7 @@ from FrontendService import FrontendService
 from LLMService import LLMServiceFactory
 from SemanticSearchService import BatchOpenAISemanticSearchService
 from SourceService import SourceService
-from Util import setup_logger, get_project_root
+from Util import setup_logger, get_project_root, storage_cached
 
 logger = setup_logger('SearchGPTService')
 
@@ -68,9 +67,8 @@ class SearchGPTService:
         if self.config['llm_service']['provider'] == 'openai':
             assert self.config['llm_service']['openai_api']['api_key'], 'openai_api_key is required'
 
+    @storage_cached('web', 'search_text')
     def query_and_get_answer(self, search_text):
-        cache_path = Path(self.config.get('cache').get('path'))  # TODO: hide cache logic in main entrance
-
         source_module = SourceService(self.config)
         bing_text_df = source_module.extract_bing_text_df(search_text)
         doc_text_df = source_module.extract_doc_text_df(bing_text_df)
