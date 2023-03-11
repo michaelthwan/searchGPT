@@ -6,7 +6,7 @@ import openai
 import pandas as pd
 import yaml
 
-from Util import setup_logger, get_project_root
+from Util import setup_logger, get_project_root, storage_cached
 
 logger = setup_logger('LLMService')
 
@@ -103,6 +103,7 @@ class OpenAIService(LLMService):
             raise Exception("OpenAI API key is not set.")
         openai.api_key = open_api_key
 
+    @storage_cached('openai', 'prompt')
     def call_api(self, prompt: str):
         openai_api_config = self.config.get('openai_api')
         model = openai_api_config.get('model')
@@ -143,6 +144,7 @@ class GooseAIService(LLMService):
         openai.api_key = goose_api_key
         openai.api_base = config.get('goose_ai_api').get('api_base')
 
+    @storage_cached('gooseai', 'prompt')
     def call_api(self, prompt: str):
         logger.info(f"GooseAIService.call_openai_api. len(prompt): {len(prompt)}")
         goose_api_config = self.config.get('goose_ai_api')
