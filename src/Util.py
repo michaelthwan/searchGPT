@@ -22,21 +22,6 @@ def setup_logger(tag):
     return logger
 
 
-def post_process_gpt_input_text_df(gpt_input_text_df, prompt_length_limit):
-    # clean out of prompt texts for existing [1], [2], [3]... in the source_text
-    gpt_input_text_df['text'] = gpt_input_text_df['text'].apply(lambda x: re.sub(r'\[[0-9]+\]', '', x))
-
-    gpt_input_text_df['len_text'] = gpt_input_text_df['text'].apply(lambda x: len(x))
-    gpt_input_text_df['cumsum_len_text'] = gpt_input_text_df['len_text'].cumsum()
-    max_rank = gpt_input_text_df[gpt_input_text_df['cumsum_len_text'] <= prompt_length_limit]['rank'].max() + 1
-    gpt_input_text_df['in_scope'] = gpt_input_text_df['rank'] <= max_rank  # In order to get also the row slightly larger than prompt_length_limit
-    # reorder url_id with url that in scope.
-    url_id_list = gpt_input_text_df['url_id'].unique()
-    url_id_map = dict(zip(url_id_list, range(1, len(url_id_list) + 1)))
-    gpt_input_text_df['url_id'] = gpt_input_text_df['url_id'].map(url_id_map)
-    return gpt_input_text_df
-
-
 def save_result_cache(path: Path, search_text: str, cache_type: str = 'bing_search', **kwargs):
     cache_dir = path / md5(search_text.encode()).hexdigest()
 

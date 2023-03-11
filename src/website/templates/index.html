@@ -30,14 +30,14 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="is_use_source">Use source/grounded search?</label>
+                        <label>Use source/grounded search?</label>
                         <div class="form-check">
                             {% if request.args.get('is_use_source', 'true') != 'False' %}
                             <input class="form-check-input" type="checkbox" name="is_use_source" checked>
                             {% else %}
                             <input class="form-check-input" type="checkbox" name="is_use_source">
                             {% endif %}
-                            <label class="form-check-label" for="is_use_source">
+                            <label class="form-check-label">
                                 Check to enable
                             </label>
                         </div>

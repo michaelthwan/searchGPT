@@ -1,22 +1,35 @@
-import glob
 import os
 from pathlib import Path
 
 import pandas as pd
 import yaml
 
-from BingService import BingService
 from FrontendService import FrontendService
 from LLMService import LLMServiceFactory
 from SemanticSearchService import BatchOpenAISemanticSearchService
-from Util import setup_logger, post_process_gpt_input_text_df, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root
-from text_extract.doc import support_doc_type, doc_extract_svc_map
-from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
+from SourceService import SourceService
+from Util import setup_logger, check_result_cache_exists, load_result_from_cache, save_result_cache, check_max_number_of_cache, get_project_root
 
 logger = setup_logger('SearchGPTService')
 
 
-class SearchGPTService:
+class SearchGPT:
+    """
+    SearchGPT app->service->child-service structure
+    - (Try to) app import service, child-service inherit service
+
+    SearchGPT class
+    - SourceService
+    -- BingService
+    -- Doc/PPT/PDF Service
+    - SemanticSearchModule
+    - LLMService
+    -- OpenAIService
+    -- GooseAPIService
+    -- FrontendService
+
+    """
+
     def __init__(self, ui_overriden_config=None):
         with open(os.path.join(get_project_root(), 'src/config/config.yaml')) as f:
             self.config = yaml.load(f, Loader=yaml.FullLoader)
@@ -55,14 +68,23 @@ class SearchGPTService:
         if self.config['llm_service']['provider'] == 'openai':
             assert self.config['openai_api']['api_key'], 'openai_api_key is required'
 
-    def _prompt(self, search_text, text_df, cache_path=None):
+    def query_and_get_answer(self, search_text):
+        cache_path = Path(self.config.get('cache').get('path')) # TODO: hide cache logic in main entrance
+
+        source_module = SourceService(self.config)
+        bing_text_df = source_module.extract_bing_text_df(search_text, cache_path)
+        doc_text_df = source_module.extract_doc_text_df(bing_text_df)
+        text_df = pd.concat([bing_text_df, doc_text_df], ignore_index=True)
+
+
         semantic_search_service = BatchOpenAISemanticSearchService(self.config)
         gpt_input_text_df = semantic_search_service.search_related_source(text_df, search_text)
-        gpt_input_text_df = post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('openai_api').get('prompt').get('prompt_length_limit'))
+        gpt_input_text_df = BatchOpenAISemanticSearchService.post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('openai_api').get('prompt').get('prompt_length_limit'))
 
         llm_service_provider = self.config.get('llm_service').get('provider')
         # check if llm result is cached and load if exists
         if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, llm_service_provider):
+            # TODO: hide cache logic in main entrance
             logger.info(f"SemanticSearchService.load_result_from_cache. search_text: {search_text}, cache_path: {cache_path}")
             cache = load_result_from_cache(cache_path, search_text, llm_service_provider)
             prompt, response_text = cache['prompt'], cache['response_text']
@@ -71,10 +93,12 @@ class SearchGPTService:
             prompt = llm_service.get_prompt_v3(search_text, gpt_input_text_df)
             response_text = llm_service.call_api(prompt)
 
+            # TODO: hide cache logic in main entrance
             llm_config = self.config.get(f'{llm_service_provider}_api').copy()
             llm_config.pop('api_key')  # delete api_key to avoid saving it to .cache
             save_result_cache(cache_path, search_text, llm_service_provider, prompt=prompt, response_text=response_text, config=llm_config)
 
+        # TODO: hide cache logic in main entrance
         # check whether the number of cache exceeds the limit
         check_max_number_of_cache(cache_path, self.config.get('cache').get('max_number_of_cache'))
 
@@ -91,63 +115,3 @@ class SearchGPTService:
         print(source_text)
 
         return response_text, source_text, data_json
-
-    def _extract_bing_text_df(self, search_text, cache_path):
-        # BingSearch using search_text
-        #   check if bing search result is cached and load if exists
-        bing_text_df = None
-        if not self.config['search_option']['is_use_source'] or not self.config['search_option']['is_enable_bing_search']:
-            return bing_text_df
-
-        if self.config.get('cache').get('is_enable_cache') and check_result_cache_exists(cache_path, search_text, 'bing_search'):
-            logger.info(f"BingService.load_result_from_cache. search_text: {search_text}, cache_path: {cache_path}")
-            cache = load_result_from_cache(cache_path, search_text, 'bing_search')
-            bing_text_df = cache['bing_text_df']
-        else:
-            bing_service = BingService(self.config)
-            website_df = bing_service.call_bing_search_api(search_text)
-            bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df)
-
-            bing_search_config = self.config.get('bing_search').copy()
-            bing_search_config.pop('subscription_key')  # delete api_key from config to avoid saving it to .cache
-            save_result_cache(cache_path, search_text, 'bing_search', bing_text_df=bing_text_df, config=bing_search_config)
-        return bing_text_df
-
-    def _extract_doc_text_df(self, bing_text_df):
-        # DocSearch using doc_search_path
-        #  bing_text_df is used for doc_id arrangement
-        if not self.config['search_option']['is_use_source'] or not self.config['search_option']['is_enable_doc_search']:
-            return pd.DataFrame([])
-        files_grabbed = list()
-        for doc_type in support_doc_type:
-            tmp_file_list = glob.glob(self.config['search_option']['doc_search_path'] + os.sep + "*." + doc_type)
-            files_grabbed.extend({"file_path": file_path, "doc_type": doc_type} for file_path in tmp_file_list)
-
-        logger.info(f"File list: {files_grabbed}")
-        doc_sentence_list = list()
-
-        start_doc_id = 1 if bing_text_df is None else bing_text_df['url_id'].max() + 1
-        for doc_id, file in enumerate(files_grabbed, start=start_doc_id):
-            extract_svc: AbstractDocExtractSvc = doc_extract_svc_map[file['doc_type']]
-            sentence_list = extract_svc.extract_from_doc(file['file_path'])
-
-            file_name = file['file_path'].split(os.sep)[-1]
-            for sentence in sentence_list:
-                doc_sentence_list.append({
-                    'name': file_name,
-                    'url': file['file_path'],
-                    'url_id': doc_id,
-                    'snippet': '',
-                    'text': sentence
-                })
-        doc_text_df = pd.DataFrame(doc_sentence_list)
-        return doc_text_df
-
-    def query_and_get_answer(self, search_text):
-        cache_path = Path(self.config.get('cache').get('path'))
-        # TODO: strategy pattern to support different text sources (e.g. PDF later)
-        bing_text_df = self._extract_bing_text_df(search_text, cache_path)
-        doc_text_df = self._extract_doc_text_df(bing_text_df)
-        text_df = pd.concat([bing_text_df, doc_text_df], ignore_index=True)
-
-        return self._prompt(search_text, text_df, cache_path)
