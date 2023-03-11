@@ -35,6 +35,7 @@ def index_page():
     error = None
     data_json = {'response_json': [], 'source_json': []}
     search_text = request.values.get('q')
+
     try:
         ui_overriden_config = {
             'bing_search_subscription_key': request.values.get('bing_search_subscription_key'),

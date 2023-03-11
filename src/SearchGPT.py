@@ -46,16 +46,16 @@ class SearchGPT:
                 if key == 'bing_search_subscription_key':
                     self.config['bing_search']['subscription_key'] = value
                 elif key == 'openai_api_key':
-                    self.config['openai_api']['api_key'] = value
+                    self.config['llm_service']['openai_api']['api_key'] = value
                 elif key == 'is_use_source':
                     self.config['search_option']['is_use_source'] = False if value.lower() in ['false', '0'] else True
                 elif key == 'llm_service_provider':
                     self.config['llm_service']['provider'] = value
                 elif key == 'llm_model':
                     if self.config['llm_service']['provider'] == 'openai':
-                        self.config['openai_api']['model'] = value
+                        self.config['llm_service']['openai_api']['model'] = value
                     elif self.config['llm_service']['provider'] == 'goose_ai':
-                        self.config['goose_ai_api']['model'] = value
+                        self.config['llm_service']['goose_ai_api']['model'] = value
                     else:
                         raise Exception(f"llm_model is not supported for llm_service_provider: {self.config['llm_service']['provider']}")
                 else:
@@ -66,7 +66,7 @@ class SearchGPT:
         if self.config['search_option']['is_enable_bing_search']:
             assert self.config['bing_search']['subscription_key'], 'bing_search_subscription_key is required'
         if self.config['llm_service']['provider'] == 'openai':
-            assert self.config['openai_api']['api_key'], 'openai_api_key is required'
+            assert self.config['llm_service']['openai_api']['api_key'], 'openai_api_key is required'
 
     def query_and_get_answer(self, search_text):
         cache_path = Path(self.config.get('cache').get('path')) # TODO: hide cache logic in main entrance
@@ -79,7 +79,7 @@ class SearchGPT:
 
         semantic_search_service = BatchOpenAISemanticSearchService(self.config)
         gpt_input_text_df = semantic_search_service.search_related_source(text_df, search_text)
-        gpt_input_text_df = BatchOpenAISemanticSearchService.post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('openai_api').get('prompt').get('prompt_length_limit'))
+        gpt_input_text_df = BatchOpenAISemanticSearchService.post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit'))
 
         llm_service_provider = self.config.get('llm_service').get('provider')
         # check if llm result is cached and load if exists
@@ -94,7 +94,7 @@ class SearchGPT:
             response_text = llm_service.call_api(prompt)
 
             # TODO: hide cache logic in main entrance
-            llm_config = self.config.get(f'{llm_service_provider}_api').copy()
+            llm_config = self.config.get('llm_service').get(f'{llm_service_provider}_api').copy()
             llm_config.pop('api_key')  # delete api_key to avoid saving it to .cache
             save_result_cache(cache_path, search_text, llm_service_provider, prompt=prompt, response_text=response_text, config=llm_config)
 

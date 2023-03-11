@@ -105,7 +105,7 @@ logger = setup_logger('SemanticSearchService')
 #         self.provider = self.config.get('semantic_search').get('provider')
 #         self.embeddings = None
 #         if self.provider == 'faiss-openai':
-#             self.embeddings = OpenAIEmbeddings(openai_api_key=self.config.get('openai_api').get('api_key'))
+#             self.embeddings = OpenAIEmbeddings(openai_api_key=self.config.get('llm_service').get('openai_api').get('api_key'))
 #         elif self.provider == 'faiss-huggingface':
 #             self.embeddings = HuggingFaceEmbeddings()
 #         else:
@@ -165,7 +165,7 @@ logger = setup_logger('SemanticSearchService')
 class BatchOpenAISemanticSearchService:
     def __init__(self, config):
         self.config = config
-        openai.api_key = config.get('openai_api').get('api_key')
+        openai.api_key = config.get('llm_service').get('openai_api').get('api_key')
 
     @staticmethod
     def batch_call_embeddings(texts, chunk_size=1000):

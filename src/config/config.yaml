@@ -10,24 +10,24 @@ bing_search:
   text_extract: beautifulsoup # beautifulsoup / trafilatura
 llm_service:
   provider: openai # openai/goose_ai
-openai_api:
-  api_key: 
-  # model: gpt-3.5-turbo is the best one. Details: https://platform.openai.com/docs/models/gpt-3-5.
-#  model: text-babbage-001
-#  model: text-curie-001
-#  model: text-davinci-003
-  model: gpt-3.5-turbo # default
-  max_tokens: 300
-  temperature: 1
-  top_p: 1
-  prompt:
-    prompt_length_limit: 3000
-goose_ai_api:
-  api_key:
-  api_base: https://api.goose.ai/v1
-  # https://goose.ai/docs/models
-  model: gpt-neo-20b
-  max_tokens: 100
+  openai_api:
+    api_key:
+    # model: gpt-3.5-turbo is the best one. Details: https://platform.openai.com/docs/models/gpt-3-5.
+  #  model: text-babbage-001
+  #  model: text-curie-001
+  #  model: text-davinci-003
+    model: gpt-3.5-turbo # default
+    max_tokens: 300
+    temperature: 1
+    top_p: 1
+    prompt:
+      prompt_length_limit: 3000
+  goose_ai_api:
+    api_key:
+    api_base: https://api.goose.ai/v1
+    # https://goose.ai/docs/models
+    model: gpt-neo-20b
+    max_tokens: 100
 cache:  # .cache result for efficiency and consistency
   is_enable_cache: false
   path: .cache
