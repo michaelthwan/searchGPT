@@ -187,7 +187,7 @@ class BatchOpenAISemanticSearchService:
         return text_df
 
     def search_related_source(self, text_df: pd.DataFrame, target_text, n=30):
-        if not self.config.get('search_option').get('is_use_source'):
+        if not self.config.get('source_service').get('is_use_source'):
             col = ['name', 'url', 'url_id', 'snippet', 'text', 'similarities', 'rank', 'docno']
             return pd.DataFrame(columns=col)
 

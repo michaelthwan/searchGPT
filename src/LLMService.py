@@ -21,7 +21,7 @@ class LLMService(ABC):
     def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
         prompt_length_limit = self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit')
-        is_use_source = self.config.get('search_option').get('is_use_source')
+        is_use_source = self.config.get('source_service').get('is_use_source')
         if is_use_source:
             prompt_engineering = f"\n\nAnswer the question '{search_text}' using above information with about 100 words:"
             prompt = ""
@@ -58,7 +58,7 @@ Answer:
         return prompt
 
     def get_prompt_v3(self, search_text: str, gpt_input_text_df: pd.DataFrame):
-        if not self.config.get('search_option').get('is_use_source'):
+        if not self.config.get('source_service').get('is_use_source'):
             prompt = \
                 f"""
 Instructions: Write a comprehensive reply to the given query.  

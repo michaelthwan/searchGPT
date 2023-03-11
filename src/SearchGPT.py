@@ -44,11 +44,11 @@ class SearchGPT:
                 # query_string is flattened (one level) while config.yaml is nested (two+ levels)
                 # Any better way to handle this?
                 if key == 'bing_search_subscription_key':
-                    self.config['bing_search']['subscription_key'] = value
+                    self.config['source_service']['bing_search']['subscription_key'] = value
                 elif key == 'openai_api_key':
                     self.config['llm_service']['openai_api']['api_key'] = value
                 elif key == 'is_use_source':
-                    self.config['search_option']['is_use_source'] = False if value.lower() in ['false', '0'] else True
+                    self.config['source_service']['is_use_source'] = False if value.lower() in ['false', '0'] else True
                 elif key == 'llm_service_provider':
                     self.config['llm_service']['provider'] = value
                 elif key == 'llm_model':
@@ -63,8 +63,8 @@ class SearchGPT:
                     pass
 
     def validate_config(self):
-        if self.config['search_option']['is_enable_bing_search']:
-            assert self.config['bing_search']['subscription_key'], 'bing_search_subscription_key is required'
+        if self.config['source_service']['is_enable_bing_search']:
+            assert self.config['source_service']['bing_search']['subscription_key'], 'bing_search_subscription_key is required'
         if self.config['llm_service']['provider'] == 'openai':
             assert self.config['llm_service']['openai_api']['api_key'], 'openai_api_key is required'
 

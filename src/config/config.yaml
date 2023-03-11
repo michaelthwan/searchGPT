@@ -1,13 +1,13 @@
-search_option:
+source_service:
   is_use_source: true # grounded or not grounded. If not grounded, meaning just Q&A via LLM
   is_enable_bing_search: true
   is_enable_doc_search: false
   doc_search_path:
-bing_search:
-  end_point: https://api.bing.microsoft.com
-  subscription_key:
-  result_count: 3
-  text_extract: beautifulsoup # beautifulsoup / trafilatura
+  bing_search:
+    end_point: https://api.bing.microsoft.com
+    subscription_key:
+    result_count: 3
+    text_extract: beautifulsoup # beautifulsoup / trafilatura
 llm_service:
   provider: openai # openai/goose_ai
   openai_api:

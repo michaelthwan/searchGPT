@@ -15,7 +15,7 @@ logger = setup_logger('BingService')
 class BingService:
     def __init__(self, config):
         self.config = config
-        extract_svc = self.config.get('bing_search').get('text_extract')
+        extract_svc = self.config.get('source_service').get('bing_search').get('text_extract')
         if extract_svc == 'trafilatura':
             self.txt_extract_svc = TrafilaturaSvc()
         elif extract_svc == 'beautifulsoup':
@@ -23,8 +23,8 @@ class BingService:
 
     def call_bing_search_api(self, query: str) -> pd.DataFrame:
         logger.info("BingService.call_bing_search_api. query: " + query)
-        subscription_key = self.config.get('bing_search').get('subscription_key')
-        endpoint = self.config.get('bing_search').get('end_point') + "/v7.0/search"
+        subscription_key = self.config.get('source_service').get('bing_search').get('subscription_key')
+        endpoint = self.config.get('source_service').get('bing_search').get('end_point') + "/v7.0/search"
         mkt = 'en-US'
         params = {'q': query, 'mkt': mkt}
         headers = {'Ocp-Apim-Subscription-Key': subscription_key}
@@ -36,7 +36,7 @@ class BingService:
             columns = ['name', 'url', 'snippet']
             website_df = pd.DataFrame(response.json()['webPages']['value'])[columns]
             website_df['url_id'] = website_df.index + 1
-            website_df = website_df[:self.config.get('bing_search').get('result_count')]
+            website_df = website_df[:self.config.get('source_service').get('bing_search').get('result_count')]
         except Exception as ex:
             raise ex
         return website_df
