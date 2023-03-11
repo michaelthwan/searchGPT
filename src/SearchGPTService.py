@@ -6,9 +6,9 @@ import pandas as pd
 import yaml
 
 from BingService import BingService
-from FootnoteService import FootnoteService
+from FrontendService import FrontendService
 from LLMService import LLMServiceFactory
-from SemanticSearchService import SemanticSearchServiceFactory
+from SemanticSearchService import BatchOpenAISemanticSearchService
 from Util import setup_logger, post_process_gpt_input_text_df, get_project_root, storage_cached
 from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
@@ -45,8 +45,6 @@ class SearchGPTService:
                         self.config['goose_ai_api']['model'] = value
                     else:
                         raise Exception(f"llm_model is not supported for llm_service_provider: {self.config['llm_service']['provider']}")
-                elif key == 'semantic_search_provider':
-                    self.config['semantic_search']['provider'] = value
                 else:
                     # invalid query_string but not throwing exception first
                     pass
@@ -58,30 +56,34 @@ class SearchGPTService:
             assert self.config['openai_api']['api_key'], 'openai_api_key is required'
 
     def _prompt(self, search_text, text_df, cache_path=None):
-        semantic_search_service_factory = SemanticSearchServiceFactory()
-        semantic_search_service = semantic_search_service_factory.create_semantic_search_service(self.config)
-        gpt_input_text_df = semantic_search_service.retrieve_result_by_search_text_from_text_df(search_text, text_df)
+        semantic_search_service = BatchOpenAISemanticSearchService(self.config)
+        gpt_input_text_df = semantic_search_service.search_related_source(text_df, search_text)
         gpt_input_text_df = post_process_gpt_input_text_df(gpt_input_text_df, self.config.get('openai_api').get('prompt').get('prompt_length_limit'))
 
         llm_service = LLMServiceFactory.create_llm_service(self.config)
-        prompt = llm_service.get_prompt(search_text, gpt_input_text_df)
+        prompt = llm_service.get_prompt_v3(search_text, gpt_input_text_df)
         response_text = llm_service.call_api(prompt=prompt)
+
+        frontend_service = FrontendService(self.config, response_text, gpt_input_text_df)
+        source_text, data_json = frontend_service.get_data_json(response_text, gpt_input_text_df)
 
         print('===========Prompt:============')
         print(prompt)
         print('===========Search:============')
         print(search_text)
-        print('===========Response text (raw):============')
+        print('===========Response text:============')
         print(response_text)
+        print('===========Source text:============')
+        print(source_text)
 
-        footnote_service = FootnoteService(self.config, response_text, gpt_input_text_df, semantic_search_service)
-        footnote_result_list, in_scope_source_df = footnote_service.get_footnote_from_sentences()
-        response_text_with_footnote, source_text, data_json = footnote_service.pretty_print_footnote_result_list(footnote_result_list, gpt_input_text_df)
-
-        return response_text, response_text_with_footnote, source_text, data_json
+        return response_text, source_text, data_json
 
     def _extract_bing_text_df(self, search_text, cache_path):
         # BingSearch using search_text
+	bing_text_df = None
+        if not self.config['search_option']['is_use_source'] or not self.config['search_option']['is_enable_bing_search']:
+            return bing_text_df
+
         bing_service = BingService(self.config)
         website_df = bing_service.call_bing_search_api(query=search_text)
         bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df=website_df)
@@ -91,7 +93,7 @@ class SearchGPTService:
     def _extract_doc_text_df(self, bing_text_df):
         # DocSearch using doc_search_path
         #  bing_text_df is used for doc_id arrangement
-        if not self.config['search_option']['is_enable_doc_search']:
+        if not self.config['search_option']['is_use_source'] or not self.config['search_option']['is_enable_doc_search']:
             return pd.DataFrame([])
         files_grabbed = list()
         for doc_type in support_doc_type:

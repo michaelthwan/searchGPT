@@ -1,5 +1,6 @@
 import os
 from abc import ABC, abstractmethod
+from urllib.parse import urlparse
 
 import openai
 import pandas as pd
@@ -53,6 +54,39 @@ Source:
 {context_str}
 Question: {search_text}
 Answer:
+"""
+        return prompt
+
+    def get_prompt_v3(self, search_text: str, gpt_input_text_df: pd.DataFrame):
+        if not self.config.get('search_option').get('is_use_source'):
+            prompt = \
+                f"""
+Instructions: Write a comprehensive reply to the given query.  
+If the context is insufficient, reply "I cannot answer".
+Query: {search_text}
+"""
+            return prompt
+
+        logger.info(f"OpenAIService.get_prompt_v3. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
+        context_str = ""
+        for _, row_url in gpt_input_text_df[['url_id', 'url']].drop_duplicates().iterrows():
+            domain = urlparse(row_url['url']).netloc.replace('www.', '')
+            context_str += f"Source [{row_url['url_id']}] {domain}\n"
+            for index, row in gpt_input_text_df[(gpt_input_text_df['url_id'] == row_url['url_id']) & gpt_input_text_df['in_scope']].iterrows():
+                context_str += f"{row['text']}\n"
+            context_str += "\n\n"
+        prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
+        context_str = context_str[:prompt_length_limit]
+        prompt = \
+            f"""
+Web search result:
+{context_str}
+
+Instructions: Using the provided web search results, write a comprehensive reply to the given query. 
+Make sure to cite results using [number] notation after the reference.
+If the provided search results refer to multiple subjects with the same name, write separate answers for each subject. 
+If the context is insufficient, reply "I cannot answer because my reference sources don't have related info".
+Query: {search_text}
 """
         return prompt
 
