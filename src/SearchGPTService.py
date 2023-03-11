@@ -80,7 +80,7 @@ class SearchGPTService:
 
     def _extract_bing_text_df(self, search_text, cache_path):
         # BingSearch using search_text
-	bing_text_df = None
+        bing_text_df = None
         if not self.config['search_option']['is_use_source'] or not self.config['search_option']['is_enable_bing_search']:
             return bing_text_df
 
