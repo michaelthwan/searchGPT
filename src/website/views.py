@@ -35,6 +35,7 @@ def index_page():
     error = None
     data_json = {'response_json': [], 'source_json': []}
     search_text = request.values.get('q')
+
     try:
         ui_overriden_config = {
             'bing_search_subscription_key': request.values.get('bing_search_subscription_key'),
@@ -47,7 +48,7 @@ def index_page():
 
         if search_text is not None:
             search_gpt_service = SearchGPTService(ui_overriden_config)
-            _, _, data_json = search_gpt_service.query_and_get_answer(search_text)
+            _, _, data_json = search_gpt_service.query_and_get_answer(search_text=search_text)
     except Exception as e:
         error = str(e)
 

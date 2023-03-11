@@ -1,5 +1,6 @@
 import openai
 import pandas as pd
+import re
 from openai.embeddings_utils import cosine_similarity
 
 from Util import setup_logger
@@ -104,7 +105,7 @@ logger = setup_logger('SemanticSearchService')
 #         self.provider = self.config.get('semantic_search').get('provider')
 #         self.embeddings = None
 #         if self.provider == 'faiss-openai':
-#             self.embeddings = OpenAIEmbeddings(openai_api_key=self.config.get('openai_api').get('api_key'))
+#             self.embeddings = OpenAIEmbeddings(openai_api_key=self.config.get('llm_service').get('openai_api').get('api_key'))
 #         elif self.provider == 'faiss-huggingface':
 #             self.embeddings = HuggingFaceEmbeddings()
 #         else:
@@ -164,7 +165,7 @@ logger = setup_logger('SemanticSearchService')
 class BatchOpenAISemanticSearchService:
     def __init__(self, config):
         self.config = config
-        openai.api_key = config.get('openai_api').get('api_key')
+        openai.api_key = config.get('llm_service').get('openai_api').get('api_key')
 
     @staticmethod
     def batch_call_embeddings(texts, chunk_size=1000):
@@ -186,7 +187,7 @@ class BatchOpenAISemanticSearchService:
         return text_df
 
     def search_related_source(self, text_df: pd.DataFrame, target_text, n=30):
-        if not self.config.get('search_option').get('is_use_source'):
+        if not self.config.get('source_service').get('is_use_source'):
             col = ['name', 'url', 'url_id', 'snippet', 'text', 'similarities', 'rank', 'docno']
             return pd.DataFrame(columns=col)
 
@@ -198,6 +199,21 @@ class BatchOpenAISemanticSearchService:
         result_df['rank'] = range(1, len(result_df) + 1)
         result_df['docno'] = range(1, len(result_df) + 1)
         return result_df
+
+    @staticmethod
+    def post_process_gpt_input_text_df(gpt_input_text_df, prompt_length_limit):
+        # clean out of prompt texts for existing [1], [2], [3]... in the source_text
+        gpt_input_text_df['text'] = gpt_input_text_df['text'].apply(lambda x: re.sub(r'\[[0-9]+\]', '', x))
+
+        gpt_input_text_df['len_text'] = gpt_input_text_df['text'].apply(lambda x: len(x))
+        gpt_input_text_df['cumsum_len_text'] = gpt_input_text_df['len_text'].cumsum()
+        max_rank = gpt_input_text_df[gpt_input_text_df['cumsum_len_text'] <= prompt_length_limit]['rank'].max() + 1
+        gpt_input_text_df['in_scope'] = gpt_input_text_df['rank'] <= max_rank  # In order to get also the row slightly larger than prompt_length_limit
+        # reorder url_id with url that in scope.
+        url_id_list = gpt_input_text_df['url_id'].unique()
+        url_id_map = dict(zip(url_id_list, range(1, len(url_id_list) + 1)))
+        gpt_input_text_df['url_id'] = gpt_input_text_df['url_id'].map(url_id_map)
+        return gpt_input_text_df
 
 
 if __name__ == '__main__':

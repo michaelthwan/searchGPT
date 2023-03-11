@@ -15,7 +15,7 @@
                         <p>
                             {% for item in response_explain_json %}
                             {% if item['type'] == 'newline' %}
-                            </br>
+                            <br>
                             {% elif item['type'] == 'keyword' %}
                             <span style="background-color: {{item['color']}}">{{ item['text'] }}</span>
                             {% else %}
@@ -28,7 +28,7 @@
                         <p style="font-size: 0.8rem">
                             {% for item in source_explain_json %}
                             {% if item['type'] == 'newline' %}
-                            </br>
+                            <br>
                             {% elif item['type'] == 'keyword' %}
                             <span style="background-color: {{item['color']}}">{{ item['text'] }}</span>
                             {% else %}

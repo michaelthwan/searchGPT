@@ -20,8 +20,8 @@ class LLMService(ABC):
 
     def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
-        prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
-        is_use_source = self.config.get('search_option').get('is_use_source')
+        prompt_length_limit = self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit')
+        is_use_source = self.config.get('source_service').get('is_use_source')
         if is_use_source:
             prompt_engineering = f"\n\nAnswer the question '{search_text}' using above information with about 100 words:"
             prompt = ""
@@ -43,7 +43,7 @@ class LLMService(ABC):
             for index, row in gpt_input_text_df[gpt_input_text_df['url_id'] == url_id].iterrows():
                 context_str += f"{row['text']}\n"
             context_str += "\n"
-        prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
+        prompt_length_limit = self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit')
         context_str = context_str[:prompt_length_limit]
         prompt = \
             f"""
@@ -58,7 +58,7 @@ Answer:
         return prompt
 
     def get_prompt_v3(self, search_text: str, gpt_input_text_df: pd.DataFrame):
-        if not self.config.get('search_option').get('is_use_source'):
+        if not self.config.get('source_service').get('is_use_source'):
             prompt = \
                 f"""
 Instructions: Write a comprehensive reply to the given query.  
@@ -75,7 +75,7 @@ Query: {search_text}
             for index, row in gpt_input_text_df[(gpt_input_text_df['url_id'] == row_url['url_id']) & gpt_input_text_df['in_scope']].iterrows():
                 context_str += f"{row['text']}\n"
             context_str += "\n\n"
-        prompt_length_limit = self.config.get('openai_api').get('prompt').get('prompt_length_limit')
+        prompt_length_limit = self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit')
         context_str = context_str[:prompt_length_limit]
         prompt = \
             f"""
@@ -98,14 +98,14 @@ Query: {search_text}
 class OpenAIService(LLMService):
     def __init__(self, config):
         super().__init__(config)
-        open_api_key = config.get('openai_api').get('api_key')
+        open_api_key = config.get('llm_service').get('openai_api').get('api_key')
         if open_api_key is None:
             raise Exception("OpenAI API key is not set.")
         openai.api_key = open_api_key
 
     @storage_cached('openai', 'prompt')
     def call_api(self, prompt: str):
-        openai_api_config = self.config.get('openai_api')
+        openai_api_config = self.config.get('llm_service').get('openai_api')
         model = openai_api_config.get('model')
         logger.info(f"OpenAIService.call_api. model: {model}, len(prompt): {len(prompt)}")
 
