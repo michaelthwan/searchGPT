@@ -1,3 +1,4 @@
+import time
 import tracemalloc
 
 import os
@@ -6,10 +7,10 @@ from flask import Blueprint, render_template, request
 
 from SearchGPTService import SearchGPTService
 from Util import setup_logger
+from app_context import AppContext
 
 logger = setup_logger('Views')
 views = Blueprint('views', __name__)
-
 
 process = psutil.Process(os.getpid())
 tracemalloc.start()
@@ -82,6 +83,14 @@ def index_page():
             'explain_html': explain_html,
         }
 
+@views.route('/test-socket', methods=['POST'])
+def test_socket_io():
+    time.sleep(1)
+    socket_io = AppContext.socket_io
+    for i in range(10):
+        socket_io.emit('progress', i)
+    return "OK"
+
 
 @views.route('/index_static', methods=['GET', 'POST'])
 def index_static_page():
@@ -91,6 +100,7 @@ def index_static_page():
 @views.route("/data", methods=["GET"])
 def get_data():
     return {'id': 1, 'test': 'test'}
+
 
 @views.route('/memory')
 def print_memory():

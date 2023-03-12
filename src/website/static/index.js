@@ -1,5 +1,10 @@
 $(document).ready(function () {
-    $('form').submit(function(event) {
+    let socket = io.connect();
+    socket.on('progress', function (message) {
+        console.log("Progress: " + message)
+    });
+
+    $('form').submit(function (event) {
         event.preventDefault();
         let search_text = $('#form1').val();
         $('#search-btn')[0].disabled = true;
