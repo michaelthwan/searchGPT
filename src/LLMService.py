@@ -114,7 +114,7 @@ class OpenAIService(LLMService):
                 completion = openai.ChatCompletion.create(
                     model=model,
                     messages=[
-                        {"role": "system", "content": "You are a helpful search engine."},
+                        {"role": "system", "content": "You are a helpful assistant."},
                         {"role": "user", "content": prompt}
                     ]
                 )
@@ -134,30 +134,92 @@ class OpenAIService(LLMService):
                 raise ex
             return self.clean_response_text(response.choices[0].text)
 
+    def call_streaming_api(self, prompt: str):
+        openai_api_config = self.config.get('llm_service').get('openai_api')
+        model = openai_api_config.get('model')
+        logger.info(f"OpenAIService.call_api. model: {model}, len(prompt): {len(prompt)}")
+
+        if model == 'gpt-3.5-turbo':
+            try:
+                completion = openai.ChatCompletion.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    stream=True
+                )
+                print('=========Source=========')
+                print(prompt)
+                print(f"=========Response model:{model}=========")
+                for c in completion:
+                    if c.choices[0]['delta'].get('content'):
+                        print(c.choices[0]['delta'].get('content'), end='')
+                print("")
+            except Exception as ex:
+                raise ex
+        else:
+            try:
+                completion = openai.Completion.create(
+                    model=model,
+                    prompt=prompt,
+                    max_tokens=openai_api_config.get('max_tokens'),
+                    temperature=openai_api_config.get('temperature'),
+                    top_p=openai_api_config.get('top_p'),
+                    stream=True
+                )
+                print('=========Source=========')
+                print(prompt)
+                print(f"=========Response model:{model}=========")
+                for c in completion:
+                    if c.choices[0]['delta'].get('content'):
+                        print(c.choices[0]['delta'].get('content'), end='')
+                print("")
+            except Exception as ex:
+                raise ex
+
 
 class GooseAIService(LLMService):
     def __init__(self, config):
         super().__init__(config)
-        goose_api_key = config.get('goose_ai_api').get('api_key')
+        self.goose_api_config = self.config.get('llm_service').get('goose_ai_api')
+        goose_api_key = self.goose_api_config.get('api_key')
         if goose_api_key is None:
             raise Exception("Goose API key is not set.")
         openai.api_key = goose_api_key
-        openai.api_base = config.get('goose_ai_api').get('api_base')
+        openai.api_base = self.goose_api_config.get('api_base')
 
     @storage_cached('gooseai', 'prompt')
     def call_api(self, prompt: str):
         logger.info(f"GooseAIService.call_openai_api. len(prompt): {len(prompt)}")
-        goose_api_config = self.config.get('goose_ai_api')
         try:
             response = openai.Completion.create(
-                engine=goose_api_config.get('model'),
+                engine=self.goose_api_config.get('model'),
                 prompt=prompt,
-                max_tokens=goose_api_config.get('max_tokens'),
+                max_tokens=self.goose_api_config.get('max_tokens'),
                 # stream=True
             )
         except Exception as ex:
             raise ex
         return self.clean_response_text(response.choices[0].text)
+
+    def call_streaming_api(self, prompt: str):
+        logger.info(f"GooseAIService.call_openai_api. len(prompt): {len(prompt)}")
+        try:
+            response = openai.Completion.create(
+                engine=self.goose_api_config.get('model'),
+                prompt=prompt,
+                max_tokens=self.goose_api_config.get('max_tokens'),
+                stream=True
+            )
+            print('=========Source=========')
+            print(prompt)
+            print(f"=========Response model:{self.goose_api_config.get('model')}=========")
+            for c in response:
+                print(c.choices[0].text, end='')
+            print("")
+        except Exception as ex:
+            raise ex
 
 
 class LLMServiceFactory:
@@ -178,9 +240,19 @@ if __name__ == '__main__':
     with open(os.path.join(get_project_root(), 'src/config/config.yaml')) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
         service_factory = LLMServiceFactory()
-        service = service_factory.create_llm_service(config)
+        service: LLMService = service_factory.create_llm_service(config)
         prompt = """
+Source:
+In Greek mythology, Achilles ( ) or Achilleus () was a hero of the Trojan War, the greatest of all the Greek warriors, and is the central character of Homer's Iliad. He was the son of the Nereid Thetis and Peleus, king of Phthia.
+Achilles' most notable feat during the Trojan War was the slaying of the Trojan prince Hector outside the gates of Troy. Although the death of Achilles is not presented in the Iliad, other sources concur that he was killed near the end of the Trojan War by Paris, who shot him with an arrow. Later legends (beginning with Statius' unfinished epic Achilleid, written in the 1st century AD) state that Achilles was invulnerable in all of his body except for one heel, because when his mother Thetis dipped him in the river Styx as an infant, she held him by one of his heels. Alluding to these legends, the term "Achilles' heel" has come to mean a point of weakness, especially in someone or something with an otherwise strong constitution. The Achilles tendon is also named after him due to these legends.
+Etymology
+Linear B tablets attest to the personal name Achilleus in the forms a-ki-re-u and a-ki-re-we, the latter being the dative of the former. The name grew more popular, even becoming common soon after the seventh century BC and was also turned into the female form Ἀχιλλεία (Achilleía), attested in Attica in the fourth century BC (IG II² 1617) and, in the form Achillia, on a stele in Halicarnassus as the name of a female gladiator fighting an "Amazon".
+Achilles' name can be analyzed as a combination of () "distress, pain, sorrow, grief" and () "people, soldiers, nation", resulting in a proto-form *Akhí-lāu̯os "he who has the people distressed" or "he whose people have distress". The grief or distress of the people is a theme raised numerous times in the Iliad (and frequently by Achilles himself). Achilles' role as the hero of grief or distress forms an ironic juxtaposition with the conventional view of him as the hero of ("glory", usually in war). Furthermore, laós has been construed by Gregory Nagy, following Leonard Palmer, to mean "a corps of soldiers", a muster. With this derivation, the name obtains a double meaning in the poem: when the hero is functioning rightly, his men bring distress to the enemy, but when wrongly, his men get the grief of war. The poem is in part about the misdirection of anger on the part of leadership.
+Another etymology relates the name to a Proto-Indo-European compound *h₂eḱ-pṓds "sharp foot" which first gave an Illyrian *āk̂pediós, evolving through time into *ākhpdeós and then *akhiddeús. The shift from -dd- to -ll- is then ascribed to the passing of the name into Greek via a Pre-Greek source. The first root part *h₂eḱ- "sharp, pointed" also gave Greek ἀκή (akḗ "point, silence, healing"), ἀκμή (akmḗ "point, edge, zenith") and ὀξύς (oxús "sharp,
+
+Instructions: Using the provided source, write a comprehensive reply to the given query with 80 words.
+Query: Who is Achilles
+Answer: 
         """
-        # response_text = service.call_openai_api('What is ChatGPT')
-        response_text = service.call_api(prompt)
+        response_text = service.call_streaming_api(prompt=prompt)
         print(response_text)
