@@ -8,6 +8,7 @@ from LLMService import LLMServiceFactory
 from SemanticSearchService import BatchOpenAISemanticSearchService
 from SourceService import SourceService
 from Util import setup_logger, get_project_root, storage_cached
+from message_queue.sender import Sender
 
 logger = setup_logger('SearchGPTService')
 
@@ -29,11 +30,12 @@ class SearchGPTService:
 
     """
 
-    def __init__(self, ui_overriden_config=None):
+    def __init__(self, ui_overriden_config=None, sender: Sender = None):
         with open(os.path.join(get_project_root(), 'src/config/config.yaml')) as f:
             self.config = yaml.load(f, Loader=yaml.FullLoader)
         self.overide_config_by_query_string(ui_overriden_config)
         self.validate_config()
+        self.sender = sender
 
     def overide_config_by_query_string(self, ui_overriden_config):
         if ui_overriden_config is None:
@@ -69,17 +71,17 @@ class SearchGPTService:
 
     @storage_cached('web', 'search_text')
     def query_and_get_answer(self, search_text):
-        source_module = SourceService(self.config)
+        source_module = SourceService(self.config, self.sender)
         bing_text_df = source_module.extract_bing_text_df(search_text)
         doc_text_df = source_module.extract_doc_text_df(bing_text_df)
         text_df = pd.concat([bing_text_df, doc_text_df], ignore_index=True)
 
-        semantic_search_service = BatchOpenAISemanticSearchService(self.config)
+        semantic_search_service = BatchOpenAISemanticSearchService(self.config, self.sender)
         gpt_input_text_df = semantic_search_service.search_related_source(text_df, search_text)
         gpt_input_text_df = BatchOpenAISemanticSearchService.post_process_gpt_input_text_df(gpt_input_text_df,
                                                                                             self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit'))
 
-        llm_service = LLMServiceFactory.create_llm_service(self.config)
+        llm_service = LLMServiceFactory.create_llm_service(self.config, self.sender)
         prompt = llm_service.get_prompt_v3(search_text, gpt_input_text_df)
         response_text = llm_service.call_api(prompt=prompt)
 

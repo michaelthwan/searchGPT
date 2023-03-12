@@ -1,7 +1,7 @@
 $(document).ready(function () {
     let socket = io.connect();
-    socket.on('progress', function (message) {
-        console.log("Progress: " + message)
+    socket.on('search-step', function (message) {
+        console.log("search-step: " + message)
     });
 
     $('form').submit(function (event) {

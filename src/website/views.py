@@ -8,6 +8,8 @@ from flask import Blueprint, render_template, request
 from SearchGPTService import SearchGPTService
 from Util import setup_logger
 from app_context import AppContext
+from message_queue.receiver import Receiver
+from message_queue.sender import Sender
 
 logger = setup_logger('Views')
 views = Blueprint('views', __name__)
@@ -48,8 +50,14 @@ def index_page():
         logger.info(f"GET ui_overriden_config: {ui_overriden_config}")
 
         if search_text is not None:
-            search_gpt_service = SearchGPTService(ui_overriden_config)
+            sender = Sender()
+            receiver = Receiver(sender)
+
+            search_gpt_service = SearchGPTService(ui_overriden_config, sender=sender)
             _, _, data_json = search_gpt_service.query_and_get_answer(search_text=search_text)
+
+            receiver.stop()
+
     except Exception as e:
         error = str(e)
 
@@ -82,6 +90,7 @@ def index_page():
             'html': result_html,
             'explain_html': explain_html,
         }
+
 
 @views.route('/test-socket', methods=['POST'])
 def test_socket_io():
