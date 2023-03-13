@@ -172,8 +172,8 @@ class OpenAIService(LLMService):
                 print(prompt)
                 print(f"=========Response model:{model}=========")
                 for c in completion:
-                    if c.choices[0]['delta'].get('content'):
-                        print(c.choices[0]['delta'].get('content'), end='')
+                    if c.choices[0].get('text'):
+                        print(c.choices[0].get('text'), end='')
                 print("")
             except Exception as ex:
                 raise ex
