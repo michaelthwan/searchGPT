@@ -17,33 +17,26 @@
     </div>
     <hr>
     <div class="container mt-4">
-        <div class="row">
-            <div class="justify-content-center d-flex" id="search-result-spinner" hidden="">
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
+        <div id="search-result-step">
+            <div class="row">
+                <span class="cardSpan">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="#4CAF50" d="M9 16.17l-4.17-4.17-1.41 1.41 5.58 5.58 12-12-1.41-1.41z"/>
+                        </svg>
+                    </span>
+                    <span class="text">Extracting sentences from bing search result ...</span>
+                </span>
             </div>
-            <div id="search-result-step">
-                <div class="row">
-                    <span class="cardSpan">
-                        <span class="icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                              <path fill="#4CAF50" d="M9 16.17l-4.17-4.17-1.41 1.41 5.58 5.58 12-12-1.41-1.41z"/>
-                            </svg>
-                        </span>
-                        <span class="text">Extracting sentences from bing search result ...</span>
+            <div class="row">
+                <span class="cardSpan">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="#4CAF50" d="M9 16.17l-4.17-4.17-1.41 1.41 5.58 5.58 12-12-1.41-1.41z"/>
+                        </svg>
                     </span>
-                </div>
-                <div class="row">
-                    <span class="cardSpan">
-                        <span class="icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                              <path fill="#4CAF50" d="M9 16.17l-4.17-4.17-1.41 1.41 5.58 5.58 12-12-1.41-1.41z"/>
-                            </svg>
-                        </span>
-                        <span class="text">Calling OpenAI API ...</span>
-                    </span>
-                </div>
+                    <span class="text">Calling OpenAI API ...</span>
+                </span>
             </div>
         </div>
 
