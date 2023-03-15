@@ -4,7 +4,11 @@ $(document).ready(function () {
 
         let socket = io.connect();
         socket.on('search-step', function (message) {
-            console.log("search-step: " + message)
+            if (message) {
+                console.log("search-step: " + message.msg);
+                $('#search-result-step').html(message.html);
+            } else {
+            }
         });
 
         let search_text = $('#form1').val();

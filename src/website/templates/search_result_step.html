@@ -1,0 +1,12 @@
+{% for item in search_result_step_json %}
+<div class="row">
+    <span class="cardSpan">
+        <span class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="#4CAF50" d="M9 16.17l-4.17-4.17-1.41 1.41 5.58 5.58 12-12-1.41-1.41z"/>
+            </svg>
+        </span>
+        <span class="text">{{ item['msg'] }}</span>
+    </span>
+</div>
+{% endfor %}

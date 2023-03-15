@@ -33,7 +33,7 @@ class SourceService:
         website_df = bing_service.call_bing_search_api(search_text=search_text)
 
         if self.sender is not None:
-            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from bing search result")
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from bing search result ...")
 
         bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df=website_df)
 
