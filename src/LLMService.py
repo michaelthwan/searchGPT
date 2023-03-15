@@ -109,7 +109,7 @@ class OpenAIService(LLMService):
     @storage_cached('openai', 'prompt')
     def call_api(self, prompt: str):
         if self.sender is not None:
-            self.sender.send_message(Message(msg_type=MSG_TYPE_SEARCH_STEP, msg='Calling openai API'))
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg='Calling openai API')
 
         openai_api_config = self.config.get('llm_service').get('openai_api')
         model = openai_api_config.get('model')
@@ -155,7 +155,7 @@ class GooseAIService(LLMService):
     @storage_cached('gooseai', 'prompt')
     def call_api(self, prompt: str):
         if self.sender is not None:
-            self.sender.send_message(Message(msg_type=MSG_TYPE_SEARCH_STEP, msg='Calling openai API'))
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg='Calling openai API')
 
         logger.info(f"GooseAIService.call_openai_api. len(prompt): {len(prompt)}")
         goose_api_config = self.config.get('goose_ai_api')

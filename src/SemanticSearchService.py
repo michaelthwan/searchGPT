@@ -196,7 +196,7 @@ class BatchOpenAISemanticSearchService:
             return pd.DataFrame(columns=col)
 
         if self.sender is not None:
-            self.sender.send_message(Message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Searching from extracted text"))
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Searching from extracted text")
         print(f'search_similar() text: {target_text}')
         embedding = BatchOpenAISemanticSearchService.batch_call_embeddings([target_text])[0]
         text_df = BatchOpenAISemanticSearchService.compute_embeddings_for_text_df(text_df)

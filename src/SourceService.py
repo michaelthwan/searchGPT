@@ -28,12 +28,12 @@ class SourceService:
         bing_service = BingService(self.config)
 
         if self.sender is not None:
-            self.sender.send_message(Message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Calling bing search API"))
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Calling bing search API")
 
         website_df = bing_service.call_bing_search_api(search_text=search_text)
 
         if self.sender is not None:
-            self.sender.send_message(Message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from bing search result"))
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from bing search result")
 
         bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df=website_df)
 
@@ -46,7 +46,7 @@ class SourceService:
             return pd.DataFrame([])
 
         if self.sender is not None:
-            self.sender.send_message(Message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from document"))
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from document")
         files_grabbed = list()
         for doc_type in support_doc_type:
             tmp_file_list = glob.glob(self.config['source_service']['doc_search_path'] + os.sep + "*." + doc_type)

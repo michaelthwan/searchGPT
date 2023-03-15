@@ -1,11 +1,12 @@
 $(document).ready(function () {
-    let socket = io.connect();
-    socket.on('search-step', function (message) {
-        console.log("search-step: " + message)
-    });
-
     $('form').submit(function (event) {
         event.preventDefault();
+
+        let socket = io.connect();
+        socket.on('search-step', function (message) {
+            console.log("search-step: " + message)
+        });
+
         let search_text = $('#form1').val();
         $('#search-btn')[0].disabled = true;
         $('#search-result-spinner').addClass('d-flex');
@@ -29,6 +30,8 @@ $(document).ready(function () {
                 $('#search-result-spinner').removeClass('d-flex');
                 $('#search-results').show();
                 $('#explain_results').show();
+
+                socket.disconnect();
             },
             error: function (error) {
                 console.log(error)
@@ -37,6 +40,8 @@ $(document).ready(function () {
                 $('#search-result-spinner').removeClass('d-flex');
                 $('#search-results').show();
                 $('#explain_results').show();
+
+                socket.disconnect();
             }
         })
     })
