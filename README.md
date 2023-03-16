@@ -3,13 +3,16 @@ searchGPT - An Open-Source LLM-based Grounded Search Engine
 
 **searchGPT** is an open-source project to build a search engine based on Large Language Model (LLM) technology to give natural language answers.
 
-This is a minimal implementation with modular plugin design, meaning you can choose different tech for different components.
+You may consider that this is a **minimal implementation of new Bing mainly for search engine and question answering**. 
 
-You may imagine that it is like ChatGPT but answers using sources like the Internet and supports file content search.
+It supports using sources like the Internet and supports file content search.
+
+Please give me a star if you like it! 🌟
 
 ### **(Demo page link is available below!)**
 
 ![webui](/img/webui.png)
+![explainability](/img/explainability.png)
 
 Features
 --------
@@ -83,17 +86,11 @@ pip install -r requirements.txt
 
 2. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml` (or using UI)
 3. Run `app.py`, (or `flask_app.py`) for frontend web app launching. `main.py` for stdout output only.
-4. (optional, if you use pyterrier) Install JAVA >= 11
-    * Related linkes
-        - https://www.oracle.com/tw/java/technologies/downloads/#jdk19-windows
-        - https://download.oracle.com/java/19/latest/jdk-19_windows-x64_bin.exe
-    - Then set your JAVA_HOME environment variable
-        - `JAVA_HOME="C:\Program Files\Java\jdk-19"`
 
 Contributing
 ------------
 
-We welcome contributions to **searchGPT**!
+We welcome contributions to **searchGPT**! (Especially frontend developers)
 
 If you're interested in contributing, please take a look at our [contributing guidelines](./CONTRIBUTING.md) for more information.
 
