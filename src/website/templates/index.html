@@ -67,10 +67,8 @@
     </div>
     <hr>
     <div class="container mt-4">
-        <div class="justify-content-center" id="search-result-spinner" hidden>
-            <div class="spinner-border" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
+        <div id="search-result-step">
+            {% include 'search_result_step.html' %}
         </div>
         <div id="search-results">
             {% include 'search_result.html' %}

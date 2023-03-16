@@ -1,6 +1,16 @@
 $(document).ready(function () {
-    $('form').submit(function(event) {
+    $('form').submit(function (event) {
         event.preventDefault();
+
+        let socket = io.connect();
+        socket.on('search-step', function (message) {
+            if (message) {
+                console.log("search-step: " + message.msg);
+                $('#search-result-step').html(message.html);
+            } else {
+            }
+        });
+
         let search_text = $('#form1').val();
         $('#search-btn')[0].disabled = true;
         $('#search-result-spinner').addClass('d-flex');
@@ -24,6 +34,8 @@ $(document).ready(function () {
                 $('#search-result-spinner').removeClass('d-flex');
                 $('#search-results').show();
                 $('#explain_results').show();
+
+                socket.disconnect();
             },
             error: function (error) {
                 console.log(error)
@@ -32,6 +44,8 @@ $(document).ready(function () {
                 $('#search-result-spinner').removeClass('d-flex');
                 $('#search-results').show();
                 $('#explain_results').show();
+
+                socket.disconnect();
             }
         })
     })

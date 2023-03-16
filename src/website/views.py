@@ -1,24 +1,46 @@
+import random
+import string
+import time
 import tracemalloc
 
 import os
 import psutil
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, session
+from flask_socketio import join_room, leave_room
 
 from SearchGPTService import SearchGPTService
 from Util import setup_logger
+from app_context import AppContext
+from message_queue.receiver import Receiver
+from message_queue.sender import Sender
 
 logger = setup_logger('Views')
 views = Blueprint('views', __name__)
-
+socketio = AppContext.socket_io
 
 process = psutil.Process(os.getpid())
 tracemalloc.start()
 memory_snapshot = None
 
 
+@socketio.on('connect')
+def on_connect():
+    join_room(session['session_id'])
+
+
+@socketio.on('disconnect')
+def on_connect():
+    leave_room(session['session_id'])
+
+
 @views.route('/', methods=['GET'])
 @views.route('/index', methods=['GET'])
 def start_page():
+    if 'session_id' not in session:
+        characters = string.ascii_letters + string.digits
+        random_string = ''.join(random.choice(characters) for _ in range(16))
+        session['session_id'] = random_string
+
     data_json = {'response_json': [], 'source_json': [], 'response_explain_json': [], 'source_explain_json': []}
     return render_template("index.html",
                            search_text='' or "Please search for something.",
@@ -47,8 +69,14 @@ def index_page():
         logger.info(f"GET ui_overriden_config: {ui_overriden_config}")
 
         if search_text is not None:
-            search_gpt_service = SearchGPTService(ui_overriden_config)
+            sender = Sender(sender_id=session['session_id'])
+            receiver = Receiver(sender)
+
+            search_gpt_service = SearchGPTService(ui_overriden_config, sender=sender)
             _, _, data_json = search_gpt_service.query_and_get_answer(search_text=search_text)
+
+            receiver.stop()
+
     except Exception as e:
         error = str(e)
 
@@ -83,6 +111,15 @@ def index_page():
         }
 
 
+@views.route('/test-socket', methods=['POST'])
+def test_socket_io():
+    time.sleep(1)
+    socket_io = AppContext.socket_io
+    for i in range(10):
+        socket_io.emit('progress', i)
+    return "OK"
+
+
 @views.route('/index_static', methods=['GET', 'POST'])
 def index_static_page():
     return render_template("index_static.html")
@@ -91,6 +128,7 @@ def index_static_page():
 @views.route("/data", methods=["GET"])
 def get_data():
     return {'id': 1, 'test': 'test'}
+
 
 @views.route('/memory')
 def print_memory():
