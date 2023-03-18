@@ -12,7 +12,6 @@ $(document).ready(function () {
         });
 
         socket.on('openai-stream', function (message) {
-            console.log(message.msg);
             $('#result-text')[0].append(message.msg);
         });
 
