@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-6">
-        <h2>{{search_text}}</h2>
-        <p>
+        <h2 id="search-query">{{search_text}}</h2>
+        <p id="result-text">
             {% for item in response_json %}
             {% if item['type'] == 'footnote' %}
             <span style="font-weight: bold; font-size: 0.8rem; background-color: #88effc;">{{ item['text'] }}</span>
@@ -12,7 +12,7 @@
         </p>
     </div>
     <div class="col-md-6">
-        <ul class="list-group">
+        <ul class="list-group" id="ref-links">
             {% for item in source_json %}
             <li class="list-group-item">
                 <h5 class="mb-1">

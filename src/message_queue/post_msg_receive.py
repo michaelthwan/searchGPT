@@ -14,4 +14,5 @@ def post_msg_receive_search_step(msg: Message, **kwargs):
 
 
 def post_msg_openai_stream(msg: Message, **kwargs):
-    pass
+    socket_io = SearchGPTContext.socket_io
+    socket_io.emit(msg.msg_type, {'msg': msg.msg}, room=msg.sender_id)

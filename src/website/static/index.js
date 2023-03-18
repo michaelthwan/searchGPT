@@ -11,10 +11,20 @@ $(document).ready(function () {
             }
         });
 
+        socket.on('openai-stream', function (message) {
+            console.log(message.msg);
+            $('#result-text')[0].append(message.msg);
+        });
+
         let search_text = $('#form1').val();
+
+        $('#result-text')[0].innerHTML = '';
+        $('#ref-links')[0].innerHTML = '';
+        $('#search-query')[0].innerHTML = search_text;
+
         $('#search-btn')[0].disabled = true;
         $('#search-result-spinner').addClass('d-flex');
-        $('#search-results').hide();
+        // $('#search-results').hide();
         $('#explain_results').hide();
         $.ajax({
             url: '/search',
@@ -32,7 +42,7 @@ $(document).ready(function () {
                 $('#explain_results').html(response.explain_html)
                 $('#search-btn')[0].disabled = false;
                 $('#search-result-spinner').removeClass('d-flex');
-                $('#search-results').show();
+                // $('#search-results').show();
                 $('#explain_results').show();
 
                 socket.disconnect();
@@ -42,7 +52,7 @@ $(document).ready(function () {
                 $('#explain_results').html(response.explain_html)
                 $('#search-btn')[0].disabled = false;
                 $('#search-result-spinner').removeClass('d-flex');
-                $('#search-results').show();
+                // $('#search-results').show();
                 $('#explain_results').show();
 
                 socket.disconnect();
