@@ -1,5 +1,4 @@
 from flask import Flask
-from flask.ctx import AppContext
 from flask_socketio import SocketIO
 
 
