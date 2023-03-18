@@ -22,6 +22,7 @@ llm_service:
     top_p: 1
     prompt:
       prompt_length_limit: 3000
+    stream: true
   goose_ai_api:
     api_key:
     api_base: https://api.goose.ai/v1

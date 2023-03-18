@@ -10,13 +10,13 @@ from flask_socketio import join_room, leave_room
 
 from SearchGPTService import SearchGPTService
 from Util import setup_logger
-from app_context import AppContext
+from app_context import SearchGPTContext
 from message_queue.receiver import Receiver
 from message_queue.sender import Sender
 
 logger = setup_logger('Views')
 views = Blueprint('views', __name__)
-socketio = AppContext.socket_io
+socketio = SearchGPTContext.socket_io
 
 process = psutil.Process(os.getpid())
 tracemalloc.start()
@@ -114,7 +114,7 @@ def index_page():
 @views.route('/test-socket', methods=['POST'])
 def test_socket_io():
     time.sleep(1)
-    socket_io = AppContext.socket_io
+    socket_io = SearchGPTContext.socket_io
     for i in range(10):
         socket_io.emit('progress', i)
     return "OK"
