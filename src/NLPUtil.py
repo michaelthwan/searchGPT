@@ -1,3 +1,6 @@
+import tiktoken
+
+
 def remove_substrings(strings):
     """
     Remove any string that is a substring of another string
@@ -80,6 +83,16 @@ def split_with_delimiters(string, delimiter_list):
     return result
 
 
+def num_tokens_from_string(string: str) -> int:
+    """
+    Returns the number of tokens in a text string.
+    https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
+    """
+    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
+
+
 if __name__ == '__main__':
     paragraph1 = "ChatGPT is an AI chatbot that can understand and generate human-like answers to text prompts, as well as create code from natural speech [3]. It is built on a family of large language models collectively called GPT-3, which is trained on huge amounts of data [3][1]. The model is fine-tuned from a model in the GPT-3.5 series, which finished training in early 2022 and trained on an Azure AI supercomputing infrastructure [1]. ChatGPT is also sensitive to tweaks to the input phrasing or attempting the same prompt multiple times [1]. The objective of ChatGPT is to predict the next word in a sentence based on what it has learned [3]. The research release of ChatGPT in November 2022 is among OpenAI's iterative deployment of increasingly safe and useful AI systems [1]. ChatGPT Plus also exists, which brings a few benefits over the free tier [3]."
     paragraph2 = """
@@ -118,6 +131,9 @@ ChatGPT has been trained on a vast amount of text covering a huge range of subje
     # for text in text_list:
     #     print(text)
 
-    response_text = "is fine-tuned from a gpt-3.5 series"
-    split_list = split_with_delimiters(response_text, ["fine-tuned", "gpt-3.5"])
-    print(split_list)
+    # response_text = "is fine-tuned from a gpt-3.5 series"
+    # split_list = split_with_delimiters(response_text, ["fine-tuned", "gpt-3.5"])
+    # print(split_list)
+
+    s = "OpenAI 推出了一個新型聊天機器人模型ChatGPT"
+    print(num_tokens_from_string(s))

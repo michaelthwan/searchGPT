@@ -21,7 +21,7 @@ class LLMService(ABC):
 
     def get_prompt(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
-        prompt_length_limit = self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit')
+        prompt_length_limit = 3000  # obsolete
         is_use_source = self.config.get('source_service').get('is_use_source')
         if is_use_source:
             prompt_engineering = f"\n\nAnswer the question '{search_text}' using above information with about 100 words:"
@@ -44,7 +44,7 @@ class LLMService(ABC):
             for index, row in gpt_input_text_df[gpt_input_text_df['url_id'] == url_id].iterrows():
                 context_str += f"{row['text']}\n"
             context_str += "\n"
-        prompt_length_limit = self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit')
+        prompt_length_limit = 3000 # obsolete
         context_str = context_str[:prompt_length_limit]
         prompt = \
             f"""
@@ -108,7 +108,7 @@ class OpenAIService(LLMService):
     @storage_cached('openai', 'prompt')
     def call_api(self, prompt: str):
         if self.sender is not None:
-            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg='Calling openai API ...')
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg='Calling OpenAI API ...')
 
         openai_api_config = self.config.get('llm_service').get('openai_api')
         model = openai_api_config.get('model')
