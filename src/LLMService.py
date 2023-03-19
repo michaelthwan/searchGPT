@@ -7,7 +7,7 @@ import pandas as pd
 import yaml
 
 from Util import setup_logger, get_project_root, storage_cached
-from message_queue import Message, MSG_TYPE_SEARCH_STEP, MSG_TYPE_OPEN_AI_STREAM
+from message_queue import MSG_TYPE_SEARCH_STEP, MSG_TYPE_OPEN_AI_STREAM
 from message_queue.sender import Sender
 
 logger = setup_logger('LLMService')

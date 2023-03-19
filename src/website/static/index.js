@@ -1,19 +1,19 @@
 $(document).ready(function () {
-    let refresh_progress = function () {
-        let status = $('#status').val()
-        if (status === 'done' || status === 'error') {
-            return;
-        }
-        $.get("/progress",
-            {request_id: $('#request_id').val()},
-            function (data, status) {
-                if (status === 'success') {
-                    $('#search-result-step').html(data.html);
-                    $('#result-text')[0].innerText = data.openai_stream;
-                }
-            }
-        );
-    }
+    // let refresh_progress = function () {
+    //     let status = $('#status').val()
+    //     if (status === 'done' || status === 'error') {
+    //         return;
+    //     }
+    //     $.get("/progress",
+    //         {request_id: $('#request_id').val()},
+    //         function (data, status) {
+    //             if (status === 'success') {
+    //                 $('#search-result-step').html(data.html);
+    //                 $('#result-text')[0].innerText = data.openai_stream;
+    //             }
+    //         }
+    //     );
+    // }
 
     $('form').submit(function (event) {
         event.preventDefault();
@@ -34,15 +34,14 @@ $(document).ready(function () {
         let search_text = $('#form1').val();
 
         $('#result-text')[0].innerHTML = '';
-        $('#ref-links')[0].innerHTML = '';
-        $('#search-query')[0].innerHTML = search_text;
-
         $('#search-btn')[0].disabled = true;
         $('#status').val('processing');
         $('#search-result-spinner').addClass('d-flex');
+        $('#search-result-step')[0].innerHTML = '';
         $('#search_text')[0].innerText = search_text;
         $('#search_result_sources')[0].innerText = '';
         $('#explain_results').hide();
+
         $.ajax({
             url: '/search',
             type: 'POST',
@@ -78,9 +77,9 @@ $(document).ready(function () {
         })
 
         // call 10 times progress each sec
-        CALL_TIMES = 30; // 30 sec
-        for (let i = 0; i < CALL_TIMES; i++) {
-            setTimeout(refresh_progress, 1000 * i);
-        }
+        // CALL_TIMES = 30; // 30 sec
+        // for (let i = 0; i < CALL_TIMES; i++) {
+        //     setTimeout(refresh_progress, 1000 * i);
+        // }
     })
 })
