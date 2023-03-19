@@ -35,12 +35,20 @@ class FrontendService:
             return response_text, in_scope_source_df
 
         def get_response_json(response_text):
+            def create_response_json_object(text, type):
+                return {"text": text, "type": type}
+
             response_json = []
             split_sentence = re.findall(r'\[[0-9]+\]|[^\[\]]+', response_text)
 
-            for sentence in split_sentence:
+            components = []
+            for component in split_sentence:
+                components.extend(split_with_delimiters(component, ['\n']))
+            for sentence in components:
                 if sentence.startswith('[') and sentence.endswith(']'):
                     response_json.append(create_response_json_object(sentence, "footnote"))
+                elif sentence == '\n':
+                    response_json.append(create_response_json_object(sentence, "newline"))
                 else:
                     response_json.append(create_response_json_object(sentence, "response"))
             return response_json
@@ -104,3 +112,7 @@ class FrontendService:
                              'response_explain_json': response_explain_json,
                              'source_explain_json': source_explain_json
                              }
+
+# if __name__ == '__main__':
+#     obj = get_response_json('Local School [1] [2].\n Dani [3]')
+#     print(obj)

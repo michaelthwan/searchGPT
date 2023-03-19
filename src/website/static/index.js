@@ -21,6 +21,8 @@ $(document).ready(function () {
         $('#status').val('processing');
         $('#search-result-spinner').addClass('d-flex');
         // $('#search-results').hide();
+        $('#search_text')[0].innerText = search_text;
+        $('#search_result_sources')[0].innerText = '';
         $('#explain_results').hide();
         $.ajax({
             url: '/search',
