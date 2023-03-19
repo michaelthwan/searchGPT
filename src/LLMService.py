@@ -7,7 +7,7 @@ import pandas as pd
 import yaml
 
 from Util import setup_logger, get_project_root, storage_cached
-from website.sender import Sender, MSG_TYPE_SEARCH_STEP
+from website.sender import Sender, MSG_TYPE_SEARCH_STEP, MSG_TYPE_OPEN_AI_STREAM
 
 logger = setup_logger('LLMService')
 
@@ -112,20 +112,35 @@ class OpenAIService(LLMService):
 
         openai_api_config = self.config.get('llm_service').get('openai_api')
         model = openai_api_config.get('model')
+        is_stream = openai_api_config.get('stream')
         logger.info(f"OpenAIService.call_api. model: {model}, len(prompt): {len(prompt)}")
 
         if model == 'gpt-3.5-turbo':
             try:
-                completion = openai.ChatCompletion.create(
+                response = openai.ChatCompletion.create(
                     model=model,
                     messages=[
                         {"role": "system", "content": "You are a helpful search engine."},
                         {"role": "user", "content": prompt}
-                    ]
+                    ],
+                    stream=is_stream
                 )
             except Exception as ex:
                 raise ex
-            return completion.choices[0].message.content
+
+            if is_stream:
+                collected_messages = []
+                # iterate through the stream of events
+                for chunk in response:
+                    chunk_message = chunk['choices'][0]['delta'].get("content", None)  # extract the message
+                    if chunk_message is not None:
+                        self.sender.send_message(msg_type=MSG_TYPE_OPEN_AI_STREAM, msg=chunk_message)
+                        collected_messages.append(chunk_message)  # save the message
+
+                full_reply_content = ''.join(collected_messages)
+                return full_reply_content
+            else:
+                return response.choices[0].message.content
         else:
             try:
                 response = openai.Completion.create(

@@ -92,8 +92,8 @@ def index_page():
 @views.route('/progress')
 def progress():
     request_id = request.values.get('request_id')
-    html = exporting_progress.get(request_id, '')
-    return {'html': html}
+    request_dict = exporting_progress.get(request_id, '')
+    return request_dict
 
 
 @views.route('/index_static', methods=['GET', 'POST'])

@@ -9,6 +9,7 @@ $(document).ready(function () {
             function (data, status) {
                 if (status === 'success') {
                     $('#search-result-step').html(data.html);
+                    $('#result-text')[0].innerText = data.openai_stream;
                 }
             }
         );
@@ -17,8 +18,9 @@ $(document).ready(function () {
         event.preventDefault();
         let search_text = $('#form1').val();
         $('#search-btn')[0].disabled = true;
+        $('#status').val('processing');
         $('#search-result-spinner').addClass('d-flex');
-        $('#search-results').hide();
+        // $('#search-results').hide();
         $('#explain_results').hide();
         $.ajax({
             url: '/search',
