@@ -1,6 +1,8 @@
+import os
+import random
+import string
 import tracemalloc
 
-import os
 import psutil
 from flask import Blueprint, render_template, request
 
@@ -10,6 +12,8 @@ from Util import setup_logger
 logger = setup_logger('Views')
 views = Blueprint('views', __name__)
 
+# global var to store progress. Native polling 'socket'
+exporting_progress = {}
 
 process = psutil.Process(os.getpid())
 tracemalloc.start()
@@ -19,6 +23,8 @@ memory_snapshot = None
 @views.route('/', methods=['GET'])
 @views.route('/index', methods=['GET'])
 def start_page():
+    request_id = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
+
     data_json = {'response_json': [], 'source_json': [], 'response_explain_json': [], 'source_explain_json': []}
     return render_template("index.html",
                            search_text='' or "Please search for something.",
@@ -26,6 +32,7 @@ def start_page():
                            source_json=data_json.get('source_json'),
                            response_explain_json=data_json.get('response_explain_json'),
                            source_explain_json=data_json.get('source_explain_json'),
+                           request_id=request_id,
                            error=None
                            )
 
@@ -83,6 +90,11 @@ def index_page():
         }
 
 
+@views.route('/progress/<request_id>')
+def progress(request_id: str):
+    return exporting_progress.get(request_id, '')
+
+
 @views.route('/index_static', methods=['GET', 'POST'])
 def index_static_page():
     return render_template("index_static.html")
@@ -91,6 +103,7 @@ def index_static_page():
 @views.route("/data", methods=["GET"])
 def get_data():
     return {'id': 1, 'test': 'test'}
+
 
 @views.route('/memory')
 def print_memory():

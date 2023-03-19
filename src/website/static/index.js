@@ -1,5 +1,20 @@
 $(document).ready(function () {
-    $('form').submit(function(event) {
+    refresh_progress = function () {
+        $.ajax({
+            url: '/progress',
+            type: 'GET',
+            data: {
+                request_id: $('#request_id').val()
+            },
+            success: function (response) {
+                $('#search-result-step').html(response.html);
+            },
+            error: function (error) {
+                console.log(error)
+            }
+        })
+    }
+    $('form').submit(function (event) {
         event.preventDefault();
         let search_text = $('#form1').val();
         $('#search-btn')[0].disabled = true;
@@ -34,5 +49,10 @@ $(document).ready(function () {
                 $('#explain_results').show();
             }
         })
+
+        // call 10 times progress each sec
+        for (let i = 0; i < 10; i++) {
+            setTimeout(refresh_progress, 1000 * i);
+        }
     })
 })
