@@ -57,6 +57,11 @@ def get_longest_common_word_sequences(paragraph1, paragraph2, k=10):
 
 
 def split_with_delimiters(string, delimiter_list):
+    """
+    Key point if this function is it will preserve the delimiters to serve the purpose
+    Input: ("is fine-tuned from a gpt-3.5 series", ["fine-tuned", "gpt-3.5"])
+    Output: ['is ', 'fine-tuned', ' from a ', 'gpt-3.5', ' series']
+    """
     result = []
     start = 0
     for i in range(len(string)):
@@ -115,5 +120,4 @@ ChatGPT has been trained on a vast amount of text covering a huge range of subje
 
     response_text = "is fine-tuned from a gpt-3.5 series"
     split_list = split_with_delimiters(response_text, ["fine-tuned", "gpt-3.5"])
-    for sentence in split_list:
-        print(sentence)
+    print(split_list)
