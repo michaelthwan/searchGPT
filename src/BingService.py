@@ -93,6 +93,7 @@ class BingService:
         name_list, url_list, url_id_list, snippet_list, text_list = [], [], [], [], []
         for result in results:
             sentences, name, url, url_id, snippet = result
+            sentences = sentences[:self.config['source_service']['bing_search']['sentence_count_per_site']]  # filter top N only for stability
             for text in sentences:
                 word_count = len(re.findall(r'\w+', text))  # approximate number of words
                 if word_count < 8:

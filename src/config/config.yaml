@@ -7,6 +7,7 @@ source_service:
     end_point: https://api.bing.microsoft.com
     subscription_key:
     result_count: 3
+    sentence_count_per_site: 20
     text_extract: trafilatura # beautifulsoup / trafilatura
 llm_service:
   provider: openai # openai/goose_ai
@@ -21,7 +22,7 @@ llm_service:
     temperature: 1
     top_p: 1
     prompt:
-      prompt_length_limit: 3000
+      prompt_token_limit: 2000
     stream: true
   goose_ai_api:
     api_key:

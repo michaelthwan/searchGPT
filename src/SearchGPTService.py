@@ -79,7 +79,7 @@ class SearchGPTService:
         semantic_search_service = BatchOpenAISemanticSearchService(self.config, self.sender)
         gpt_input_text_df = semantic_search_service.search_related_source(text_df, search_text)
         gpt_input_text_df = BatchOpenAISemanticSearchService.post_process_gpt_input_text_df(gpt_input_text_df,
-                                                                                            self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit'))
+                                                                                            self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_token_limit'))
 
         llm_service = LLMServiceFactory.create_llm_service(self.config, self.sender)
         prompt = llm_service.get_prompt_v3(search_text, gpt_input_text_df)
