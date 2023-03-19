@@ -2,6 +2,7 @@ import openai
 import pandas as pd
 import re
 from openai.embeddings_utils import cosine_similarity
+from website.sender import Sender, MSG_TYPE_SEARCH_STEP
 
 from Util import setup_logger
 
@@ -163,9 +164,10 @@ logger = setup_logger('SemanticSearchService')
 
 
 class BatchOpenAISemanticSearchService:
-    def __init__(self, config):
+    def __init__(self, config, sender: Sender = None):
         self.config = config
         openai.api_key = config.get('llm_service').get('openai_api').get('api_key')
+        self.sender = sender
 
     @staticmethod
     def batch_call_embeddings(texts, chunk_size=1000):
@@ -191,6 +193,8 @@ class BatchOpenAISemanticSearchService:
             col = ['name', 'url', 'url_id', 'snippet', 'text', 'similarities', 'rank', 'docno']
             return pd.DataFrame(columns=col)
 
+        if self.sender is not None:
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Searching from extracted text")
         print(f'search_similar() text: {target_text}')
         embedding = BatchOpenAISemanticSearchService.batch_call_embeddings([target_text])[0]
         text_df = BatchOpenAISemanticSearchService.compute_embeddings_for_text_df(text_df)

@@ -8,12 +8,10 @@ from flask import Blueprint, render_template, request
 
 from SearchGPTService import SearchGPTService
 from Util import setup_logger
+from website.sender import exporting_progress, Sender
 
 logger = setup_logger('Views')
 views = Blueprint('views', __name__)
-
-# global var to store progress. Native polling 'socket'
-exporting_progress = {}
 
 process = psutil.Process(os.getpid())
 tracemalloc.start()
@@ -41,6 +39,7 @@ def start_page():
 def index_page():
     error = None
     data_json = {'response_json': [], 'source_json': []}
+    request_id = request.values.get('request_id')
     search_text = request.values.get('q')
 
     try:
@@ -54,7 +53,8 @@ def index_page():
         logger.info(f"GET ui_overriden_config: {ui_overriden_config}")
 
         if search_text is not None:
-            search_gpt_service = SearchGPTService(ui_overriden_config)
+            sender = Sender(request_id) if request_id is not None and request_id != "" else None
+            search_gpt_service = SearchGPTService(ui_overriden_config, sender)
             _, _, data_json = search_gpt_service.query_and_get_answer(search_text=search_text)
     except Exception as e:
         error = str(e)
@@ -90,9 +90,14 @@ def index_page():
         }
 
 
-@views.route('/progress/<request_id>')
-def progress(request_id: str):
-    return exporting_progress.get(request_id, '')
+@views.route('/progress')
+def progress():
+    request_id = request.values.get('request_id')
+    html = exporting_progress.get(request_id, '')
+    print(f"progress() request_id: {request_id}")
+    print(exporting_progress)
+    print(html)
+    return {'html': html}
 
 
 @views.route('/index_static', methods=['GET', 'POST'])

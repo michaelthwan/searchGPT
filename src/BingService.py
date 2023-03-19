@@ -35,9 +35,12 @@ class BingService:
             response.raise_for_status()
 
             columns = ['name', 'url', 'snippet']
-            website_df = pd.DataFrame(response.json()['webPages']['value'])[columns]
-            website_df['url_id'] = website_df.index + 1
-            website_df = website_df[:self.config.get('source_service').get('bing_search').get('result_count')]
+            if response.json().get('webPages'):
+                website_df = pd.DataFrame(response.json()['webPages']['value'])[columns]
+                website_df['url_id'] = website_df.index + 1
+                website_df = website_df[:self.config.get('source_service').get('bing_search').get('result_count')]
+            else:
+                website_df = pd.DataFrame(columns=columns + ['url_id'])
         except Exception as ex:
             raise ex
         return website_df

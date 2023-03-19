@@ -3,6 +3,8 @@ from flask import Blueprint, render_template
 MSG_TYPE_SEARCH_STEP = 'search-step'
 MSG_TYPE_OPEN_AI_STREAM = 'openai-stream'
 
+# global var to store progress. Native polling 'socket'
+exporting_progress = {}
 
 class Sender:
     def __init__(self, request_id: str):
@@ -18,6 +20,9 @@ class Sender:
             search_result_step_html = []
         global exporting_progress
         exporting_progress[self.request_id] = search_result_step_html
+
+        print("exporting_progress in sender.py")
+        print(exporting_progress)
 
         # TODO: when to delete msg
         # TODO: MSG_TYPE_OPEN_AI_STREAM

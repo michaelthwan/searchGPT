@@ -1,18 +1,13 @@
 $(document).ready(function () {
-    refresh_progress = function () {
-        $.ajax({
-            url: '/progress',
-            type: 'GET',
-            data: {
-                request_id: $('#request_id').val()
-            },
-            success: function (response) {
-                $('#search-result-step').html(response.html);
-            },
-            error: function (error) {
-                console.log(error)
+    let refresh_progress = function () {
+        $.get("/progress",
+            {request_id: $('#request_id').val()},
+            function (data, status) {
+                console.log(data);
+                console.log(status);
+                $('#search-result-step').html(data.html);
             }
-        })
+        );
     }
     $('form').submit(function (event) {
         event.preventDefault();
@@ -26,6 +21,7 @@ $(document).ready(function () {
             type: 'POST',
             data: {
                 q: search_text,
+                request_id: $('#request_id').val(),
                 bing_search_subscription_key: $('#bing_search_subscription_key').val(),
                 openai_api_key: $('#openai_api_key').val(),
                 is_use_source: $('input[name="is_use_source"]')[0].checked,
