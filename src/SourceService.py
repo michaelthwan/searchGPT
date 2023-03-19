@@ -5,7 +5,7 @@ import pandas as pd
 
 from BingService import BingService
 from Util import setup_logger
-from message_queue import Message, MSG_TYPE_SEARCH_STEP
+from message_queue import MSG_TYPE_SEARCH_STEP
 from message_queue.sender import Sender
 from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
@@ -26,15 +26,11 @@ class SourceService:
             return bing_text_df
 
         bing_service = BingService(self.config)
-
         if self.sender is not None:
             self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Calling bing search API")
-
         website_df = bing_service.call_bing_search_api(search_text=search_text)
-
         if self.sender is not None:
             self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from bing search result ...")
-
         bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df=website_df)
 
         return bing_text_df
@@ -44,7 +40,6 @@ class SourceService:
         #  bing_text_df is used for doc_id arrangement
         if not self.config['source_service']['is_use_source'] or not self.config['source_service']['is_enable_doc_search']:
             return pd.DataFrame([])
-
         if self.sender is not None:
             self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from document")
         files_grabbed = list()

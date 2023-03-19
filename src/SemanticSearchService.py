@@ -4,8 +4,9 @@ import re
 from openai.embeddings_utils import cosine_similarity
 
 from Util import setup_logger
-from message_queue import Message, MSG_TYPE_SEARCH_STEP
+from message_queue import MSG_TYPE_SEARCH_STEP
 from message_queue.sender import Sender
+from NLPUtil import num_tokens_from_string
 
 # from abc import ABC, abstractmethod
 # from langchain.embeddings import HuggingFaceEmbeddings
@@ -168,7 +169,6 @@ class BatchOpenAISemanticSearchService:
     def __init__(self, config, sender: Sender = None):
         self.config = config
         openai.api_key = config.get('llm_service').get('openai_api').get('api_key')
-
         self.sender = sender
 
     @staticmethod
@@ -207,13 +207,17 @@ class BatchOpenAISemanticSearchService:
         return result_df
 
     @staticmethod
-    def post_process_gpt_input_text_df(gpt_input_text_df, prompt_length_limit):
-        # clean out of prompt texts for existing [1], [2], [3]... in the source_text
+    def post_process_gpt_input_text_df(gpt_input_text_df, prompt_token_limit):
+        # clean out of prompt texts for existing [1], [2], [3]... in the source_text for response output stability
         gpt_input_text_df['text'] = gpt_input_text_df['text'].apply(lambda x: re.sub(r'\[[0-9]+\]', '', x))
-
+        # length of char and token
         gpt_input_text_df['len_text'] = gpt_input_text_df['text'].apply(lambda x: len(x))
+        gpt_input_text_df['len_token'] = gpt_input_text_df['text'].apply(lambda x: num_tokens_from_string(x))
+
         gpt_input_text_df['cumsum_len_text'] = gpt_input_text_df['len_text'].cumsum()
-        max_rank = gpt_input_text_df[gpt_input_text_df['cumsum_len_text'] <= prompt_length_limit]['rank'].max() + 1
+        gpt_input_text_df['cumsum_len_token'] = gpt_input_text_df['len_token'].cumsum()
+
+        max_rank = gpt_input_text_df[gpt_input_text_df['cumsum_len_token'] <= prompt_token_limit]['rank'].max() + 1
         gpt_input_text_df['in_scope'] = gpt_input_text_df['rank'] <= max_rank  # In order to get also the row slightly larger than prompt_length_limit
         # reorder url_id with url that in scope.
         url_id_list = gpt_input_text_df['url_id'].unique()
@@ -222,5 +226,3 @@ class BatchOpenAISemanticSearchService:
         return gpt_input_text_df
 
 
-if __name__ == '__main__':
-    pass

@@ -1,9 +1,8 @@
+import os
 import random
 import string
-import time
 import tracemalloc
 
-import os
 import psutil
 from flask import Blueprint, render_template, request, session
 from flask_socketio import join_room, leave_room
@@ -13,6 +12,8 @@ from Util import setup_logger
 from app_context import SearchGPTContext
 from message_queue.receiver import Receiver
 from message_queue.sender import Sender
+
+# from website.sender import exporting_progress, Sender
 
 logger = setup_logger('Views')
 views = Blueprint('views', __name__)
@@ -41,6 +42,8 @@ def start_page():
         random_string = ''.join(random.choice(characters) for _ in range(16))
         session['session_id'] = random_string
 
+    request_id = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
+
     data_json = {'response_json': [], 'source_json': [], 'response_explain_json': [], 'source_explain_json': []}
     return render_template("index.html",
                            search_text='' or "Please search for something.",
@@ -48,6 +51,7 @@ def start_page():
                            source_json=data_json.get('source_json'),
                            response_explain_json=data_json.get('response_explain_json'),
                            source_explain_json=data_json.get('source_explain_json'),
+                           request_id=request_id, status="init",
                            error=None
                            )
 
@@ -56,6 +60,7 @@ def start_page():
 def index_page():
     error = None
     data_json = {'response_json': [], 'source_json': []}
+    request_id = request.values.get('request_id')
     search_text = request.values.get('q')
 
     try:
@@ -69,6 +74,11 @@ def index_page():
         logger.info(f"GET ui_overriden_config: {ui_overriden_config}")
 
         if search_text is not None:
+            # without socket version
+            # sender = Sender(request_id) if request_id is not None and request_id != "" else None
+            # search_gpt_service = SearchGPTService(ui_overriden_config, sender)
+
+            # socket version
             sender = Sender(sender_id=session['session_id'])
             receiver = Receiver(sender)
 
@@ -81,6 +91,7 @@ def index_page():
         error = str(e)
 
     if error is None:
+        id = 'search-results'
         result_html = render_template('search_result.html',
                                       search_text=search_text,
                                       response_json=data_json.get('response_json'),
@@ -91,33 +102,29 @@ def index_page():
                                        response_explain_json=data_json.get('response_explain_json'),
                                        source_explain_json=data_json.get('source_explain_json'),
                                        )
-
-        return {
-            'id': 'search-results',
-            'html': result_html,
-            'explain_html': explain_html,
-        }
+        request_id_status_html = render_template('request_id_status_html.html', request_id=request_id, status="done")
     else:
+        id = 'alert-box'
         result_html = render_template('alert_box.html', error=error)
         explain_html = render_template('explain_result.html',
                                        search_text=search_text,
                                        response_explain_json=[],
                                        source_explain_json=[],
                                        )
-        return {
-            'id': 'alert-box',
-            'html': result_html,
-            'explain_html': explain_html,
-        }
+        request_id_status_html = render_template('request_id_status_html.html', request_id=request_id, status="error")
+    return {
+        'id': id,
+        'html': result_html,
+        'explain_html': explain_html,
+        'request_id_status_html': request_id_status_html,
+    }
 
 
-@views.route('/test-socket', methods=['POST'])
-def test_socket_io():
-    time.sleep(1)
-    socket_io = SearchGPTContext.socket_io
-    for i in range(10):
-        socket_io.emit('progress', i)
-    return "OK"
+# @views.route('/progress')
+# def progress():
+#     request_id = request.values.get('request_id')
+#     request_dict = exporting_progress.get(request_id, '')
+#     return request_dict
 
 
 @views.route('/index_static', methods=['GET', 'POST'])

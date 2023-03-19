@@ -27,6 +27,16 @@
                         <input type="text" class="form-control" id="openai_api_key" placeholder="Enter key"
                                name="openai_api_key" value="{{ request.args.get('openai_api_key', '') }}">
                     </div>
+                    <div id="request_id_status_html" style="font-size: 4px; color: #f7f7f7;" >
+                        {% include 'request_id_status_html.html' %}
+                    </div>
+                    <div style="font-size: 0.6rem; color: #4f71a8">
+                        Note: <br>
+                        - Calls took about 15 seconds to fully complete normally. <br>
+                             (~5 sec for Bing Search, ~10 sec for OpenAI) <br>
+                        - Sometimes the API is not stable. If it exceeded 30 seconds, please try again. <br>
+                        - Non-English language is experimental. It will somehow work.
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
@@ -67,6 +77,13 @@
     </div>
     <hr>
     <div class="container mt-4">
+        <div id="search-result-spinner-div" style="height: 36px">
+            <div class="justify-content-center" id="search-result-spinner" hidden>
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        </div>
         <div id="search-result-step">
             {% include 'search_result_step.html' %}
         </div>

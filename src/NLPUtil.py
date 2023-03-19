@@ -1,3 +1,6 @@
+import tiktoken
+
+
 def remove_substrings(strings):
     """
     Remove any string that is a substring of another string
@@ -57,6 +60,11 @@ def get_longest_common_word_sequences(paragraph1, paragraph2, k=10):
 
 
 def split_with_delimiters(string, delimiter_list):
+    """
+    Key point if this function is it will preserve the delimiters to serve the purpose
+    Input: ("is fine-tuned from a gpt-3.5 series", ["fine-tuned", "gpt-3.5"])
+    Output: ['is ', 'fine-tuned', ' from a ', 'gpt-3.5', ' series']
+    """
     result = []
     start = 0
     for i in range(len(string)):
@@ -73,6 +81,16 @@ def split_with_delimiters(string, delimiter_list):
     if start < len(string):
         result.append(string[start:])
     return result
+
+
+def num_tokens_from_string(string: str) -> int:
+    """
+    Returns the number of tokens in a text string.
+    https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
+    """
+    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
 
 
 if __name__ == '__main__':
@@ -113,7 +131,9 @@ ChatGPT has been trained on a vast amount of text covering a huge range of subje
     # for text in text_list:
     #     print(text)
 
-    response_text = "is fine-tuned from a gpt-3.5 series"
-    split_list = split_with_delimiters(response_text, ["fine-tuned", "gpt-3.5"])
-    for sentence in split_list:
-        print(sentence)
+    # response_text = "is fine-tuned from a gpt-3.5 series"
+    # split_list = split_with_delimiters(response_text, ["fine-tuned", "gpt-3.5"])
+    # print(split_list)
+
+    s = "OpenAI 推出了一個新型聊天機器人模型ChatGPT"
+    print(num_tokens_from_string(s))
