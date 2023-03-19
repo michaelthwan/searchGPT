@@ -27,7 +27,9 @@
                         <input type="text" class="form-control" id="openai_api_key" placeholder="Enter key"
                                name="openai_api_key" value="{{ request.args.get('openai_api_key', '') }}">
                     </div>
-                    {% include 'request_id.html' %}
+                    <div id="request_id_status_html">
+                        {% include 'request_id_status_html.html' %}
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">

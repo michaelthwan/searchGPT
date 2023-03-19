@@ -30,7 +30,7 @@ def start_page():
                            source_json=data_json.get('source_json'),
                            response_explain_json=data_json.get('response_explain_json'),
                            source_explain_json=data_json.get('source_explain_json'),
-                           request_id=request_id,
+                           request_id=request_id, status="init",
                            error=None
                            )
 
@@ -60,6 +60,7 @@ def index_page():
         error = str(e)
 
     if error is None:
+        id = 'search-results'
         result_html = render_template('search_result.html',
                                       search_text=search_text,
                                       response_json=data_json.get('response_json'),
@@ -70,33 +71,28 @@ def index_page():
                                        response_explain_json=data_json.get('response_explain_json'),
                                        source_explain_json=data_json.get('source_explain_json'),
                                        )
-
-        return {
-            'id': 'search-results',
-            'html': result_html,
-            'explain_html': explain_html,
-        }
+        request_id_status_html = render_template('request_id_status_html.html', request_id=request_id, status="done")
     else:
+        id = 'alert-box'
         result_html = render_template('alert_box.html', error=error)
         explain_html = render_template('explain_result.html',
                                        search_text=search_text,
                                        response_explain_json=[],
                                        source_explain_json=[],
                                        )
-        return {
-            'id': 'alert-box',
-            'html': result_html,
-            'explain_html': explain_html,
-        }
+        request_id_status_html = render_template('request_id_status_html.html', request_id=request_id, status="error")
+    return {
+        'id': id,
+        'html': result_html,
+        'explain_html': explain_html,
+        'request_id_status_html': request_id_status_html,
+    }
 
 
 @views.route('/progress')
 def progress():
     request_id = request.values.get('request_id')
     html = exporting_progress.get(request_id, '')
-    print(f"progress() request_id: {request_id}")
-    print(exporting_progress)
-    print(html)
     return {'html': html}
 
 
