@@ -5,7 +5,7 @@ RUN mkdir /searchGPT/tmp
 
 WORKDIR /searchGPT
 
-COPY requirements.txt /searchGPT/tmp/requirements.txt
+COPY requirements-heroku.txt /searchGPT/tmp/requirements.txt
 
 RUN pip install -r /searchGPT/tmp/requirements.txt
 
