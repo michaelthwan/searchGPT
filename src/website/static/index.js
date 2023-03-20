@@ -14,8 +14,11 @@ $(document).ready(function () {
             }
         );
     }
-    $('form').submit(function (event) {
-        event.preventDefault();
+
+    let submit_search = function (is_poll, event) {
+        if (event) {
+            event.preventDefault();
+        }
         let search_text = $('#form1').val();
         $('#search-btn')[0].disabled = true;
         $('#status').val('processing');
@@ -57,9 +60,21 @@ $(document).ready(function () {
         })
 
         // call 10 times progress each sec
-        CALL_TIMES = 30; // 30 sec
-        for (let i = 0; i < CALL_TIMES; i++) {
-            setTimeout(refresh_progress, 1000 * i);
+        if (is_poll) {
+            CALL_TIMES = 15; // 2 sec for 30 sec
+            for (let i = 1; i < CALL_TIMES + 1; i++) {
+                setTimeout(refresh_progress, 2000 * i);
+            }
         }
+
+    }
+
+    $('.prompt-ex-btn').click(function () {
+        $('#form1').val($(this).text())
+        submit_search(false, null);
+    });
+
+    $('form').submit(function (event) {
+        submit_search(true, event);
     })
 })

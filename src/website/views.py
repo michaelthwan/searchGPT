@@ -7,6 +7,7 @@ import psutil
 from flask import Blueprint, render_template, request
 
 from SearchGPTService import SearchGPTService
+from FrontendService import FrontendService
 from Util import setup_logger
 from website.sender import exporting_progress, Sender
 
@@ -23,13 +24,15 @@ memory_snapshot = None
 def start_page():
     request_id = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
 
-    data_json = {'response_json': [], 'source_json': [], 'response_explain_json': [], 'source_explain_json': []}
+    data_json = {'response_json': [], 'source_json': [], 'response_explain_json': [], 'source_explain_json': [],
+                 'prompt_examples_json': FrontendService.get_prompt_examples_json()}
     return render_template("index.html",
                            search_text='' or "Please search for something.",
                            response_json=data_json.get('response_json'),
                            source_json=data_json.get('source_json'),
                            response_explain_json=data_json.get('response_explain_json'),
                            source_explain_json=data_json.get('source_explain_json'),
+                           prompt_examples_json=data_json.get('prompt_examples_json'),
                            request_id=request_id, status="init",
                            error=None
                            )

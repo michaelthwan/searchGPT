@@ -69,6 +69,11 @@ def remove_api_keys(d):
     return d
 
 
+def path_safe_string_conversion(filename: str):
+    # https://stackoverflow.com/questions/7406102/create-sane-safe-filename-from-any-unsafe-string
+    return "".join([c for c in filename if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
+
+
 def storage_cached(cache_type: str, cache_hash_key_name: str):
     def storage_cache_decorator(func):
         @wraps(func)
@@ -81,7 +86,10 @@ def storage_cached(cache_type: str, cache_hash_key_name: str):
                 hash_key = str(kwargs[cache_hash_key_name])
 
                 cache_path = Path(get_project_root(), config.get('cache').get('path'))
+
                 cache_hash = md5(str(config).encode() + hash_key.encode()).hexdigest()
+                if cache_type == 'web':
+                    cache_hash = path_safe_string_conversion(hash_key)
 
                 if check_result_cache_exists(cache_path, cache_hash, cache_type):
                     result = load_result_from_cache(cache_path, cache_hash, cache_type)['result']
@@ -100,6 +108,7 @@ def storage_cached(cache_type: str, cache_hash_key_name: str):
         return wrapper
 
     return storage_cache_decorator
+
 
 if __name__ == '__main__':
     text = "There are many things you can do to learn how to run faster, Mr. Wan, such as incorporating speed workouts into your running schedule, running hills, counting your strides, and adjusting your running form. Lean forward when you run and push off firmly with each foot. Pump your arms actively and keep your elbows bent at a 90-degree angle. Try to run every day, and gradually increase the distance you run for long-distance runs. Make sure you rest at least one day per week to allow your body to recover. Avoid running with excess gear that could slow you down."
