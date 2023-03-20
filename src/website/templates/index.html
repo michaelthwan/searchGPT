@@ -63,6 +63,7 @@
                         <label for="llm_model">LLM Model</label>
                         <select class="form-control" id="llm_model" name="llm_model">
                             <option value="gpt-3.5-turbo">gpt-3.5-turbo (Best model that supporting ChatGPT)</option>
+                            <option value="gpt-4">gpt-4 (GPT4 is in Limited preview)</option>
                             <option value="text-davinci-003"
                                     {% if request.args.get('llm_model') == 'text-davinci-003' %} selected {% endif %}
                             >text-davinci-003</option>

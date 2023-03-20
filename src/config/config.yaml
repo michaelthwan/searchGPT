@@ -14,10 +14,11 @@ llm_service:
   openai_api:
     api_key:
     # model: gpt-3.5-turbo is the best one. Details: https://platform.openai.com/docs/models/gpt-3-5.
-  #  model: text-babbage-001
-  #  model: text-curie-001
-  #  model: text-davinci-003
-    model: gpt-3.5-turbo # default
+    # model: gpt-4 is in limited preview
+    # model: text-babbage-001
+    # model: text-curie-001
+    # model: text-davinci-003
+    model: gpt-5 # default
     max_tokens: 300
     temperature: 1
     top_p: 1
