@@ -22,7 +22,7 @@ llm_service:
     temperature: 1
     top_p: 1
     prompt:
-      prompt_token_limit: 2000
+      prompt_token_limit: 1500
     stream: true
   goose_ai_api:
     api_key:
