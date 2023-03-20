@@ -31,7 +31,7 @@ class SearchGPTService:
     """
 
     def __init__(self, ui_overriden_config=None, sender: Sender = None):
-        with open(os.path.join(get_project_root(), 'src/config/config.yaml')) as f:
+        with open(os.path.join(get_project_root(), 'src/config/config.yaml'), encoding='utf-8') as f:
             self.config = yaml.load(f, Loader=yaml.FullLoader)
         self.overide_config_by_query_string(ui_overriden_config)
         self.validate_config()
