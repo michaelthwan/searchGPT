@@ -14,7 +14,7 @@
                         <div class="d-grid gap-2 mx-auto">
                             <div style="font-weight: bold">Prompts that SearchGPT > ChatGPT</div>
                             {% for prompt in prompt_examples_json.col1_list %}
-                            <button class="btn btn-light" type="button">{{prompt}}</button>
+                            <button class="btn btn-light prompt-ex-btn" type="button">{{prompt}}</button>
                             {% endfor %}
                         </div>
                     </div>
@@ -22,7 +22,7 @@
                         <div class="d-grid gap-2 mx-auto">
                             <div style="font-weight: bold">Multi-language experiments</div>
                             {% for prompt in prompt_examples_json.col2_list %}
-                            <button class="btn btn-light" type="button">{{prompt}}</button>
+                            <button class="btn btn-light prompt-ex-btn" type="button">{{prompt}}</button>
                             {% endfor %}
                         </div>
                     </div>

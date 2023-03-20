@@ -14,8 +14,11 @@ $(document).ready(function () {
             }
         );
     }
-    $('form').submit(function (event) {
-        event.preventDefault();
+
+    let submit_search = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
         let search_text = $('#form1').val();
         $('#search-btn')[0].disabled = true;
         $('#status').val('processing');
@@ -61,5 +64,14 @@ $(document).ready(function () {
         for (let i = 0; i < CALL_TIMES; i++) {
             setTimeout(refresh_progress, 1000 * i);
         }
+    }
+
+    $('.prompt-ex-btn').click(function () {
+        $('#form1').val($(this).text())
+        submit_search(null);
+    });
+
+    $('form').submit(function (event) {
+        submit_search(event);
     })
 })
