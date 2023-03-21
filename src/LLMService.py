@@ -199,7 +199,7 @@ class LLMServiceFactory:
 
 if __name__ == '__main__':
     # Load config
-    with open(os.path.join(get_project_root(), 'src/config/config.yaml')) as f:
+    with open(os.path.join(get_project_root(), 'src/config/config.yaml'), encoding='utf-8') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
         service_factory = LLMServiceFactory()
         service = service_factory.create_llm_service(config)

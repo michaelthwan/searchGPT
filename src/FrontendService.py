@@ -1,8 +1,11 @@
+import os
 import re
 from urllib.parse import urlparse
 
-from Util import setup_logger
+import yaml
+
 from NLPUtil import split_with_delimiters, get_longest_common_word_sequences
+from Util import setup_logger, get_project_root
 
 logger = setup_logger('FootnoteService')
 
@@ -13,6 +16,18 @@ class FrontendService:
         self.response_text = response_text
         used_columns = ['docno', 'name', 'url', 'url_id', 'text', 'len_text', 'in_scope']  # TODO: add url_id
         self.gpt_input_text_df = gpt_input_text_df[used_columns]
+
+    @staticmethod
+    def get_prompt_examples_json():
+        with open(os.path.join(get_project_root(), 'src/config/config.yaml'), encoding='utf-8') as f:
+            config = yaml.load(f, Loader=yaml.FullLoader)
+            col1_list = config['frontend_service']['prompt_examples']['col1_list']
+            col2_list = config['frontend_service']['prompt_examples']['col2_list']
+            prompt_examples_json = {
+                'col1_list': col1_list,
+                'col2_list': col2_list,
+            }
+            return prompt_examples_json
 
     def get_data_json(self, response_text, gpt_input_text_df):
         def create_response_json_object(text, type):
@@ -106,13 +121,39 @@ class FrontendService:
         response_json = get_response_json(response_text)
         source_json, source_text = get_source_json(in_scope_source_df)
         response_explain_json, source_explain_json = get_explainability_json(response_text, source_text)
+        prompt_examples_json = FrontendService.get_prompt_examples_json()
 
         return source_text, {'response_json': response_json,
                              'source_json': source_json,
                              'response_explain_json': response_explain_json,
-                             'source_explain_json': source_explain_json
+                             'source_explain_json': source_explain_json,
+                             'prompt_examples_json': prompt_examples_json,
                              }
 
-# if __name__ == '__main__':
-#     obj = get_response_json('Local School [1] [2].\n Dani [3]')
-#     print(obj)
+
+if __name__ == '__main__':
+    # str_list = ['Alpaca lora',
+    #             'what is new for gpt4?',
+    #             'Why Llama LLM model is so popular?',
+    #             'Why did SVB collapsed?',
+    #             'End of FTX',
+    #             'digital twin有哪些用处',
+    #             '아가동산사건의 문제가 뭐야',
+    #             'Hoe maak ik pasta',
+    #             '日本国憲法は誰が作ったのか？',
+    #             "Comment gagner de l'argent"]
+    # for s in str_list:
+    #     print(path_safe_string_conversion(s))
+
+    import os
+    import pickle
+
+    folder_path = r""
+    pickle_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path)]
+    for file_path in pickle_files:
+        if not '8d' in file_path:
+            continue
+        with open(file_path, "rb") as f:
+            obj = pickle.load(f)
+            print(file_path)
+            print(obj['result'][0])
