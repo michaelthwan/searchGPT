@@ -49,7 +49,7 @@ class LLMService(ABC):
         prompt = \
             f"""
 Answer with 100 words for the question below based on the provided sources using a scientific tone. 
-If the context is insufficient, reply "I cannot answer".
+If the context is insufficient, reply "I cannot answer" in language "it-IT".
 Use Markdown for formatting code or text.
 Source:
 {context_str}
@@ -85,8 +85,9 @@ Web search result:
 
 Instructions: Using the provided web search results, write a comprehensive reply to the given query. 
 Make sure to cite results using [number] notation after the reference.
-If the provided search results refer to multiple subjects with the same name, write separate answers for each subject. 
-If the context is insufficient, reply "I cannot answer because my reference sources don't have related info".
+If the provided search results refer to multiple subjects with the same name, write separate answers for each subject.
+Answer in language: zh
+If the context is insufficient, reply "I cannot answer because my reference sources don't have related info" in language zh.
 Query: {search_text}
 """
         return prompt
