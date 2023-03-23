@@ -26,7 +26,7 @@ class BingService:
         logger.info("BingService.call_bing_search_api. query: " + search_text)
         subscription_key = self.config.get('source_service').get('bing_search').get('subscription_key')
         endpoint = self.config.get('source_service').get('bing_search').get('end_point') + "/v7.0/search"
-        mkt = 'en-US'
+        mkt = self.config.get('general').get('language')
         params = {'q': search_text, 'mkt': mkt}
         headers = {'Ocp-Apim-Subscription-Key': subscription_key}
 

@@ -77,6 +77,20 @@
                             >text-curie-001</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="language">Language<div style="display: inline; font-size: 0.8rem"> (Control bing search region and LLM response)</div></label>
+                        <select class="form-control" id="language" name="language">
+                            <option value="en-US">en-US English</option>
+                            <option value="zh-CN" {% if request.args.get('language') == 'zh-CN' %} selected {% endif %}>zh-CN Chinese 中文</option>
+                            <option value="it-IT" {% if request.args.get('language') == 'it-IT' %} selected {% endif %}>it-IT Italian Italiano</option>
+                            <option value="fr-FR" {% if request.args.get('language') == 'fr-FR' %} selected {% endif %}>fr-FR French Français</option>
+                            <option value="de-DE" {% if request.args.get('language') == 'de-DE' %} selected {% endif %}>de-DE German Deutsch</option>
+                            <option value="es-ES" {% if request.args.get('language') == 'es-ES' %} selected {% endif %}>es-ES Spanish Español</option>
+                            <option value="ja-JP" {% if request.args.get('language') == 'ja-JP' %} selected {% endif %}>ja-JP Japanese 日本語</option>
+                            <option value="ko-KR" {% if request.args.get('language') == 'ko-KR' %} selected {% endif %}>ko-KR Korean 한국어</option>
+                            <option value="ru-RU" {% if request.args.get('language') == 'ru-RU' %} selected {% endif %}>ru-RU Russian Русский</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </form>
