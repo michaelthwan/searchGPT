@@ -41,8 +41,11 @@ class FrontendService:
             url_id_list = [int(x) for x in dict.fromkeys(re.findall(r'\[([0-9]+)\]', response_text))]
             url_id_map = dict(zip(url_id_list, range(1, len(url_id_list) + 1)))
 
-            for url_id, new_url_id in url_id_map.items():
-                response_text = response_text.replace(f'[{url_id}]', f'[{new_url_id}]')
+            response_text = re.sub(r'\[([0-9]+)\]', lambda x: f"[{url_id_map[int(x.group(1))]}]", response_text)
+            # for multiple references in same sentence, sort as per url_id
+            refs = set(re.findall(r'(\[[0-9\]\[]+\])', response_text))
+            for ref in refs:
+                response_text = response_text.replace(ref, '[' + ']['.join(sorted(re.findall(r'\[([0-9]+)\]', ref))) + ']')
 
             # gpt_input_text_df: find reference in text & re-order
             in_scope_source_df = gpt_input_text_df[gpt_input_text_df['url_id'].isin(url_id_map.keys()) & gpt_input_text_df['in_scope']].copy()
