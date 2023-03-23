@@ -1,3 +1,5 @@
+general:
+  language: en-US # It will determine bing search market and LLM prompt language. en-US / zh-CN / it-IT / fr-FR / de-DE / es-ES / ja-JP / ko-KR / pt-BR / ru-RU / etc.
 source_service:
   is_use_source: true # grounded or not grounded. If not grounded, meaning just Q&A via LLM
   is_enable_bing_search: true

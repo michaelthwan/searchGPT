@@ -59,6 +59,7 @@ Answer:
         return prompt
 
     def get_prompt_v3(self, search_text: str, gpt_input_text_df: pd.DataFrame):
+        language = self.config.get('general').get('language')
         if not self.config.get('source_service').get('is_use_source'):
             prompt = \
                 f"""
@@ -86,8 +87,8 @@ Web search result:
 Instructions: Using the provided web search results, write a comprehensive reply to the given query. 
 Make sure to cite results using [number] notation after the reference.
 If the provided search results refer to multiple subjects with the same name, write separate answers for each subject.
-Answer in language: zh
-If the context is insufficient, reply "I cannot answer because my reference sources don't have related info" in language zh.
+Answer in language: {language}
+If the context is insufficient, reply "I cannot answer because my reference sources don't have related info" in language {language}.
 Query: {search_text}
 """
         return prompt
