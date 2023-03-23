@@ -78,7 +78,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="language">Language</label>
+                        <label for="language">Language<div style="display: inline; font-size: 0.8rem"> (Control bing search region and LLM response)</div></label>
                         <select class="form-control" id="language" name="language">
                             <option value="en-US">en-US English</option>
                             <option value="zh-CN" {% if request.args.get('language') == 'zh-CN' %} selected {% endif %}>zh-CN Chinese 中文</option>
