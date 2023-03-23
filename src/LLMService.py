@@ -9,12 +9,17 @@ import yaml
 from Util import setup_logger, get_project_root, storage_cached
 from website.sender import Sender, MSG_TYPE_SEARCH_STEP, MSG_TYPE_OPEN_AI_STREAM
 
+import gettext
+
 logger = setup_logger('LLMService')
 
 
 class LLMService(ABC):
     def __init__(self, config):
         self.config = config
+        locale = self.config.get('system').get('locale')
+        tr = gettext.translation('base', localedir='locales', languages=[locale])
+        self._ = tr.gettext
 
     def clean_response_text(self, response_text: str):
         return response_text.replace("\n", "")
@@ -24,7 +29,7 @@ class LLMService(ABC):
         prompt_length_limit = 3000  # obsolete
         is_use_source = self.config.get('source_service').get('is_use_source')
         if is_use_source:
-            prompt_engineering = f"\n\nAnswer the question '{search_text}' using above information with about 100 words:"
+            prompt_engineering = "\n\n" + self._("Answer the question '{search_text}' using above information with about 100 words:").format(search_text=search_text)
             prompt = ""
             for index, row in gpt_input_text_df.iterrows():
                 prompt += f"""{row['text']}\n"""
@@ -32,7 +37,7 @@ class LLMService(ABC):
             prompt = prompt[:prompt_length_limit]
             return prompt + prompt_engineering
         else:
-            return f"\n\nAnswer the question '{search_text}' with about 100 words:"
+            return "\n\n" + self._("Answer the question '{search_text}' with about 100 words:").format(search_text=search_text)
 
     def get_prompt_v2(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         logger.info(f"OpenAIService.get_prompt_v2. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
@@ -40,55 +45,31 @@ class LLMService(ABC):
         gpt_input_text_df = gpt_input_text_df.sort_values('url_id')
         url_id_list = gpt_input_text_df['url_id'].unique()
         for url_id in url_id_list:
-            context_str += f"Source ({url_id})\n"
+            context_str += self._('Source ({url_id})').format(url_id) + "\n"
             for index, row in gpt_input_text_df[gpt_input_text_df['url_id'] == url_id].iterrows():
                 context_str += f"{row['text']}\n"
             context_str += "\n"
         prompt_length_limit = 3000 # obsolete
         context_str = context_str[:prompt_length_limit]
-        prompt = \
-            f"""
-Answer with 100 words for the question below based on the provided sources using a scientific tone. 
-If the context is insufficient, reply "I cannot answer".
-Use Markdown for formatting code or text.
-Source:
-{context_str}
-Question: {search_text}
-Answer:
-"""
+        prompt = self._("Answer with 100 words for the question below based on the provided sources using a scientific tone.") + "\n" + self._("If the context is insufficient, reply 'I cannot answer'.") + "\n" + self._("Use Markdown for formatting code or text.") + "\n" + self._("Source") + "\n" + self._("{context_str}").format(context_str=context_str) + "\n" + self._("Question: {search_text}").format(search_text=search_text) + "\n" + self._("Answer:")
         return prompt
 
     def get_prompt_v3(self, search_text: str, gpt_input_text_df: pd.DataFrame):
         if not self.config.get('source_service').get('is_use_source'):
-            prompt = \
-                f"""
-Instructions: Write a comprehensive reply to the given query.  
-If the context is insufficient, reply "I cannot answer".
-Query: {search_text}
-"""
+            prompt = self._("Instructions: Write a comprehensive reply to the given query.") + "\n" + self._("If the context is insufficient, reply 'I cannot answer'.") + "\n" + self._("Query:") + "\n" + self._("{search_text}").format(search_text=search_text)
             return prompt
 
         logger.info(f"OpenAIService.get_prompt_v3. search_text: {search_text}, gpt_input_text_df.shape: {gpt_input_text_df.shape}")
         context_str = ""
         for _, row_url in gpt_input_text_df[['url_id', 'url']].drop_duplicates().iterrows():
             domain = urlparse(row_url['url']).netloc.replace('www.', '')
-            context_str += f"Source [{row_url['url_id']}] {domain}\n"
+            context_str += self._('Source [{url_id}] {domain}').format(url_id=row_url['url_id'], domain=domain) + "\n"
             for index, row in gpt_input_text_df[(gpt_input_text_df['url_id'] == row_url['url_id']) & gpt_input_text_df['in_scope']].iterrows():
                 context_str += f"{row['text']}\n"
             context_str += "\n\n"
         prompt_length_limit = self.config.get('llm_service').get('openai_api').get('prompt').get('prompt_length_limit')
         context_str = context_str[:prompt_length_limit]
-        prompt = \
-            f"""
-Web search result:
-{context_str}
-
-Instructions: Using the provided web search results, write a comprehensive reply to the given query. 
-Make sure to cite results using [number] notation after the reference.
-If the provided search results refer to multiple subjects with the same name, write separate answers for each subject. 
-If the context is insufficient, reply "I cannot answer because my reference sources don't have related info".
-Query: {search_text}
-"""
+        prompt = self._("Web search result:") + "\n" + self._("{context_str}").format(context_str=context_str) + "\n" + self._("Instructions: Using the provided web search results, write a comprehensive reply to the given query.") + "\n" + self._("Make sure to cite results using [number] notation after the reference.") + "\n" + self._("If the provided search results refer to multiple subjects with the same name, write separate answers for each subject.") + "\n" + self._("If the context is insufficient, reply 'I cannot answer because my reference sources don't have related info'.") + "\n" + self._("Query: {search_text}").format(search_text=search_text)
         return prompt
 
     @abstractmethod
@@ -120,7 +101,7 @@ class OpenAIService(LLMService):
                 response = openai.ChatCompletion.create(
                     model=model,
                     messages=[
-                        {"role": "system", "content": "You are a helpful search engine."},
+                        {"role": "system", "content": self._("You are a helpful search engine.")},
                         {"role": "user", "content": prompt}
                     ],
                     stream=is_stream

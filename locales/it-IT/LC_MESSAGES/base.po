@@ -1,0 +1,105 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2023-03-23 09:19+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: ./src/LLMService.py:32
+msgid "Answer the question '{search_text}' using above information with about 100 words:"
+msgstr "Rispondi alla domanda '{search_text}' utilizzando le informazioni di cui sopra con circa 100 parole:"
+
+#: ./src/LLMService.py:40
+msgid "Answer the question '{search_text}' with about 100 words:"
+msgstr "Rispondi alla domanda '{search_text}' con circa 100 parole:"
+
+#: ./src/LLMService.py:48
+msgid "Source ({url_id})"
+msgstr "Fonte ({url_id})"
+
+#: ./src/LLMService.py:54
+msgid "Answer with 100 words for the question below based on the provided sources using a scientific tone."
+msgstr "Rispondi con 100 parole alla domanda sottostante in base alle fonti fornite utilizzando un tono scientifico."
+
+#: ./src/LLMService.py:54
+msgid "Answer:"
+msgstr "Risposta:"
+
+#: ./src/LLMService.py:54
+msgid "Question: {search_text}"
+msgstr "Domanda: {search_text}"
+
+#: ./src/LLMService.py:54
+msgid "Source"
+msgstr "Fonte"
+
+#: ./src/LLMService.py:54
+msgid "Use Markdown for formatting code or text."
+msgstr "Usa Markdown per la formattazione del codice o del testo."
+
+#: ./src/LLMService.py:54 ./src/LLMService.py:59
+msgid "If the context is insufficient, reply 'I cannot answer'."
+msgstr "Se il contesto è insufficiente, rispondi 'non posso rispondere'."
+
+#: ./src/LLMService.py:54 ./src/LLMService.py:72
+msgid "{context_str}"
+msgstr ""
+
+#: ./src/LLMService.py:59
+msgid "Instructions: Write a comprehensive reply to the given query."
+msgstr "Istruzioni: Scrivi una risposta esauriente alla domanda data."
+
+#: ./src/LLMService.py:59
+msgid "Query:"
+msgstr "Domanda:"
+
+#: ./src/LLMService.py:59
+msgid "{search_text}"
+msgstr ""
+
+#: ./src/LLMService.py:66
+msgid "Source [{url_id}] {domain}"
+msgstr "Fonte [{url_id}] {domain}"
+
+#: ./src/LLMService.py:72
+msgid "If the context is insufficient, reply 'I cannot answer because my reference sources don't have related info'."
+msgstr "Se il contesto è insufficiente, rispondi 'Non posso rispondere perché le mie fonti di riferimento non hanno informazioni correlate'."
+
+#: ./src/LLMService.py:72
+msgid "If the provided search results refer to multiple subjects with the same name, write separate answers for each subject."
+msgstr "Se i risultati di ricerca forniti si riferiscono a più argomenti con lo stesso nome, scrivi risposte separate per ogni argomento."
+
+#: ./src/LLMService.py:72
+msgid "Instructions: Using the provided web search results, write a comprehensive reply to the given query."
+msgstr "Istruzioni: utilizzando i risultati della ricerca Web forniti, scrivi una risposta completa alla query specificata."
+
+#: ./src/LLMService.py:72
+msgid "Make sure to cite results using [number] notation after the reference."
+msgstr "Assicurati di citare i risultati utilizzando la notazione [numero] dopo il riferimento."
+
+#: ./src/LLMService.py:72
+msgid "Query: {search_text}"
+msgstr "Domanda: {search_text}"
+
+#: ./src/LLMService.py:72
+msgid "Web search result:"
+msgstr "Risultato ricerca web:"
+
+#: ./src/LLMService.py:104
+msgid "You are a helpful search engine."
+msgstr "Sei un utile motore di ricerca."
+
+#: ./src/main.py:18
+msgid "the source of dark energy"
+msgstr "la fonte dell'energia oscura"
+
