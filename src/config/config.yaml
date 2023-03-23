@@ -18,7 +18,7 @@ llm_service:
     # model: text-babbage-001
     # model: text-curie-001
     # model: text-davinci-003
-    model: gpt-5 # default
+    model: gpt-3.5-turbo # default
     max_tokens: 300
     temperature: 1
     top_p: 1
