@@ -49,7 +49,7 @@ class LLMService(ABC):
         prompt = \
             f"""
 Answer with 100 words for the question below based on the provided sources using a scientific tone. 
-If the context is insufficient, reply "I cannot answer" in language "it-IT".
+If the context is insufficient, reply "I cannot answer".
 Use Markdown for formatting code or text.
 Source:
 {context_str}
