@@ -115,7 +115,7 @@ class OpenAIService(LLMService):
         is_stream = openai_api_config.get('stream')
         logger.info(f"OpenAIService.call_api. model: {model}, len(prompt): {len(prompt)}")
 
-        if model == 'gpt-3.5-turbo' or model == 'gpt-4':
+        if model in ['gpt-3.5-turbo', 'gpt-4']:
             try:
                 response = openai.ChatCompletion.create(
                     model=model,
