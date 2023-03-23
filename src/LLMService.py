@@ -135,7 +135,8 @@ class OpenAIService(LLMService):
                 for chunk in response:
                     chunk_message = chunk['choices'][0]['delta'].get("content", None)  # extract the message
                     if chunk_message is not None:
-                        self.sender.send_message(msg_type=MSG_TYPE_OPEN_AI_STREAM, msg=chunk_message)
+                        if self.sender is not None:
+                            self.sender.send_message(msg_type=MSG_TYPE_OPEN_AI_STREAM, msg=chunk_message)
                         collected_messages.append(chunk_message)  # save the message
 
                 full_reply_content = ''.join(collected_messages)
