@@ -57,6 +57,8 @@ class SearchGPTService:
                         self.config['llm_service']['openai_api']['model'] = value
                     elif self.config['llm_service']['provider'] == 'goose_ai':
                         self.config['llm_service']['goose_ai_api']['model'] = value
+                    elif self.config['llm_service']['provider'] == 'minimax':
+                        self.config['llm_service']['minimax_api']['model'] = value
                     else:
                         raise Exception(f"llm_model is not supported for llm_service_provider: {self.config['llm_service']['provider']}")
                 elif key == 'language':
@@ -70,6 +72,9 @@ class SearchGPTService:
             assert self.config['source_service']['bing_search']['subscription_key'], 'bing_search_subscription_key is required'
         if self.config['llm_service']['provider'] == 'openai':
             assert self.config['llm_service']['openai_api']['api_key'], 'openai_api_key is required'
+        elif self.config['llm_service']['provider'] == 'minimax':
+            minimax_key = self.config['llm_service']['minimax_api'].get('api_key') or os.environ.get('MINIMAX_API_KEY')
+            assert minimax_key, 'minimax api_key is required (config.yaml or MINIMAX_API_KEY env var)'
 
     @storage_cached('web', 'search_text')
     def query_and_get_answer(self, search_text):

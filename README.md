@@ -21,7 +21,7 @@ Features
   * Web search with real-time results
   * File content search (PPT/DOC/PDF, etc.)
 * Sematic search from source ([FAISS](https://github.com/facebookresearch/faiss) / [pyterrier](https://github.com/terrier-org/pyterrier))
-* LLM integration: ([OpenAI](https://platform.openai.com/docs/api-reference?lang=python) / [GooseAI](https://goose.ai/), etc.)
+* LLM integration: ([OpenAI](https://platform.openai.com/docs/api-reference?lang=python) / [GooseAI](https://goose.ai/) / [MiniMax](https://platform.minimaxi.com/), etc.)
 * Frontend: Easy-to-use and intuitive user interface
 
 Demo page
@@ -62,9 +62,10 @@ Getting Started
 To run `searchGPT`, you'll need:
 
 * [Python 3.10.8](https://www.python.org/downloads/)
-* [OpenAI API Key](https://beta.openai.com/signup) or [GooseAI API Key](https://goose.ai/)
+* [OpenAI API Key](https://beta.openai.com/signup) or [GooseAI API Key](https://goose.ai/) or [MiniMax API Key](https://platform.minimaxi.com/)
     * OpenAI: First $18 is free (enough for 3000+ searches)
     * GooseAI: First $10 is free
+    * MiniMax: Free trial credits available, supports MiniMax-M2.7 (204K context)
 * [Azure Bing Search Subscription Key](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api/)
     * Free version is available (3 searches per second, 1000 searches per month
 
@@ -85,7 +86,8 @@ conda activate searchgpt
 pip install -r requirements.txt
 ```
 
-2. Input API keys (OpenAI/Azure Bing Search) in `backend/src/config/config.yaml` (or via UI if web app is used)
+2. Input API keys (OpenAI/GooseAI/MiniMax and Azure Bing Search) in `backend/src/config/config.yaml` (or via UI if web app is used)
+   - For MiniMax: set `llm_service.provider` to `minimax` and configure `minimax_api.api_key` (or set `MINIMAX_API_KEY` env var)
 3. Run `app.py`, (or `flask_app.py`) for frontend web app launching.
 4. For quick testing, run `main.py`. Stdout output only.
 

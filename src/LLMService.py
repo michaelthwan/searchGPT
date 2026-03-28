@@ -186,6 +186,61 @@ class GooseAIService(LLMService):
         return self.clean_response_text(response.choices[0].text)
 
 
+class MiniMaxService(LLMService):
+    """MiniMax LLM service using OpenAI-compatible API (https://api.minimax.io/v1)."""
+
+    def __init__(self, config, sender: Sender = None):
+        super().__init__(config)
+        self.sender = sender
+        minimax_config = config.get('llm_service').get('minimax_api')
+        api_key = minimax_config.get('api_key')
+        if api_key is None:
+            api_key = os.environ.get('MINIMAX_API_KEY')
+        if not api_key:
+            raise Exception("MiniMax API key is not set. Set it in config.yaml or MINIMAX_API_KEY env var.")
+        openai.api_key = api_key
+        openai.api_base = minimax_config.get('api_base', 'https://api.minimax.io/v1')
+
+    @storage_cached('minimax', 'prompt')
+    def call_api(self, prompt: str):
+        if self.sender is not None:
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg='Calling MiniMax API ...')
+
+        minimax_config = self.config.get('llm_service').get('minimax_api')
+        model = minimax_config.get('model', 'MiniMax-M2.7')
+        is_stream = minimax_config.get('stream', True)
+        # MiniMax requires temperature in (0.0, 1.0]
+        temperature = minimax_config.get('temperature', 0.7)
+        temperature = max(0.01, min(temperature, 1.0))
+        logger.info(f"MiniMaxService.call_api. model: {model}, len(prompt): {len(prompt)}")
+
+        try:
+            response = openai.ChatCompletion.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful search engine."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=minimax_config.get('max_tokens', 300),
+                temperature=temperature,
+                stream=is_stream
+            )
+        except Exception as ex:
+            raise ex
+
+        if is_stream:
+            collected_messages = []
+            for chunk in response:
+                chunk_message = chunk['choices'][0]['delta'].get("content", None)
+                if chunk_message is not None:
+                    if self.sender is not None:
+                        self.sender.send_message(msg_type=MSG_TYPE_OPEN_AI_STREAM, msg=chunk_message)
+                    collected_messages.append(chunk_message)
+            return ''.join(collected_messages)
+        else:
+            return response.choices[0].message.content
+
+
 class LLMServiceFactory:
     @staticmethod
     def create_llm_service(config, sender: Sender = None) -> LLMService:
@@ -194,6 +249,8 @@ class LLMServiceFactory:
             return OpenAIService(config, sender)
         elif provider == 'goose_ai':
             return GooseAIService(config, sender)
+        elif provider == 'minimax':
+            return MiniMaxService(config, sender)
         else:
             logger.error(f'LLM Service for {provider} is not yet implemented.')
             raise NotImplementedError(f'LLM Service - {provider} - not is supported')

@@ -33,6 +33,16 @@ llm_service:
     # https://goose.ai/docs/models
     model: gpt-neo-20b
     max_tokens: 100
+  minimax_api:
+    api_key:  # or set MINIMAX_API_KEY env var
+    api_base: https://api.minimax.io/v1
+    # https://platform.minimaxi.com/document/Models
+    # model: MiniMax-M2.7 (latest, 204K context)
+    # model: MiniMax-M2.7-highspeed (204K context, faster)
+    model: MiniMax-M2.7
+    max_tokens: 300
+    temperature: 0.7
+    stream: true
 cache:  # .cache result for efficiency and consistency
   is_enable:
     web: true
@@ -40,6 +50,7 @@ cache:  # .cache result for efficiency and consistency
     bing_search_website_content: false
     openai: false
     gooseai: false
+    minimax: false
   path: .cache
   max_number_of_cache: 50
 frontend_service:
