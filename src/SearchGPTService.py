@@ -68,6 +68,9 @@ class SearchGPTService:
     def validate_config(self):
         if self.config['source_service']['is_enable_bing_search']:
             assert self.config['source_service']['bing_search']['subscription_key'], 'bing_search_subscription_key is required'
+        if self.config['source_service'].get('is_enable_google_search', False):
+            import os
+            assert os.environ.get('SERPBASE_API_KEY'), 'SERPBASE_API_KEY env var is required when google_search is enabled'
         if self.config['llm_service']['provider'] == 'openai':
             assert self.config['llm_service']['openai_api']['api_key'], 'openai_api_key is required'
 
@@ -75,8 +78,11 @@ class SearchGPTService:
     def query_and_get_answer(self, search_text):
         source_module = SourceService(self.config, self.sender)
         bing_text_df = source_module.extract_bing_text_df(search_text)
+        google_text_df = source_module.extract_google_text_df(search_text)
         doc_text_df = source_module.extract_doc_text_df(bing_text_df)
-        text_df = pd.concat([bing_text_df, doc_text_df], ignore_index=True)
+
+        # Merge search results from all sources
+        text_df = pd.concat([df for df in [bing_text_df, google_text_df, doc_text_df] if df is not None and not df.empty], ignore_index=True)
 
         semantic_search_service = BatchOpenAISemanticSearchService(self.config, self.sender)
         gpt_input_text_df = semantic_search_service.search_related_source(text_df, search_text)

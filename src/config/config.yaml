@@ -3,11 +3,16 @@ general:
 source_service:
   is_use_source: true # grounded or not grounded. If not grounded, meaning just Q&A via LLM
   is_enable_bing_search: true
+  is_enable_google_search: false
   is_enable_doc_search: false
   doc_search_path:
   bing_search:
     end_point: https://api.bing.microsoft.com
     subscription_key:
+    result_count: 3
+    sentence_count_per_site: 20
+    text_extract: trafilatura # beautifulsoup / trafilatura
+  google_search:
     result_count: 3
     sentence_count_per_site: 20
     text_extract: trafilatura # beautifulsoup / trafilatura
@@ -38,6 +43,8 @@ cache:  # .cache result for efficiency and consistency
     web: true
     bing_search_website: false
     bing_search_website_content: false
+    google_search_website: false
+    google_search_website_content: false
     openai: false
     gooseai: false
   path: .cache
