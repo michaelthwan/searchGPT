@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 from BingService import BingService
+from GoogleService import GoogleService
 from Util import setup_logger
 from text_extract.doc import support_doc_type, doc_extract_svc_map
 from text_extract.doc.abc_doc_extract import AbstractDocExtractSvc
@@ -33,6 +34,25 @@ class SourceService:
         bing_text_df = bing_service.call_urls_and_extract_sentences_concurrent(website_df=website_df)
 
         return bing_text_df
+
+    def extract_google_text_df(self, search_text):
+        # GoogleSearch using SerpBase API
+        #   gracefully skips if SERPBASE_API_KEY env var is not set
+        google_text_df = None
+        if not self.config['source_service']['is_use_source'] or not self.config['source_service']['is_enable_google_search']:
+            return google_text_df
+
+        google_service = GoogleService(self.config)
+        if self.sender is not None:
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Calling Google search API (serpbase.dev)")
+        website_df = google_service.call_google_search_api(search_text=search_text)
+        if website_df.empty:
+            return google_text_df
+        if self.sender is not None:
+            self.sender.send_message(msg_type=MSG_TYPE_SEARCH_STEP, msg="Extracting sentences from Google search results ...")
+        google_text_df = google_service.call_urls_and_extract_sentences_concurrent(website_df=website_df)
+
+        return google_text_df
 
     def extract_doc_text_df(self, bing_text_df):
         # DocSearch using doc_search_path

@@ -1,0 +1,147 @@
+import os
+import re
+import concurrent.futures
+import pandas as pd
+import requests
+import yaml
+
+from Util import setup_logger, get_project_root, storage_cached
+from text_extract.html.beautiful_soup import BeautifulSoupSvc
+from text_extract.html.trafilatura import TrafilaturaSvc
+
+logger = setup_logger('GoogleService')
+
+
+class GoogleService:
+    def __init__(self, config):
+        self.config = config
+        self.api_key = os.environ.get("SERPBASE_API_KEY", "")
+        extract_svc = self.config.get('source_service').get('google_search').get('text_extract')
+        if extract_svc == 'trafilatura':
+            self.txt_extract_svc = TrafilaturaSvc()
+        elif extract_svc == 'beautifulsoup':
+            self.txt_extract_svc = BeautifulSoupSvc()
+
+    @storage_cached('google_search_website', 'search_text')
+    def call_google_search_api(self, search_text: str) -> pd.DataFrame:
+        logger.info("GoogleService.call_google_search_api. query: " + search_text)
+
+        if not self.api_key:
+            logger.warning("SERPBASE_API_KEY environment variable is not set. "
+                           "Skipping Google search. Get a free API key at https://serpbase.dev")
+            return pd.DataFrame(columns=['name', 'url', 'snippet', 'url_id'])
+
+        endpoint = "https://api.serpbase.dev/google/search"
+        result_count = self.config.get('source_service').get('google_search').get('result_count')
+        params = {'q': search_text, 'num': result_count, 'api_key': self.api_key}
+
+        try:
+            response = requests.get(endpoint, params=params, timeout=30.0)
+            response.raise_for_status()
+            data = response.json()
+
+            columns = ['name', 'url', 'snippet']
+            organic_results = data.get('organic_results', [])
+            if organic_results:
+                rows = []
+                for r in organic_results:
+                    rows.append({
+                        'name': r.get('title', ''),
+                        'url': r.get('link', ''),
+                        'snippet': r.get('snippet', '')
+                    })
+                website_df = pd.DataFrame(rows, columns=columns)
+                website_df['url_id'] = website_df.index + 1
+                website_df = website_df[:result_count]
+            else:
+                website_df = pd.DataFrame(columns=columns + ['url_id'])
+        except Exception as ex:
+            logger.error(f"GoogleService API call failed: {ex}")
+            website_df = pd.DataFrame(columns=columns + ['url_id'])
+
+        return website_df
+
+    def call_urls_and_extract_sentences(self, website_df) -> pd.DataFrame:
+        """
+        :param:
+            website_df: one row = one website with url
+                name: website title name
+                url: url
+                snippet: snippet of the website given by SerpBase API
+        :return:
+            text_df: one row = one website sentence
+            columns:
+                name: website title name
+                url: url
+                snippet: snippet of the website
+                text: sentences extracted from the website
+        """
+        logger.info(f"GoogleService.call_urls_and_extract_sentences. website_df.shape: {website_df.shape}")
+        name_list, url_list, url_id_list, snippet_list, text_list = [], [], [], [], []
+        for index, row in website_df.iterrows():
+            logger.info(f"Processing url: {row['url']}")
+            sentences = self.extract_sentences_from_url(row['url'])
+            for text in sentences:
+                word_count = len(re.findall(r'\w+', text))
+                if word_count < 8:
+                    continue
+                name_list.append(row['name'])
+                url_list.append(row['url'])
+                url_id_list.append(row['url_id'])
+                snippet_list.append(row['snippet'])
+                text_list.append(text)
+        text_df = pd.DataFrame(data=zip(name_list, url_list, url_id_list, snippet_list, text_list),
+                               columns=['name', 'url', 'url_id', 'snippet', 'text'])
+        return text_df
+
+    def call_one_url(self, website_tuple):
+        name, url, snippet, url_id = website_tuple
+        logger.info(f"Processing url: {url}")
+        sentences = self.extract_sentences_from_url(url)
+        logger.info(f"  receive sentences: {len(sentences)}")
+        return sentences, name, url, url_id, snippet
+
+    @storage_cached('google_search_website_content', 'website_df')
+    def call_urls_and_extract_sentences_concurrent(self, website_df):
+        logger.info(f"GoogleService.call_urls_and_extract_sentences_concurrent. website_df.shape: {website_df.shape}")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            results = list(executor.map(self.call_one_url, website_df.itertuples(index=False)))
+        name_list, url_list, url_id_list, snippet_list, text_list = [], [], [], [], []
+        for result in results:
+            sentences, name, url, url_id, snippet = result
+            sentences = sentences[:self.config['source_service']['google_search']['sentence_count_per_site']]
+            for text in sentences:
+                word_count = len(re.findall(r'\w+', text))
+                if word_count < 8:
+                    continue
+                name_list.append(name)
+                url_list.append(url)
+                url_id_list.append(url_id)
+                snippet_list.append(snippet)
+                text_list.append(text)
+        text_df = pd.DataFrame(data=zip(name_list, url_list, url_id_list, snippet_list, text_list),
+                               columns=['name', 'url', 'url_id', 'snippet', 'text'])
+        return text_df
+
+    def extract_sentences_from_url(self, url):
+        try:
+            response = requests.get(url, timeout=3)
+        except:
+            logger.error(f"Failed to fetch url: {url}")
+            return []
+        html_content = response.text
+        extract_text = self.txt_extract_svc.extract_from_html(html_content)
+        return extract_text
+
+
+if __name__ == '__main__':
+    # Load config
+    with open(os.path.join(get_project_root(), 'src/config/config.yaml'), encoding='utf-8') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+        service = GoogleService(config)
+        website_df = service.call_google_search_api('What is ChatGPT')
+        print("===========Website df:============")
+        print(website_df)
+        text_df = service.call_urls_and_extract_sentences_concurrent(website_df)
+        print("===========text df:============")
+        print(text_df)
